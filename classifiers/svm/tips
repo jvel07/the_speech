@@ -1,0 +1,24 @@
+HOW TO SPLIT TRAIN, DEV AND TEST PROPERLY
+https://cs230-stanford.github.io/train-dev-test-split.html
+
+HOW TO READ A RESEARCH PAPER
+https://www.youtube.com/watch?v=SHTOI0KtZnU
+
+TENSOR NEURAL AND LIBROSA
+https://www.youtube.com/watch?v=0y4LaZbdGvQ
+
+PYTHON LIBS FOR WINDOWS
+https://www.lfd.uci.edu/~gohlke/pythonlibs/#libsvm
+Install them as pip install (path to downloaded whl file)
+
+parameters = {'kernel':('linear', 'rbf'), 'C':[1,2,3,4,5,6,7,8,9,10], 'gamma':
+              [0.01,0.02,0.03,0.04,0.05,0.10,0.2,0.3,0.4,0.5]}
+svr = svm.SVC()
+grid = GridSearchCV(svr, parameters)
+grid.fit(X_train_scaled, y_train)
+predicted = grid.predict(X_dev)
+cnf_matrix = sk.metrics.confusion_matrix(y_dev, predicted)
+print(cnf_matrix)
+
+#with open("../data/labels.num.train.txt", 'r') as tr_labels_file:
+ #   y_train = np.loadtxt(tr_labels_file)
