@@ -3,8 +3,8 @@ from common import util
 import numpy as np
 
 # Loading Files
-file_mfccs = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_dem_40_2deltas' #'../data/mfccs/mfccs_dem_no_deltas_13_vad'
-file_mfccs_bea = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_ubm_dem_40_2deltas'
+file_mfccs = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_dem_aug_40' #'../data/mfccs/mfccs_dem_no_deltas_13_vad'
+file_mfccs_bea = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_bea_dem_aug_40'
 list_mfccs = util.read_pickle(file_mfccs)
 array_mfccs_bea = util.read_pickle(file_mfccs_bea)
 
@@ -23,7 +23,7 @@ for g in num_clusters:
         list_fisher.append(enc)
     fishers = np.vstack(list_fisher)
     # Saving fishers
-    obs = 'fbanks-40_imp_2deltas--'  # 'novad'
+    obs = 'fb-40_aug--'  # 'novad'
     file_fishers = 'C:/Users/Win10/PycharmProjects/the_speech/data/fisher_vecs/fisher-{}-{}'.format(g, obs)
     np.savetxt(file_fishers, fishers)
     print("Fishers saved to:", file_fishers)

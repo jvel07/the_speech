@@ -5,6 +5,7 @@ import re
 import csv
 from itertools import zip_longest
 import pickle
+import pyperclip
 
 
 # Read pickle
@@ -119,6 +120,15 @@ def select_type_recording(id_type):
     pattern = re.compile(regex)
 
 
+def adding_labels_to_300(file, out):
+    new_out = []
+    with open(file, "r") as f:
+        reader = csv.reader(f, delimiter=",")
+        for i, line in enumerate(reader):
+            pyperclip.copy(line)
+
+
+
 #   For adding the labels from each speaker to each speaker's wav (3 wavs per speaker)
 def putting_labels(labels_file, wavs_list_file):
     labels = []
@@ -143,6 +153,15 @@ def group_wavs_speakers(iterable, n):  # iterate every n element within a list
         lista.append(list((x, y, z)))
 
     return lista
+
+def group_wavs_speakers_12(iterable):  # iterate every n element within a list
+    #   "s -> (s0,s1,s2,...sn-1), (sn,sn+1,sn+2,...s2n-1), (s2n,s2n+1,s2n+2,...s3n-1), ..."
+    lista = []
+    for x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12 in zip_longest(*[iter(iterable)] * 12):
+        lista.append(list((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12)))
+
+    return lista
+
 
 # Concatenate speakers wavs (3) in one single array
 # Returns list of concatenated arrays

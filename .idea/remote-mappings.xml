@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteMappingsManager">
+    <list>
+      <list>
+        <remote-mappings server-id="python@docker://jvel/bob_kaldi:bob31//home/anaconda3/envs/bob_py3/bin/python">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$/common/data_proc_tools.py', wdir='C:/Users/Win10/PycharmProjects/the_speech/common') Traceback (most recent call last):   File &quot;&lt;input&gt;&quot;, line 1, in &lt;module&gt;   File &quot;/opt/.pycharm_helpers/pydev/_pydev_bundle/pydev_umd.py&quot;, line 193, in runfile     os.chdir(wdir) FileNotFoundError: [Errno 2] No such file or directory: 'C:/Users/Win10/PycharmProjects/the_speech" remote-root="/opt/project" />
+            </list>
+          </settings>
+        </remote-mappings>
+      </list>
+    </list>
+  </component>
+</project>

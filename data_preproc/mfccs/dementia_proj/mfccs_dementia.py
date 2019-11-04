@@ -3,7 +3,7 @@ import numpy as np
 import bob.io.audio
 import bob.io.base.test_utils
 import gc
-from common2 import util
+from common import util
 import pickle
 import math
 

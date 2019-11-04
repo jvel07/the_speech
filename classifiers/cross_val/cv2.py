@@ -1,6 +1,7 @@
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, Normalizer, PowerTransformer
+from sklearn.svm import SVC
 
 from common import util, data_proc_tools as tools
 from itertools import zip_longest
@@ -39,7 +40,7 @@ def encode_labels_alz(_y):
 # Returns list of lists, 3 arrays within each list.
 def group_speakers_wavs(_x, n):
     print("Speakers' wavs grouped into {} from {}".format(n, _x[0].shape))
-    return util.group_wavs_speakers(_x, n)
+    return util.group_wavs_speakers_12(_x)
 
 
 # Concatenate speakers wavs (3) in one single array
@@ -53,12 +54,23 @@ def join_speakers_wavs(list_group_wavs):
     print("Speakers' wavs concatenated!")
     return np.vstack(x)
 
+def join_speakers_wavs_2(list_group_wavs):
+    x = []
+    for element in list_group_wavs:
+        for x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12 in zip_longest(*[iter(element)] * 12):  # iterate over the sublist of the list
+            array = np.concatenate((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12))  # concatenating arrays (every 3)
+            x.append(array)
+    print("Speakers' wavs concatenated!")
+    return np.vstack(x)
+
 
 # Enter the estimator (svm, rbf)
 def grid_search(_x_train, _y_train):
-    parameters = {'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]}
-    svc_g = svm.LinearSVC(C=0.1,  max_iter=965000) #class_weight='balanced',
-    gd_sr = GridSearchCV(estimator=svc_g,
+    parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4], 'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]},
+                  {'kernel': ['linear'], 'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]}
+                  ]
+
+    gd_sr = GridSearchCV(estimator=SVC(),
                          param_grid=parameters,
                          scoring='accuracy',
                          cv=5,
@@ -66,8 +78,27 @@ def grid_search(_x_train, _y_train):
     gd_sr.fit(_x_train, np.ravel(_y_train))
     best_c = gd_sr.best_params_
     print(gd_sr.best_params_)
+    print(gd_sr.best_estimator_)
     print("Best complexity value:", best_c['C'])
     return best_c['C']
+
+
+def train_model_grid_search_cv(_x_train, _y_train, n_splits):
+    predicciones = []
+    ground_truths = []
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=False)
+    for train, test in skf.split(_x_train, _y_train):
+        best_c = grid_search(_x_train[train], np.ravel(_y_train[train]))
+        svc = svm.LinearSVC(C=best_c, verbose=0, max_iter=965000)  # class_weight='balanced',
+        svc.fit(_x_train[train], np.ravel(_y_train[train]))
+        y_pred = svc.predict(_x_train[test])
+        predicciones.append(y_pred)
+        ground_truths.append(_y_train[test])
+
+    predicciones = np.ravel(np.vstack(predicciones))
+    ground_truths = np.ravel(np.vstack(ground_truths))
+
+    return predicciones, ground_truths
 
 
 # train SVM model with stratified cross-validation
@@ -195,7 +226,7 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 1
-    list_num_gauss = [2, 4, 8, 16, 32, 64, 128]
+    list_num_gauss = [2,4,8,16,32,64,128]
     #obs = 'fbanks_40'
     feat_type = 'fbanks'
     n_filters = '40_imp'
@@ -211,20 +242,17 @@ if __name__ == '__main__':
         Y = np.load('labels_75.npy')
         x_train_data, y = load_data(file_x, file_y, load_mode='txt')
         y_train = encode_labels_alz(y)
-        x_train_grouped = group_speakers_wavs(x_train_data, 3)
-        x_train = join_speakers_wavs(x_train_grouped)
+        x_train_grouped = group_speakers_wavs(x_train_data, 12)
+        x_train = join_speakers_wavs_2(x_train_grouped)
         if pca_ == 1:
             scl = PowerTransformer()
             scl.fit(x_train)
             x_train = scl.transform(x_train)
-            #x_train = PowerTransformer().fit_transform(x_train)
-            #x_train = perform_PCA(x_train, n_components=pca_comp, svd_solver='auto', whiten=False)
-            #x_train = perform_LDA(x_train, y, n_components=1)
             x_train = tools.normalize_data(x_train)
             c = grid_search(x_train, y_train)
             pred, ground = train_model_cv(x_train, y, 5, c)
             acc = metrics(ground, pred)
-            print_conf_matrix(ground, pred)
+           # print_conf_matrix(ground, pred)
             results_to_csv('C:/Users/Win10/PycharmProjects/the_speech/data/results_dem.csv',
                            str(num_gauss), feat_type, n_filters, deltas, str(vad), str(pca_comp), str(acc))
         else:

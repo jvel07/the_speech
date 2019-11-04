@@ -87,52 +87,5 @@ def sel_pca_comp(var_ratio, goal_var: float) -> int:
     return n_components
 
 
-# Audio data augmentation
-def load_audio_file(file_path):
-    input_length = 16000
-    data = librosa.core.load(file_path)[0] #, sr=16000
-    if len(data)>input_length:
-        data = data[:input_length]
-    else:
-        data = np.pad(data, (0, max(0, input_length - len(data))), "constant")
-    return data
 
-
-def load_audio_bob(file):
-    #data = bob.io.audio.reader(file)
-    return 0 #data.load()[0]
-
-
-def save_wav(file_name, rate, data): # /home/egasj/PycharmProjects/iVectorsBob/audio/wav-demencia-all/001A_szurke.wav'
-    scipy.io.wavfile.write(file_name, rate, data)
-
-
-def add_noise(data, noise_factor):
-    noise = np.random.randn(len(data))
-    augmented_data = data + noise_factor * noise
-    # Cast back to same data type
-    augmented_data = augmented_data.astype(type(data[0]))
-    return augmented_data
-
-
-# File must have a list of wav names (specific to the case of dementia)
-def add_noise_to_anon75(noise_factor):
-    # Reading list of anon 75-225 wav files
-    lines = open("/home/egasj/PycharmProjects/iVectorsBob/data/wavlista-anon-75-225.txt").read().splitlines()
-    wavlista_anon_75_225 = []
-    for it in lines:
-        wav_file = '{}.wav'.format(it)
-        wavlista_anon_75_225.append(wav_file)
-
-    # Adding noise to each of the 75 files
-#    lista_noised = []
-    dir = '/home/egasj/PycharmProjects/iVectorsBob/audio/wav-demencia-all/'
-    #for item2 in wavlista_anon_75_225:
-     #   data2 = bob.io.audio.reader(dir + item2)
-      #  aug = add_noise(data2.load()[0], noise_factor=noise_factor)
-       # scipy.io.wavfile.write(dir + 'noised_' + item2, int(data2.rate), aug)
-
-
-def change_pitch(data, sampling_rate, pitch_factor):
-    return librosa.effects.pitch_shift(data, sampling_rate, pitch_factor)
 

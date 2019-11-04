@@ -49,7 +49,7 @@ def run_pca(array_bea_scaled, list_fb_scaled, n_comp):
     pca = PCA(n_components=n_comp)
     pca.fit(array_bea_scaled)
     # Reducing
-    reduced_bea = pca.transform(array_bea_scaled)
+    reduced_bea = pca.transform(bea_scaled)
     reduced_list_fbanks = []
     for item in list_fb_scaled:
         reduced = pca.transform(item)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     # Output files
     file_pca_fbanks = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_dem_40_PCA'
-    file_pca_bea = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_ubm_dem_40_PCA'
+    file_pca_bea = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_ubm_dem_40_PCA_SP'
 
     # Scaling and selecting best number of components
     bea_scaled, list_dem_scaled = scale_min_max(fbanks_bea, list_fbanks)
@@ -136,5 +136,5 @@ if __name__ == '__main__':
     print('deltas concatenated!')
 
     # Saving data
-    util.save_pickle(file_pca_fbanks, fbanks_reduced)
+   # util.save_pickle(file_pca_fbanks, fbanks_reduced)
     util.save_pickle(file_pca_bea, bea_reduced)
