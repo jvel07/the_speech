@@ -1,52 +1,37 @@
 import numpy as np
 import pickle
 import bob.kaldi
-from bob.kaldi import io
 
-#from bob.learn.linear import FisherLDATrainer
-
-
-# Opening MFCCs from file
-def read_mfcc(file_name):
-    with open(file_name, 'rb') as f:
-        mfccs = pickle.load(f)
-        print("MFCCs loaded from:", file_name)
-    return mfccs
+from common import util
 
 
-# Train UBM
-def train_models():
+def train_models(mfccs_ubm, list_mfccs_ivecs, diag, full, ivec_mdl, num_gauss):
+    num_iters = 200
+    ivector_dim = 100
+    min_post = 0.025
+    post_scale = 1
     # Train diagonal GMM
-    print("Training " + str(num_gauss) + " diagonal-GMM with", mfccs_file_ubm)
-    dubm = bob.kaldi.ubm_train(mfccs_wav_ubm, file_diag_ubm_model,
+    print("Training " + str(num_gauss) + " diagonal-GMM")
+    dubm = bob.kaldi.ubm_train(mfccs_ubm, diag,
                                num_gauss=num_gauss, num_iters=num_iters,
                                num_gselect=np.log2(num_gauss))
 
     # Train full GMM
     print("Training full GMM...")
-    fubm = bob.kaldi.ubm_full_train(mfccs_wav_ubm, dubm, file_full_ubm_model,
+    fubm = bob.kaldi.ubm_full_train(mfccs_ubm, dubm, full,
                                     num_iters=num_iters, num_gselect=np.log2(num_gauss))
 
     # Train ivector extractor
     print("Training i-vec extractor with " + str(ivector_dim) + " dimensions...")
     feats = [[]]
     feats = list_mfccs_ivecs
-    ivector = bob.kaldi.ivector_train(feats, fubm, file_ivec_extractor_model,
+    ivector = bob.kaldi.ivector_train(feats, fubm, ivec_mdl,
                                       ivector_dim=ivector_dim,
                                       num_iters=num_iters, min_post=min_post,
                                       posterior_scale=post_scale)
 
     return dubm, fubm, ivector
 
-
-def train_ivec_extractor(list_mfccs_ivecs):
-    print("Training i-vec extractor with " + str(ivector_dim) + " dimensions...")
-    ivector = bob.kaldi.ivector_train(list_mfccs_ivecs, fubm, file_ivec_extractor_model,
-                                      ivector_dim=ivector_dim,
-                                      num_iters=num_iters, min_post=min_post,
-                                      posterior_scale=post_scale)
-
-    return ivector
 
 # Save models
 def save_models(file_diag_ubm_model, diag_mdl,
@@ -80,64 +65,59 @@ def load_models(diag_ubm, full_ubm, ivec_extr):
     return mdl_diag, mdl_full, mdl_ivec
 
 
-if __name__ == '__main__':
+def main():
+    work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
 
-    set_ = 'train'
-    set_models = 'train'
-    obs = 'vad'
-    obs_ivec = 'vad'
+    set_ = ''
+    set_models = ''
+    obs = 'aug'
+    obs_ivec = 'aug'
 
-    num_gauss = 2
+    num_gauss = [2, 4, 8, 16, 32, 64, 128]
     num_iters = 200
     ivector_dim = 200
     min_post = 0.025
     post_scale = 1
     num_gselect = np.log2(num_gauss)
 
-    #ivector_3D_file = '../data/ivectors3d-train'
-    ivector_2D_file = '../data/ivecs/alzheimer/ivecs-' + str(num_gauss) + 'g-100i-{}-{}'.format(set_, obs_ivec)
 
-    mfccs_file_ivec = '../data/mfccs/mfccs_dem_20_vad'#.format(set_)
-    mfccs_file_ubm = '../data/mfccs/mfccs_ubm_bea_20_vad'
+    # Input Files
+    # MFCCs
+    file_mfccs_ivec = work_dir + '/data/mfccs/mfccs_dem_13_aug'
+    file_mfccs_ubm = work_dir + '/data/mfccs/mfccs_ubm_dem_13_aug'
+    # Load MFCCs for UBM
+    mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
+    # Load MFCCs for i-vectors extraction
+    list_mfccs_ivecs = util.read_pickle(file_mfccs_ivec)
 
-    file_diag_ubm_model = '../data/models/dem/dubm_mdl_{}g_dem_{}_{}'.format(num_gauss, set_models, obs)
-    file_full_ubm_model = '../data/models/dem/fubm_mdl_{}g_dem_{}_{}'.format(num_gauss, set_models, obs)
-    file_ivec_extractor_model = '../data/models/dem/ivec_mdl_{}g_dem_{}_{}'.format(num_gauss, set_models, obs)
-
-    # Train models...
-    if set_ == 'train':
-        # Load MFCCs for UBM
-        mfccs_wav_ubm = np.vstack(read_mfcc(mfccs_file_ubm))
-
-        # Load MFCCs for i-vectors extraction
-        list_mfccs_ivecs = read_mfcc(mfccs_file_ivec)
-
+    for g in num_gauss:
+        # Output Files
+        # i-vecs
+        # ivector_3D_file = '../data/ivectors3d-train'
+        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(num_gauss) + 'g-100i-{}'.format(obs_ivec)
+        # models for i-vecs
+        file_diag_ubm_model = work_dir + '/data/models/dem/dubm_mdl_{}g_dem_{}'.format(num_gauss, obs)
+        file_full_ubm_model = work_dir + '/data/models/dem/fubm_mdl_{}g_dem_{}'.format(num_gauss, obs)
+        file_ivec_extractor_model = work_dir + '/data/models/dem/ivec_mdl_{}g_dem_{}'.format(num_gauss, obs)
         # Train models
-        dubm, fubm, ivector = train_models()
+        model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
+                                                             file_full_ubm_model, file_ivec_extractor_model, g)
 
-        # Save models
-        save_models(file_diag_ubm_model, dubm,
-                    file_full_ubm_model, fubm,
-                    file_ivec_extractor_model, ivector)
-    # ...or load models
-    else:
-        # Load MFCCs for i-vectors extraction
-        list_mfccs_ivecs = read_mfcc(mfccs_file_ivec)
 
-        # Load models
-        dubm, fubm, ivector = load_models(file_diag_ubm_model, file_full_ubm_model,
-                                          file_ivec_extractor_model)
+        # Extract ivectors
+        print("Extracting i-vecs...")
+        ivectors_list = []
+        for i2 in list_mfccs_ivecs:
+            ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=np.log2(num_gauss))
+            ivectors_list.append(ivector_array)
+        a_ivectors = np.vstack(ivectors_list)
+        #a_ivectors_3d = np.expand_dims(a_ivectors, axis=1)
+        print("i-vectors shape:", a_ivectors.shape)
 
-    # Extract ivectors
-    print("Extracting i-vecs...")
-    ivectors_list = []
-    for i2 in list_mfccs_ivecs:
-        ivector_array = bob.kaldi.ivector_extract(i2, fubm, ivector, num_gselect=5)
-        ivectors_list.append(ivector_array)
-    a_ivectors = np.vstack(ivectors_list)
-    #a_ivectors_3d = np.expand_dims(a_ivectors, axis=1)
-    print("i-vectors shape:", a_ivectors.shape)
+        # Save i-vectors to a txt file
+        np.savetxt(ivector_2D_file, a_ivectors)
+        print("i-vectors saved to:", ivector_2D_file)
 
-    # Save i-vectors to a txt file
-    np.savetxt(ivector_2D_file, a_ivectors)
-    print("i-vectors saved to:", ivector_2D_file)
+
+if __name__ == '__main__':
+    main()

@@ -30,8 +30,7 @@ def concatenate_fbanks(fbanks):
     return list_fbanks
 
 
-if __name__ == '__main__':
-
+def main():
     work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
     y = np.load(work_dir+'/classifiers/cross_val/labels_75.npy')
 
@@ -64,3 +63,7 @@ if __name__ == '__main__':
     # Saving fbanks
     util.save_pickle(file_fbanks_bea, arr_fbanks_bea)
     util.save_pickle(file_fbanks, list_fbanks_dem)
+
+
+if __name__ == '__main__':
+    main()
