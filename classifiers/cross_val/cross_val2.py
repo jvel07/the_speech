@@ -226,7 +226,7 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 1
-    list_num_gauss = [2,4,8,16,32,64,128]
+    list_num_gauss = [2, 4, 8, 16, 32, 64, 128]
     #obs = 'fbanks_40'
     feat_type = 'fbanks'
     n_filters = '40_imp'

@@ -58,7 +58,7 @@ def change_pitch_anon75():
     for item2 in list_audios:
         #data2 = bob.io.audio.reader(dir_ + item2)
         data2 = load_audio_file(dir_ + item2)
-        aug = librosa.effects.pitch_shift(data2, 16000, random.randint(-4, 4))
+        aug = librosa.effects.pitch_shift(data2, 16000, random.uniform(-3, 3))
         scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_pitched.wav', 16000, aug)
 
 
@@ -67,7 +67,7 @@ def change_speed_anon75():
     dir_ = 'C:/Users/Win10/Documents/audio/audio/wav_anon_75_225/'
     for item2 in list_audios:
         data2 = load_audio_file(dir_ + item2)
-        aug = librosa.effects.time_stretch(data2, random.randint(1, 3))
+        aug = librosa.effects.time_stretch(data2, random.uniform(0, 2))
         scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_stretched.wav', 16000, aug)
 
 

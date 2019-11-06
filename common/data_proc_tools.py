@@ -1,7 +1,7 @@
 import librosa
 import numpy as np
-#import bob.io.audio
-#import bob.io.base.test_utils
+import bob.io.audio
+import bob.io.base.test_utils
 import scipy
 from sklearn import preprocessing
 from sklearn.decomposition import PCA

@@ -5,7 +5,6 @@ import re
 import csv
 from itertools import zip_longest
 import pickle
-import pyperclip
 
 
 # Read pickle
@@ -114,19 +113,12 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
 """
 
 """FOR THE DEMENTIA DATASET PREPROCESSING --- START"""
-##Select between szurke or feher
+
+
+# Select between szurke or feher
 def select_type_recording(id_type):
     regex = r"(?<=[_])(.+)$"  ##matches everything after "_" e.g. szurke.wav in 001A_szurke.wav
     pattern = re.compile(regex)
-
-
-def adding_labels_to_300(file, out):
-    new_out = []
-    with open(file, "r") as f:
-        reader = csv.reader(f, delimiter=",")
-        for i, line in enumerate(reader):
-            pyperclip.copy(line)
-
 
 
 #   For adding the labels from each speaker to each speaker's wav (3 wavs per speaker)
