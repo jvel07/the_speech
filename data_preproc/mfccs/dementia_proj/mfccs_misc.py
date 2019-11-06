@@ -40,16 +40,10 @@ def compute_mfccs_psf(path, audio_list):
         list_mfccs.append(mfcc)
     return list_mfccs
 
-# Saving MFCCs to file
-def save_mfccs(file, lista):
-    with open(file, 'wb') as fp:
-        pickle.dump(lista, fp)
-    print("MFCCs saved to:", file)
-
 
 def main():
     work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
-    audio_dir = 'C:/Users/Win10/Documents/audio/audio'
+    audio_dir = 'C:/Users/Win10/PycharmProjects/the_speech/audio'
 
     # Input files
     dir_wav_ubm = audio_dir + '/wav-bea-diktafon/'
