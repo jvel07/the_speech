@@ -66,7 +66,7 @@ def load_models(diag_ubm, full_ubm, ivec_extr):
 
 
 def main():
-    work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
+    work_dir = '/home/jose/PycharmProjects/the_speech'
 
     set_ = ''
     set_models = ''
@@ -88,17 +88,17 @@ def main():
     # Load MFCCs for UBM
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
-    list_mfccs_ivecs = util.read_pickle(file_mfccs_ivec)
+
 
     for g in num_gauss:
         # Output Files
         # i-vecs
         # ivector_3D_file = '../data/ivectors3d-train'
-        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(num_gauss) + 'g-100i-{}'.format(obs_ivec)
+        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(g) + 'g-100i-{}'.format(obs_ivec)
         # models for i-vecs
-        file_diag_ubm_model = work_dir + '/data/models/dem/dubm_mdl_{}g_dem_{}'.format(num_gauss, obs)
-        file_full_ubm_model = work_dir + '/data/models/dem/fubm_mdl_{}g_dem_{}'.format(num_gauss, obs)
-        file_ivec_extractor_model = work_dir + '/data/models/dem/ivec_mdl_{}g_dem_{}'.format(num_gauss, obs)
+        file_diag_ubm_model = work_dir + '/data/models/dem/dubm_mdl_{}g_dem_{}'.format(g, obs)
+        file_full_ubm_model = work_dir + '/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
+        file_ivec_extractor_model = work_dir + '/data/models/dem/ivec_mdl_{}g_dem_{}'.format(g, obs)
         # Train models
         model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
                                                              file_full_ubm_model, file_ivec_extractor_model, g)
@@ -108,7 +108,7 @@ def main():
         print("Extracting i-vecs...")
         ivectors_list = []
         for i2 in list_mfccs_ivecs:
-            ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=np.log2(num_gauss))
+            ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=4)
             ivectors_list.append(ivector_array)
         a_ivectors = np.vstack(ivectors_list)
         #a_ivectors_3d = np.expand_dims(a_ivectors, axis=1)

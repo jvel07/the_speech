@@ -1,17 +1,19 @@
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler, Normalizer, PowerTransformer
-from sklearn.svm import SVC
-
-from common import util, data_proc_tools as tools
+import csv
+import os
 from itertools import zip_longest
+
+import matplotlib.pyplot as plt
+import numpy as np
+import sklearn as sk
 from sklearn import preprocessing
 from sklearn import svm
 from sklearn.decomposition import PCA
-import sklearn as sk
-import os, csv
-import matplotlib.pyplot as plt
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.preprocessing import PowerTransformer
+from sklearn.svm import SVC
+
+from common import util, data_proc_tools as tools
 
 
 # Loading data (if k=0, loads from txt; loads from pickle otherwise)
