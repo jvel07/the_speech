@@ -73,7 +73,7 @@ def main():
     obs = 'aug'
     obs_ivec = 'aug'
 
-    num_gauss = [2, 4, 8, 16, 32, 64, 128]
+    num_gauss = [64, 128]
     num_iters = 200
     ivector_dim = 200
     min_post = 0.025
@@ -83,22 +83,22 @@ def main():
 
     # Input Files
     # MFCCs
-    file_mfccs_ivec = work_dir + '/data/mfccs/mfccs_dem_13_aug'
-    file_mfccs_ubm = work_dir + '/data/mfccs/mfccs_ubm_dem_13_aug'
+    file_mfccs_ivec = work_dir+'/data/mfccs/dem/mfccs_dem_13_aug'
+    file_mfccs_ubm = work_dir+'/data/mfccs/dem/mfccs_ubm_dem_13_aug'
     # Load MFCCs for UBM
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
-
+    list_mfccs_ivecs = util.read_pickle(file_mfccs_ivec)
 
     for g in num_gauss:
         # Output Files
         # i-vecs
         # ivector_3D_file = '../data/ivectors3d-train'
-        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(g) + 'g-100i-{}'.format(obs_ivec)
+        ivector_2D_file = work_dir+'/data/ivecs/alzheimer/ivecs-' + str(g) + 'g-100i-{}'.format(obs_ivec)
         # models for i-vecs
-        file_diag_ubm_model = work_dir + '/data/models/dem/dubm_mdl_{}g_dem_{}'.format(g, obs)
-        file_full_ubm_model = work_dir + '/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
-        file_ivec_extractor_model = work_dir + '/data/models/dem/ivec_mdl_{}g_dem_{}'.format(g, obs)
+        file_diag_ubm_model = work_dir+'/data/models/dem/dubm_mdl_{}g_dem_{}'.format(g, obs)
+        file_full_ubm_model = work_dir+'/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
+        file_ivec_extractor_model = work_dir+'/data/models/dem/ivec_mdl_{}g_dem_{}'.format(g, obs)
         # Train models
         model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
                                                              file_full_ubm_model, file_ivec_extractor_model, g)
