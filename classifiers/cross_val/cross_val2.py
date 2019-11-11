@@ -24,7 +24,7 @@ def load_data(_x, _y, load_mode):
     elif load_mode == 'pickle':
         x = util.read_pickle(_x)
 
-    y = np.load(_y)
+    y = np.loadtxt(_y, dtype='str')
     return x, y
 
 
@@ -116,6 +116,29 @@ def train_model_cv(_x_train, _y_train, n_splits, _c):
         predicciones.append(y_pred)
         ground_truths.append(_y_train[test])
         # pp['final-average'] = predicciones+ground_truths
+
+    predicciones = np.ravel(np.vstack(predicciones))
+    ground_truths = np.ravel(np.vstack(ground_truths))
+
+    return predicciones, ground_truths
+
+
+# train SVM model with stratified group cross-validation
+def train_model_stratk_group(_x_train, _y_train, n_groups, n_splits, _c):
+    predicciones = []
+    ground_truths = []
+
+    for fold_index, (train_index, test_index) in enumerate(tools.stratified_group_k_fold(_x_train, _y_train,
+                                                                                         groups=n_groups, k=n_splits)):
+        svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
+        train_x, test_y = _y_train[train_index], _y_train[test_index]  # stratifying folds
+        train_groups, test_groups = n_groups[train_index], n_groups[test_index]  # grouping
+
+
+        svc.fit(_x_train[train], np.ravel(_y_train[train]))
+        y_pred = svc.predict(_x_train[test])
+        predicciones.append(y_pred)
+        ground_truths.append(_y_train[test])
 
     predicciones = np.ravel(np.vstack(predicciones))
     ground_truths = np.ravel(np.vstack(ground_truths))
@@ -230,18 +253,18 @@ if __name__ == '__main__':
     pca_ = 1
     list_num_gauss = [2, 4, 8, 16, 32, 64, 128]
     #obs = 'fbanks_40'
-    feat_type = 'fbanks'
-    n_filters = '40_imp'
+    feat_type = ''
+    n_filters = '100i'
     deltas = ''
-    vad = ''
+    vad = 'aug'
     pca_comp = 20
 
     for num_gauss in list_num_gauss:
-        file_x = 'C:/Users/Win10/PycharmProjects/the_speech/data/fisher_vecs/fisher-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,
+        file_x = 'C:/Users/Win10/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,
                                                                                                n_filters, deltas, vad)
-        file_y = 'labels_75.npy'
+        file_y = 'labels_300.txt'
 
-        Y = np.load('labels_75.npy')
+       # Y = np.load('labels_75.npy')
         x_train_data, y = load_data(file_x, file_y, load_mode='txt')
         y_train = encode_labels_alz(y)
         x_train_grouped = group_speakers_wavs(x_train_data, 12)
