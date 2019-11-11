@@ -73,7 +73,7 @@ def main():
     obs = 'aug'
     obs_ivec = 'aug'
 
-    num_gauss = [64, 128]
+    num_gauss = [128]
     num_iters = 200
     ivector_dim = 200
     min_post = 0.025
