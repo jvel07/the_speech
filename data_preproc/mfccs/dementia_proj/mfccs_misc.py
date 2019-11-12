@@ -43,7 +43,7 @@ def compute_mfccs_psf(path, audio_list):
 
 def main():
     work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
-    audio_dir = 'C:/Users/Win10/PycharmProjects/the_speech/audio'
+    audio_dir = 'D:/VHD/audio'
 
     # Input files
     dir_wav_ubm = audio_dir + '/wav-bea-diktafon/'

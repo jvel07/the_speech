@@ -146,25 +146,36 @@ def group_wavs_speakers(iterable, n):  # iterate every n element within a list
 
     return lista
 
-def group_wavs_speakers_12(iterable):  # iterate every n element within a list
-    #   "s -> (s0,s1,s2,...sn-1), (sn,sn+1,sn+2,...s2n-1), (s2n,s2n+1,s2n+2,...s3n-1), ..."
-    lista = []
-    for x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12 in zip_longest(*[iter(iterable)] * 12):
-        lista.append(list((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12)))
 
-    return lista
+# group speakers per type of audio (normal, noisy, stretched, pitched)
+def group_per_audio_type(file):
+    """group speakers per type of audio (normal, noisy, stretched, pitched)"""
+    features = read_pickle(file)
+    length = len(features)
+    number_of_rows = 4
+    number_of_group = 12
+    return [list(features[i:i+number_of_group][j::number_of_rows]) for i in range(0, length, number_of_group) for j in range(number_of_rows)]
+
+
+def group_per_audio_type_2(file):
+    features = read_pickle(file)
+    length = 3
+    step = 4
+    size = step * length
+    return np.array(features).reshape(len(features) // size, length, step).transpose(0, 2, 1).reshape(len(features) // length, length)
 
 
 # Concatenate speakers wavs (3) in one single array
 # Returns list of concatenated arrays
-def join_speakers_wavs(list_group_wavs):
+def join_speakers_wavs(list_group_features):
     x = []
-    for element in list_group_wavs:
+    for element in list_group_features:
         for a, b, c in zip_longest(*[iter(element)] * 3):  # iterate over the sublist of the list
             array = np.concatenate((a, b, c))  # concatenating arrays (every 3)
             x.append(array)
     print("Speakers' wavs concatenated!")
     return np.vstack(x)
+
 
 # Traverse directories and pull specific type of file (".WAV", etc...)
 def traverse_dir(dir, file_type):

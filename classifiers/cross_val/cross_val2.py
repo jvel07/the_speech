@@ -12,6 +12,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.preprocessing import PowerTransformer
 from sklearn.svm import SVC
+import pandas as pd
 
 from common import util, data_proc_tools as tools
 
@@ -24,7 +25,11 @@ def load_data(_x, _y, load_mode):
     elif load_mode == 'pickle':
         x = util.read_pickle(_x)
 
-    y = np.loadtxt(_y, dtype='str')
+    y = pd.read_csv(_y, header=None)
+    y.columns = ['patient_id', 'diagnosis']
+    y.diagnosis = pd.Categorical(y.diagnosis)
+    y['diag_codes'] = y.diagnosis.cat.codes
+
     return x, y
 
 
@@ -56,17 +61,7 @@ def join_speakers_wavs(list_group_wavs):
     print("Speakers' wavs concatenated!")
     return np.vstack(x)
 
-def join_speakers_wavs_2(list_group_wavs):
-    x = []
-    for element in list_group_wavs:
-        for x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12 in zip_longest(*[iter(element)] * 12):  # iterate over the sublist of the list
-            array = np.concatenate((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12))  # concatenating arrays (every 3)
-            x.append(array)
-    print("Speakers' wavs concatenated!")
-    return np.vstack(x)
 
-
-# Enter the estimator (svm, rbf)
 def grid_search(_x_train, _y_train):
     parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4], 'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]},
                   {'kernel': ['linear'], 'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]}
@@ -219,10 +214,6 @@ def metrics(ground_truths, preds):
     return accuracy
 
 
-def print_conf_matrix(ground_truths, preds):
-    print("Confusion matrix:\n", sk.metrics.confusion_matrix(ground_truths, preds))
-
-
 # Writing results to a csv
 def results_to_csv(file_name, g, feat_type, num_filters, deltas, vad, pca, acc):
     if not os.path.isfile(file_name):
@@ -262,19 +253,21 @@ if __name__ == '__main__':
     for num_gauss in list_num_gauss:
         file_x = 'C:/Users/Win10/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,
                                                                                                n_filters, deltas, vad)
-        file_y = 'labels_300.txt'
+        file_y = 'ids_labels_300.txt'
 
        # Y = np.load('labels_75.npy')
-        x_train_data, y = load_data(file_x, file_y, load_mode='txt')
-        y_train = encode_labels_alz(y)
-        x_train_grouped = group_speakers_wavs(x_train_data, 12)
-        x_train = join_speakers_wavs_2(x_train_grouped)
+        x_train, y_df = load_data(file_x, file_y, load_mode='txt')
+        groups = np.array(y_df.patient_id.values)
+        # y_train = encode_labels_alz(y)
+        # x_train_grouped = group_speakers_wavs(x_train_data, 12)
+        # x_train = join_speakers_wavs(x_train_grouped)
+
         if pca_ == 1:
             scl = PowerTransformer()
             scl.fit(x_train)
             x_train = scl.transform(x_train)
             x_train = tools.normalize_data(x_train)
-            c = grid_search(x_train, y_train)
+            c = grid_search(x_train, y_df.diag_code.values)
             pred, ground = train_model_cv(x_train, y, 5, c)
             acc = metrics(ground, pred)
            # print_conf_matrix(ground, pred)
@@ -282,9 +275,9 @@ if __name__ == '__main__':
                            str(num_gauss), feat_type, n_filters, deltas, str(vad), str(pca_comp), str(acc))
         else:
             #x_train = tools.standardize_data(x_train)
-            c = grid_search(x_train, y_train)
-            train_model_cv(x_train, y_train, 5, c)
-            pred, ground = train_model_cv(x_train, y_train, 5, c)
+            #c = grid_search(x_train, y_train)
+            x_train = tools.normalize_data(x_train)
+            pred, ground = train_model_stratk_group(x_train, y_df.diag_code.values, groups, 20, c)
             metrics(ground, pred)
             acc = metrics(ground, pred)
             #results_to_csv('results_dem.csv', str(num_gauss), feat_type, str(n_feats), deltas, str(vad), str(pca_comp), str(acc))
