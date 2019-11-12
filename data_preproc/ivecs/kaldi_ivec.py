@@ -70,8 +70,8 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = 'aug'
-    obs_ivec = 'aug'
+    obs = 'aug_grp'
+    obs_ivec = 'aug_grp'
 
     num_gauss = [128]
     num_iters = 200
@@ -89,6 +89,8 @@ def main():
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
     list_mfccs_ivecs = util.read_pickle(file_mfccs_ivec)
+    # (read file) and group per type (original, noised, stretched, pitched) corresponding to each spk.
+    list_mfccs_grouped = util.group_per_audio_type(file_mfccs_ivec)
 
     for g in num_gauss:
         # Output Files
@@ -107,7 +109,7 @@ def main():
         # Extract ivectors
         print("Extracting i-vecs...")
         ivectors_list = []
-        for i2 in list_mfccs_ivecs:
+        for i2 in np.vstack(list_mfccs_grouped):
             ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=4)
             ivectors_list.append(ivector_array)
         a_ivectors = np.vstack(ivectors_list)
