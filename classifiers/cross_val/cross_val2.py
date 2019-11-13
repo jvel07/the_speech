@@ -81,11 +81,12 @@ def grid_search(_x_train, _y_train):
     return best_c['C']
 
 
-def train_model_grid_search_cv(_x_train, _y_train, n_splits):
+def train_model_grid_search_cv(_x_train, _y_train, n_splits, groups):
     predicciones = []
     ground_truths = []
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=False)
-    for train, test in skf.split(_x_train, _y_train):
+    skf = StratifiedGroupKfold(n_splits=n_splits)
+   # skf = StratifiedKFold(n_splits=n_splits, shuffle=False)
+    for train, test in skf.split(_x_train, _y_train, groups):
         best_c = grid_search(_x_train[train], np.ravel(_y_train[train]))
         svc = svm.LinearSVC(C=best_c, verbose=0, max_iter=965000)  # class_weight='balanced',
         svc.fit(_x_train[train], np.ravel(_y_train[train]))
@@ -121,29 +122,23 @@ def train_model_cv(_x_train, _y_train, n_splits, _c):
 
 # train SVM model with stratified group cross-validation
 def train_model_stratk_group(X, y, n_groups, n_splits, _c):
-    predicciones = []
-    ground_truths = []
-
-    # for fold_index, (train_index, test_index) in enumerate(tools.stratified_group_k_fold(_x_train, _y_train,
-    # groups=n_groups, k=n_splits)):
-
     sgkf = StratifiedGroupKfold(n_splits=n_splits)
     svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
+    predicciones = []
+    ground_truths = []
 
     for train_index, test_index in sgkf.split(X, y, n_groups):
         #print("TRAIN:", train_index, "TEST:", test_index)
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         #print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
-        #train_x, test_y = _y_train[train_index], _y_train[test_index]  # stratifying folds
-        #train_groups, test_groups = n_groups[train_index], n_groups[test_index]  # grouping
         svc.fit(X_train, np.ravel(y_train))
         y_pred = svc.predict(X_test)
         predicciones.append(y_pred)
         ground_truths.append(y_test)
 
-    predicciones = np.ravel(np.vstack(predicciones))
-    ground_truths = np.ravel(np.vstack(ground_truths))
+    #predicciones = np.ravel(np.vstack(predicciones))
+    #ground_truths = np.ravel(np.vstack(ground_truths))
 
     return predicciones, ground_truths
 
@@ -249,13 +244,14 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 0
-    list_num_gauss = [2, 4, 8, 16, 32, 64, 128]
+    list_num_gauss = [16]
     #obs = 'fbanks_40'
     feat_type = ''
     n_filters = '100i'
     deltas = ''
     vad = 'aug_joint'
     pca_comp = 20
+    total_acc=[]
 
     for num_gauss in list_num_gauss:
         file_x = '/home/jose/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,
@@ -285,9 +281,16 @@ if __name__ == '__main__':
             #x_train = tools.standardize_data(x_train)
             #c = grid_search(x_train, y_train)
             x_train = tools.normalize_data(x_train)
-            pred, ground = train_model_stratk_group(x_train, y_train, groups, 20, 0.001)
-            metrics(ground, pred)
-            acc = metrics(ground, pred)
+            pred, ground = train_model_stratk_group(x_train, y_train, groups, 20, 0.0001)
+            for g, p in zip(pred, ground):
+                a = sk.metrics.accuracy_score(g, p)
+                total_acc.append(a)
+            accuracy = sum(total_acc) / len(total_acc)
+            print("accuracy with {} gaussians".format(num_gauss), accuracy)
+                #np.savetxt("acc_{}".format(num_gauss), accuracy)
+
+            #metrics(ground, pred)
+            #acc = metrics(ground, pred)
             #results_to_csv('results_dem.csv', str(num_gauss), feat_type, str(n_feats), deltas, str(vad), str(pca_comp), str(acc))
             print(file_x)
 
