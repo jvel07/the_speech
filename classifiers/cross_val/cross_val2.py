@@ -15,6 +15,7 @@ from sklearn.svm import SVC
 import pandas as pd
 
 from common import util, data_proc_tools as tools
+from classifiers.cross_val.StatifiedGroupK_Fold import StratifiedGroupKfold
 
 
 # Loading data (if k=0, loads from txt; loads from pickle otherwise)
@@ -119,21 +120,27 @@ def train_model_cv(_x_train, _y_train, n_splits, _c):
 
 
 # train SVM model with stratified group cross-validation
-def train_model_stratk_group(_x_train, _y_train, n_groups, n_splits, _c):
+def train_model_stratk_group(X, y, n_groups, n_splits, _c):
     predicciones = []
     ground_truths = []
 
-    for fold_index, (train_index, test_index) in enumerate(tools.stratified_group_k_fold(_x_train, _y_train,
-                                                                                         groups=n_groups, k=n_splits)):
-        svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
-        train_x, test_y = _y_train[train_index], _y_train[test_index]  # stratifying folds
-        train_groups, test_groups = n_groups[train_index], n_groups[test_index]  # grouping
+    # for fold_index, (train_index, test_index) in enumerate(tools.stratified_group_k_fold(_x_train, _y_train,
+    # groups=n_groups, k=n_splits)):
 
+    sgkf = StratifiedGroupKfold(n_splits=n_splits)
+    svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
 
-        svc.fit(_x_train[train], np.ravel(_y_train[train]))
-        y_pred = svc.predict(_x_train[test])
+    for train_index, test_index in sgkf.split(X, y, n_groups):
+        #print("TRAIN:", train_index, "TEST:", test_index)
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        #print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
+        #train_x, test_y = _y_train[train_index], _y_train[test_index]  # stratifying folds
+        #train_groups, test_groups = n_groups[train_index], n_groups[test_index]  # grouping
+        svc.fit(X_train, np.ravel(y_train))
+        y_pred = svc.predict(X_test)
         predicciones.append(y_pred)
-        ground_truths.append(_y_train[test])
+        ground_truths.append(y_test)
 
     predicciones = np.ravel(np.vstack(predicciones))
     ground_truths = np.ravel(np.vstack(ground_truths))
@@ -241,22 +248,23 @@ def plot_pca_variance():
 
 if __name__ == '__main__':
 
-    pca_ = 1
+    pca_ = 0
     list_num_gauss = [2, 4, 8, 16, 32, 64, 128]
     #obs = 'fbanks_40'
     feat_type = ''
     n_filters = '100i'
     deltas = ''
-    vad = 'aug'
+    vad = 'aug_joint'
     pca_comp = 20
 
     for num_gauss in list_num_gauss:
-        file_x = 'C:/Users/Win10/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,
+        file_x = '/home/jose/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,
                                                                                                n_filters, deltas, vad)
         file_y = 'ids_labels_300.txt'
 
        # Y = np.load('labels_75.npy')
         x_train, y_df = load_data(file_x, file_y, load_mode='txt')
+        y_train = y_df.diag_codes.values
         groups = np.array(y_df.patient_id.values)
         # y_train = encode_labels_alz(y)
         # x_train_grouped = group_speakers_wavs(x_train_data, 12)
@@ -277,7 +285,7 @@ if __name__ == '__main__':
             #x_train = tools.standardize_data(x_train)
             #c = grid_search(x_train, y_train)
             x_train = tools.normalize_data(x_train)
-            pred, ground = train_model_stratk_group(x_train, y_df.diag_code.values, groups, 20, c)
+            pred, ground = train_model_stratk_group(x_train, y_train, groups, 20, 0.001)
             metrics(ground, pred)
             acc = metrics(ground, pred)
             #results_to_csv('results_dem.csv', str(num_gauss), feat_type, str(n_feats), deltas, str(vad), str(pca_comp), str(acc))

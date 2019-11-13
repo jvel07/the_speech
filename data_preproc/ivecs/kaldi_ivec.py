@@ -70,10 +70,10 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = 'aug_grp'
-    obs_ivec = 'aug_grp'
+    obs = 'aug_joint'
+    obs_ivec = 'aug_joint'
 
-    num_gauss = [2]
+    num_gauss = [4,8,16,32,64,128]
     num_iters = 200
     ivector_dim = 200
     min_post = 0.025
@@ -89,7 +89,8 @@ def main():
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
     list_mfccs_ivecs = util.read_pickle(file_mfccs_ivec)
-    # (read file) and group per type (original, noised, stretched, pitched) corresponding to each spk.
+    # group per type (original, noised, stretched, pitched) corresponding to each spk.
+    # and join (concatenate) 3 wavs per speaker
     list_mfccs_joint = util.join_speakers_wavs(util.group_per_audio_type(list_mfccs_ivecs))
 
     for g in num_gauss:
@@ -102,7 +103,7 @@ def main():
         file_full_ubm_model = work_dir+'/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
         file_ivec_extractor_model = work_dir+'/data/models/dem/ivec_mdl_{}g_dem_{}'.format(g, obs)
         # Train models
-        model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
+        model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_joint, file_diag_ubm_model,
                                                              file_full_ubm_model, file_ivec_extractor_model, g)
 
 
