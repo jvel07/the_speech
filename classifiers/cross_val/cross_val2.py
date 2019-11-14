@@ -9,7 +9,7 @@ from sklearn import preprocessing
 from sklearn import svm
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.model_selection import StratifiedKFold, GridSearchCV, GroupKFold
 from sklearn.preprocessing import PowerTransformer
 from sklearn.svm import SVC
 import pandas as pd
@@ -41,14 +41,6 @@ def encode_labels_alz(_y):
     y = le.transform(_y)
     y = y.reshape(-1, 1)
     return y
-
-
-# Group wavs every n number
-# (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-# Returns list of lists, 3 arrays within each list.
-def group_speakers_wavs(_x, n):
-    print("Speakers' wavs grouped into {} from {}".format(n, _x[0].shape))
-    return util.group_wavs_speakers_12(_x)
 
 
 # Concatenate speakers wavs (3) in one single array
@@ -84,7 +76,7 @@ def grid_search(_x_train, _y_train):
 def train_model_grid_search_cv(_x_train, _y_train, n_splits, groups):
     predicciones = []
     ground_truths = []
-    skf = StratifiedGroupKfold(n_splits=n_splits)
+    skf = StratifiedKFold(n_splits=n_splits)
    # skf = StratifiedKFold(n_splits=n_splits, shuffle=False)
     for train, test in skf.split(_x_train, _y_train, groups):
         best_c = grid_search(_x_train[train], np.ravel(_y_train[train]))
@@ -137,8 +129,8 @@ def train_model_stratk_group(X, y, n_groups, n_splits, _c):
         predicciones.append(y_pred)
         ground_truths.append(y_test)
 
-    #predicciones = np.ravel(np.vstack(predicciones))
-    #ground_truths = np.ravel(np.vstack(ground_truths))
+    predicciones = np.ravel(np.vstack(predicciones))
+    ground_truths = np.ravel(np.vstack(ground_truths))
 
     return predicciones, ground_truths
 
@@ -244,7 +236,7 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 0
-    list_num_gauss = [16]
+    list_num_gauss = [2,4,8,16,32,64,128]
     #obs = 'fbanks_40'
     feat_type = ''
     n_filters = '100i'
@@ -263,8 +255,11 @@ if __name__ == '__main__':
         y_train = y_df.diag_codes.values
         groups = np.array(y_df.patient_id.values)
         # y_train = encode_labels_alz(y)
-        # x_train_grouped = group_speakers_wavs(x_train_data, 12)
-        # x_train = join_speakers_wavs(x_train_grouped)
+
+        # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
+       # x_train_grouped = util.group_wavs_speakers(x_train, 3)
+        # Concatenate 3 wavs per/spk into 1 wav per/spk
+        #x_train = join_speakers_wavs(x_train_grouped)
 
         if pca_ == 1:
             scl = PowerTransformer()
@@ -281,12 +276,9 @@ if __name__ == '__main__':
             #x_train = tools.standardize_data(x_train)
             #c = grid_search(x_train, y_train)
             x_train = tools.normalize_data(x_train)
-            pred, ground = train_model_stratk_group(x_train, y_train, groups, 20, 0.0001)
-            for g, p in zip(pred, ground):
-                a = sk.metrics.accuracy_score(g, p)
-                total_acc.append(a)
-            accuracy = sum(total_acc) / len(total_acc)
-            print("accuracy with {} gaussians".format(num_gauss), accuracy)
+            pred, ground = train_model_stratk_group(x_train, y_train, groups, 5, 0.0001)
+            a = sk.metrics.accuracy_score(ground[::4], pred[::4])
+            print("accuracy with {} gaussians".format(num_gauss), a)
                 #np.savetxt("acc_{}".format(num_gauss), accuracy)
 
             #metrics(ground, pred)
