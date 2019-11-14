@@ -7,7 +7,7 @@ from common import util
 
 def train_models(mfccs_ubm, list_mfccs_ivecs, diag, full, ivec_mdl, num_gauss):
     num_iters = 200
-    ivector_dim = 100
+    ivector_dim = 70
     min_post = 0.025
     post_scale = 1
     # Train diagonal GMM
@@ -91,26 +91,26 @@ def main():
     list_mfccs_ivecs = util.read_pickle(file_mfccs_ivec)
     # group per type (original, noised, stretched, pitched) corresponding to each spk.
     # and join (concatenate) 3 wavs per speaker
-    list_mfccs_joint = util.join_speakers_wavs(util.group_per_audio_type(list_mfccs_ivecs))
+   # list_mfccs_joint = util.join_speakers_wavs(util.group_per_audio_type(list_mfccs_ivecs))
 
     for g in num_gauss:
         # Output Files
         # i-vecs
         # ivector_3D_file = '../data/ivectors3d-train'
-        ivector_2D_file = work_dir+'/data/ivecs/alzheimer/ivecs-' + str(g) + 'g-100i-{}'.format(obs_ivec)
+        ivector_2D_file = work_dir+'/data/ivecs/alzheimer/ivecs-' + str(g) + '--70i--{}'.format(obs_ivec)
         # models for i-vecs
         file_diag_ubm_model = work_dir+'/data/models/dem/dubm_mdl_{}g_dem_{}'.format(g, obs)
         file_full_ubm_model = work_dir+'/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
         file_ivec_extractor_model = work_dir+'/data/models/dem/ivec_mdl_{}g_dem_{}'.format(g, obs)
         # Train models
-        model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_joint, file_diag_ubm_model,
+        model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
                                                              file_full_ubm_model, file_ivec_extractor_model, g)
 
 
         # Extract ivectors
         print("Extracting i-vecs...")
         ivectors_list = []
-        for i2 in list_mfccs_joint:
+        for i2 in list_mfccs_ivecs:
             ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=4)
             ivectors_list.append(ivector_array)
         a_ivectors = np.vstack(ivectors_list)

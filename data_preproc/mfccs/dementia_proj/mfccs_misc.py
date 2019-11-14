@@ -53,8 +53,8 @@ def main():
 
     # Output files
     observation = 'aug_2del'
-    file_mfccs_dem = work_dir + '/data/mfccs/mfccs_dem_13_{}'.format(observation)
-    file_mfccs_ubm = work_dir + '/data/mfccs/mfccs_ubm_dem_13_{}'.format(observation)
+    file_mfccs_dem = work_dir + '/data/mfccs/dem/mfccs_dem_13_{}'.format(observation)
+    file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_dem_13_{}'.format(observation)
 
     # Calculating and saving MFCCs
     util.save_pickle(file_mfccs_dem, compute_mfccs_bkaldi(dir_anon_75, audio_list_dementia))
