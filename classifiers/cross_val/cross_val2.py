@@ -29,7 +29,7 @@ def load_data(_x, _y, load_mode):
     y = pd.read_csv(_y, header=None)
     y.columns = ['patient_id', 'diagnosis']
     y.diagnosis = pd.Categorical(y.diagnosis)
-    y['diag_codes'] = y.diagnosis.cat.codes
+    y['diag_code'] = y.diagnosis.cat.codes
 
     return x, y
 
@@ -56,7 +56,7 @@ def join_speakers_wavs(list_group_wavs):
 
 
 def grid_search(_x_train, _y_train):
-    parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4], 'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]},
+    parameters = [#{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4], 'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]},
                   {'kernel': ['linear'], 'C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 20, 30, 100]}
                   ]
 
@@ -68,7 +68,7 @@ def grid_search(_x_train, _y_train):
     gd_sr.fit(_x_train, np.ravel(_y_train))
     best_c = gd_sr.best_params_
     print(gd_sr.best_params_)
-    print(gd_sr.best_estimator_)
+    #print(gd_sr.best_estimator_)
     print("Best complexity value:", best_c['C'])
     return best_c['C']
 
@@ -77,7 +77,7 @@ def train_model_grid_search_cv(_x_train, _y_train, n_splits, groups):
     predicciones = []
     ground_truths = []
     skf = StratifiedKFold(n_splits=n_splits)
-   # skf = StratifiedKFold(n_splits=n_splits, shuffle=False)
+    # skf = StratifiedKFold(n_splits=n_splits, shuffle=False)
     for train, test in skf.split(_x_train, _y_train, groups):
         best_c = grid_search(_x_train[train], np.ravel(_y_train[train]))
         svc = svm.LinearSVC(C=best_c, verbose=0, max_iter=965000)  # class_weight='balanced',
@@ -118,12 +118,15 @@ def train_model_stratk_group(X, y, n_groups, n_splits, _c):
     svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
     predicciones = []
     ground_truths = []
-
+    fold = 0
     for train_index, test_index in sgkf.split(X, y, n_groups):
-        #print("TRAIN:", train_index, "TEST:", test_index)
+        #fold = + 1
+        #np.savetxt("/home/jose/PycharmProjects/the_speech/data/tr_idx_fold_{}".format(fold), train_index)
+        #np.savetxt("/home/jose/PycharmProjects/the_speech/data/tst_idx_fold_{}".format(fold), test_index)
+        # print("TRAIN:", train_index, "TEST:", test_index)
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
-        #print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
+        # print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
         svc.fit(X_train, np.ravel(y_train))
         y_pred = svc.predict(X_test)
         predicciones.append(y_pred)
@@ -131,6 +134,7 @@ def train_model_stratk_group(X, y, n_groups, n_splits, _c):
 
     predicciones = np.ravel(np.vstack(predicciones))
     ground_truths = np.ravel(np.vstack(ground_truths))
+    print(sk.metrics.accuracy_score(ground_truths, predicciones))
 
     return predicciones, ground_truths
 
@@ -143,15 +147,15 @@ def best_pca_components(x):
 def train_model_cv_PCA(_x_train, _y_train, n_splits):
     predicciones = []
     ground_truths = []
-    #svc = svm.LinearSVC(C=_c, verbose=1, max_iter=965000) #class_weight='balanced',
+    # svc = svm.LinearSVC(C=_c, verbose=1, max_iter=965000) #class_weight='balanced',
     skf = StratifiedKFold(n_splits=n_splits)
     for train, test in skf.split(_x_train, _y_train):
         comp = best_pca_components(_x_train[train])
         pca_train = PCA(n_components=comp, svd_solver='auto', whiten=False)
         pca_train.fit(_x_train[train])
         x_train_reduced = pca_train.transform(_x_train[train])
-        #pca_test = PCA(n_components=comp, svd_solver='full', whiten=False)
-        #pca_test.fit(_x_train[test])
+        # pca_test = PCA(n_components=comp, svd_solver='full', whiten=False)
+        # pca_test.fit(_x_train[test])
         x_test_reduced = pca_train.transform(_x_train[test])
 
         best_c = grid_search(x_train_reduced, _y_train[train])
@@ -172,7 +176,7 @@ def train_model_cv_PCA(_x_train, _y_train, n_splits):
 def train_model_cv_LDA(_x_train, _y_train, n_splits):
     predicciones = []
     ground_truths = []
-    #svc = svm.LinearSVC(C=_c, verbose=1, max_iter=965000) #class_weight='balanced',
+    # svc = svm.LinearSVC(C=_c, verbose=1, max_iter=965000) #class_weight='balanced',
     skf = StratifiedKFold(n_splits=n_splits)
     for train, test in skf.split(_x_train, _y_train):
         lda = LDA(n_components=8)
@@ -186,7 +190,7 @@ def train_model_cv_LDA(_x_train, _y_train, n_splits):
         best_c = grid_search(x_train_reduced, _y_train[train])
         svc = svm.LinearSVC(C=best_c, verbose=0, max_iter=965000)
         svc.fit(x_train_reduced, np.ravel(y_encoded[train]))
-        #svc.fit(_x_train[train], np.ravel(_y_train[train]))
+        # svc.fit(_x_train[train], np.ravel(_y_train[train]))
 
         y_pred = svc.predict(test_x_reduced)
         predicciones.append(y_pred)
@@ -201,9 +205,9 @@ def train_model_cv_LDA(_x_train, _y_train, n_splits):
 
 def metrics(ground_truths, preds):
     accuracy = sk.metrics.accuracy_score(ground_truths, preds)
-#    f1 = sk.metrics.f1_score(ground_truths, preds)
- #   precision = sk.metrics.precision_score(ground_truths, preds)
-  #  recall = sk.metrics.recall_score(ground_truths, preds)
+    #    f1 = sk.metrics.f1_score(ground_truths, preds)
+    #   precision = sk.metrics.precision_score(ground_truths, preds)
+    #  recall = sk.metrics.recall_score(ground_truths, preds)
     print('acc:', accuracy)
     return accuracy
 
@@ -236,30 +240,38 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 0
-    list_num_gauss = [2,4,8,16,32,64,128]
-    #obs = 'fbanks_40'
+    list_num_gauss = [2, 4, 8, 16, 32, 64, 128]
+    # obs = 'fbanks_40'
     feat_type = ''
     n_filters = '100i'
     deltas = ''
-    vad = 'aug_joint'
+    vad = '0del'
     pca_comp = 20
-    total_acc=[]
+    total_acc = []
 
     for num_gauss in list_num_gauss:
-        file_x = '/home/jose/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,
-                                                                                               n_filters, deltas, vad)
-        file_y = 'ids_labels_300.txt'
+        # Loading data
+        file_x = '/home/jose/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss,
+                                                                                                          feat_type,
+                                                                                                          n_filters,
+                                                                                                          deltas, vad)
+        file_y = 'labels_75.npy'
 
-       # Y = np.load('labels_75.npy')
-        x_train, y_df = load_data(file_x, file_y, load_mode='txt')
-        y_train = y_df.diag_codes.values
-        groups = np.array(y_df.patient_id.values)
-        # y_train = encode_labels_alz(y)
+        # Load data for 75 spk
+        x_train = np.loadtxt(file_x)
+        y = np.load('labels_75.npy')
+        y_train = encode_labels_alz(y)  # Encode labels
+
+        # Load augmented data (for 300 spk)
+        #x_train, y_df = load_data(file_x, file_y, load_mode='txt')
+        #y_train = y_df.diag_code.values
+        #groups = np.array(y_df.patient_id.values)
 
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-       # x_train_grouped = util.group_wavs_speakers(x_train, 3)
+        x_train_grouped = util.group_wavs_speakers(x_train, 3)
         # Concatenate 3 wavs per/spk into 1 wav per/spk
-        #x_train = join_speakers_wavs(x_train_grouped)
+        x_train = join_speakers_wavs(x_train_grouped)
+        # print(x_train.shape)
 
         if pca_ == 1:
             scl = PowerTransformer()
@@ -269,24 +281,17 @@ if __name__ == '__main__':
             c = grid_search(x_train, y_df.diag_code.values)
             pred, ground = train_model_cv(x_train, y, 5, c)
             acc = metrics(ground, pred)
-           # print_conf_matrix(ground, pred)
+            # print_conf_matrix(ground, pred)
             results_to_csv('C:/Users/Win10/PycharmProjects/the_speech/data/results_dem.csv',
                            str(num_gauss), feat_type, n_filters, deltas, str(vad), str(pca_comp), str(acc))
         else:
-            #x_train = tools.standardize_data(x_train)
-            #c = grid_search(x_train, y_train)
+            # x_train = tools.standardize_data(x_train)
+            # c = grid_search(x_train, y_train)
             x_train = tools.normalize_data(x_train)
-            pred, ground = train_model_stratk_group(x_train, y_train, groups, 5, 0.0001)
-            a = sk.metrics.accuracy_score(ground[::4], pred[::4])
-            print("accuracy with {} gaussians".format(num_gauss), a)
-                #np.savetxt("acc_{}".format(num_gauss), accuracy)
-
-            #metrics(ground, pred)
-            #acc = metrics(ground, pred)
-            #results_to_csv('results_dem.csv', str(num_gauss), feat_type, str(n_feats), deltas, str(vad), str(pca_comp), str(acc))
+            print(x_train.shape)
+            c = grid_search(x_train, y_train)
+            pred, ground = train_model_cv(x_train, y_train, 5, c)
+            metrics(ground, pred)
+            acc = metrics(ground, pred)
+            # results_to_csv('results_dem.csv', str(num_gauss), feat_type, str(n_feats), deltas, str(vad), str(pca_comp), str(acc))
             print(file_x)
-
-
-
-
-

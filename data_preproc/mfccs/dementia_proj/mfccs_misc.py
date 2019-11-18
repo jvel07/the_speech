@@ -24,7 +24,7 @@ def compute_mfccs_bkaldi(path, audio_list):
     print('Computing MFCCs on:', path)
     for item in audio_list:
         data = bob.io.audio.reader(path + item)
-        mfcc = bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=2, rate=data.rate,
+        mfcc = bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=1, rate=data.rate,
                                   normalization=False, num_ceps=13)
         list_mfccs.append(mfcc)
     return list_mfccs
@@ -41,6 +41,15 @@ def compute_mfccs_psf(path, audio_list):
     return list_mfccs
 
 
+def just_original_75():
+    lines = open("/home/jose/PycharmProjects/the_speech/data/wavlista-anon-75-225.txt").read().splitlines()
+    wavlista_anon_75_225 = []
+    for it in lines:
+        wav_file = '{}.wav'.format(it)
+        wavlista_anon_75_225.append(wav_file)
+    return wavlista_anon_75_225
+
+
 def main():
     work_dir = '/home/jose/PycharmProjects/the_speech'
     audio_dir = 'D:/VHD/audio'
@@ -52,12 +61,12 @@ def main():
     audio_list_dementia = util.read_files_from_dir(dir_anon_75)
 
     # Output files
-    observation = 'aug_2del'
+    observation = '1del'
     file_mfccs_dem = work_dir + '/data/mfccs/dem/mfccs_dem_13_{}'.format(observation)
     file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_dem_13_{}'.format(observation)
 
     # Calculating and saving MFCCs
-    util.save_pickle(file_mfccs_dem, compute_mfccs_bkaldi(dir_anon_75, audio_list_dementia))
+    util.save_pickle(file_mfccs_dem, compute_mfccs_bkaldi(dir_anon_75, just_original_75()))
     util.save_pickle(file_mfccs_ubm, compute_mfccs_bkaldi(dir_wav_ubm, audio_list_ubm))
 
 

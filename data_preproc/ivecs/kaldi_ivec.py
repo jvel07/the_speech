@@ -7,7 +7,7 @@ from common import util
 
 def train_models(mfccs_ubm, list_mfccs_ivecs, diag, full, ivec_mdl, num_gauss):
     num_iters = 200
-    ivector_dim = 70
+    ivector_dim = 100
     min_post = 0.025
     post_scale = 1
     # Train diagonal GMM
@@ -70,10 +70,10 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = 'aug_joint'
-    obs_ivec = 'aug_joint'
+    obs = '2del'
+    obs_ivec = '2del'
 
-    num_gauss = [4,8,16,32,64,128]
+    num_gauss = [2,4,8,16,32,64,128]
     num_iters = 200
     ivector_dim = 200
     min_post = 0.025
@@ -83,8 +83,8 @@ def main():
 
     # Input Files
     # MFCCs
-    file_mfccs_ivec = work_dir+'/data/mfccs/dem/mfccs_dem_13_aug'
-    file_mfccs_ubm = work_dir+'/data/mfccs/dem/mfccs_ubm_dem_13_aug'
+    file_mfccs_ivec = work_dir+'/data/mfccs/dem/mfccs_dem_13_{}'.format(obs)
+    file_mfccs_ubm = work_dir+'/data/mfccs/dem/mfccs_ubm_dem_13_{}'.format(obs)
     # Load MFCCs for UBM
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
@@ -94,10 +94,9 @@ def main():
    # list_mfccs_joint = util.join_speakers_wavs(util.group_per_audio_type(list_mfccs_ivecs))
 
     for g in num_gauss:
-        # Output Files
+        # OUTPUT FILES
         # i-vecs
-        # ivector_3D_file = '../data/ivectors3d-train'
-        ivector_2D_file = work_dir+'/data/ivecs/alzheimer/ivecs-' + str(g) + '--70i--{}'.format(obs_ivec)
+        ivector_2D_file = work_dir+'/data/ivecs/alzheimer/ivecs-' + str(g) + '--100i--{}'.format(obs_ivec)
         # models for i-vecs
         file_diag_ubm_model = work_dir+'/data/models/dem/dubm_mdl_{}g_dem_{}'.format(g, obs)
         file_full_ubm_model = work_dir+'/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
@@ -111,7 +110,7 @@ def main():
         print("Extracting i-vecs...")
         ivectors_list = []
         for i2 in list_mfccs_ivecs:
-            ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=4)
+            ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=8)
             ivectors_list.append(ivector_array)
         a_ivectors = np.vstack(ivectors_list)
         #a_ivectors_3d = np.expand_dims(a_ivectors, axis=1)
