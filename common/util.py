@@ -11,7 +11,7 @@ import pickle
 def read_pickle(file_name):
     with open(file_name, 'rb') as f:
         data = pickle.load(f)
-        print("Pickle loaded from:", file_name)
+        print("Pickle loaded from:", file_name, "With lenght:", len(data))
     return data
 
 
