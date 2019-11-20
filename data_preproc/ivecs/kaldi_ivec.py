@@ -5,9 +5,9 @@ import bob.kaldi
 from common import util
 
 
-def train_models(mfccs_ubm, list_mfccs_ivecs, diag, full, ivec_mdl, num_gauss):
+def train_models(mfccs_ubm, list_mfccs_ivecs, diag, full, ivec_mdl, num_gauss, idim):
     num_iters = 200
-    ivector_dim = 100
+    ivector_dim = idim
     min_post = 0.025
     post_scale = 1
     # Train diagonal GMM
@@ -70,9 +70,10 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = '2del'
-    obs_ivec = '2del'
-    num_mfccs = '13'
+    obs = '1del'
+    obs_ivec = '1del'
+    num_mfccs = '20'
+    ivecs_dim = 256
 
     # ---Input Files---
     # MFCCs
@@ -97,7 +98,7 @@ def main():
         file_ivec_extractor_model = work_dir + '/data/models/dem/ivec_mdl_{}g_dem_{}'.format(g, obs)
         # Train models
         model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
-                                                             file_full_ubm_model, file_ivec_extractor_model, g)
+                                                             file_full_ubm_model, file_ivec_extractor_model, g, ivecs_dim)
 
         # Extract ivectors
         print("Extracting i-vecs...")

@@ -88,11 +88,11 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 0
-    list_num_gauss = [2, 4, 8, 16, 32, 64, 128]
+    list_num_gauss = [2, 4, 8, 16]
     # obs = 'fbanks_40'
     feat_type = '20mf'
     n_filters = '100i'
-    deltas = '0del'
+    deltas = '2del'
     vad = ''
     pca_comp = 20
     scores = []
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         file_y = 'labels_75.npy'
 
         # Load data for 75 spk
-        x_train = np.loadtxt(file_x)
+        x = np.loadtxt(file_x)
         y = np.load('labels_75.npy')
         y_train = encode_labels_alz(y)  # Encode labels
 
@@ -116,16 +116,16 @@ if __name__ == '__main__':
         #groups = np.array(y_df.patient_id.values)
 
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-        x_train_grouped = util.group_wavs_speakers(x_train, 3)
+        x_train_grouped = util.group_wavs_speakers(x, 3)
         # Concatenate 3 wavs per/spk into 1 wav per/spk
         x_train = join_speakers_wavs(x_train_grouped)
 
-       # scl = PowerTransformer()
-       # scl.fit(x_train)
-       # x_train = scl.transform(x_train)
+        scl = PowerTransformer()
+        scl.fit(x_train)
+        #x_train = scl.transform(x_train)
         x_train = tools.standardize_data(x_train)
-       # c = grid_search(x_train, y_train)
-        scores.append(train_model_cv(x_train, y, 5, 0.001))
+        c = grid_search(x_train, y_train)
+        scores.append(train_model_cv(x_train, y, 5, c))
         for i in scores:
             print(np.mean(i))
         #acc = metrics(ground, pred)
