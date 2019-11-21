@@ -48,7 +48,7 @@ def normalize_data(x_t):
 
 
 def min_max_scaling(_x):
-    scaler = MinMaxScaler().fit(_x)
+    scaler = MinMaxScaler().fit_transform(_x)
     return scaler
 
 

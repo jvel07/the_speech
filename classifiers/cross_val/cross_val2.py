@@ -88,11 +88,11 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 0
-    list_num_gauss = [2, 4, 8, 16]
+    list_num_gauss = [2,4,8,16,32,64,128]
     # obs = 'fbanks_40'
-    feat_type = '20mf'
-    n_filters = '100i'
-    deltas = '2del'
+    feat_type = '13mf'
+    n_filters = '256i'
+    deltas = '2del_newubm'
     vad = ''
     pca_comp = 20
     scores = []
@@ -101,8 +101,10 @@ if __name__ == '__main__':
         # Loading data
         file_x = '/home/jose/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss,
                                                                                                           feat_type,
-                                                                                                          n_filters,
-                                                                                                          vad, deltas)
+                                                                                                          deltas,
+                                                                                                          vad,
+                                                                                                          n_filters
+                                                                                                          )
         file_y = 'labels_75.npy'
 
         # Load data for 75 spk
@@ -122,8 +124,8 @@ if __name__ == '__main__':
 
         scl = PowerTransformer()
         scl.fit(x_train)
-        #x_train = scl.transform(x_train)
-        x_train = tools.standardize_data(x_train)
+        x_train = scl.transform(x_train)
+        #x_train = tools.min_max_scaling(x_train)
         c = grid_search(x_train, y_train)
         scores.append(train_model_cv(x_train, y, 5, c))
         for i in scores:

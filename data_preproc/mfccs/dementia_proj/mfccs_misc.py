@@ -24,8 +24,7 @@ def compute_mfccs_bkaldi(path, audio_list):
     print('Computing MFCCs on:', path)
     for item in audio_list:
         data = bob.io.audio.reader(path + item)
-        mfcc = bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=0, rate=data.rate,
-                                  normalization=False, num_ceps=20)
+        mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False, num_ceps=13) #bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=0, rate=data.rate, normalization=False, num_ceps=20)
         list_mfccs.append(mfcc)
     return list_mfccs
 
@@ -52,7 +51,7 @@ def just_original_75():
 
 def main():
     work_dir = '/home/jose/PycharmProjects/the_speech'
-    audio_dir = 'D:/VHD/audio'
+    # audio_dir = 'D:/VHD/audio'
 
     # Input files
     dir_wav_ubm = work_dir + '/audio/wav-bea-diktafon/'
@@ -61,18 +60,18 @@ def main():
     audio_list_dementia_aug = util.read_files_from_dir(dir_anon_75)
 
     # Output files
-    observation = '0del'
-    file_mfccs_dem = work_dir + '/data/mfccs/dem/mfccs_dem_20_{}'.format(observation)
-    file_mfccs_dem_aug = work_dir + '/data/mfccs/dem/mfccs_dem_20_aug_{}'.format(observation)
-    file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_dem_20_{}'.format(observation)
+    observation = '2del'
+    file_mfccs_dem = work_dir + '/data/mfccs/dem/mfccs_dem_13_{}'.format(observation)
+    file_mfccs_dem_aug = work_dir + '/data/mfccs/dem/mfccs_dem_13_aug_{}'.format(observation)
+    file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_dem_13_{}'.format(observation)
 
     # ---Calculating and saving MFCCs---
     # for augmented audios
-    # util.save_pickle(file_mfccs_dem_aug, compute_mfccs_bkaldi(dir_anon_75, audio_list_dementia_aug))
+    util.save_pickle(file_mfccs_dem_aug, compute_mfccs_bkaldi(dir_anon_75, audio_list_dementia_aug))
     # for original audios
     util.save_pickle(file_mfccs_dem, compute_mfccs_bkaldi(dir_anon_75, just_original_75()))
     # for UBM (BEA diktafon)
-    # util.save_pickle(file_mfccs_ubm, compute_mfccs_bkaldi(dir_wav_ubm, audio_list_ubm))
+    util.save_pickle(file_mfccs_ubm, compute_mfccs_bkaldi(dir_wav_ubm, audio_list_ubm))
 
 
 if __name__ == '__main__':

@@ -67,31 +67,20 @@ def train_model_cv(_x_train, _y_train, n_splits, _c):
     return scores
 
 
-# train SVM model with stratified group cross-validation
-def train_model_stratk_group(X, y, n_groups, n_splits, _c):
+# train SVM model with stratified group kfold cross-validation
+def train_model_stratk_group(_x_train, _y_train, n_splits, groups, _c):
     sgkf = StratifiedGroupKfold(n_splits=n_splits)
     svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
-    predicciones = []
-    ground_truths = []
-    fold = 0
-    for train_index, test_index in sgkf.split(X, y, n_groups):
-        #fold = + 1
-        #np.savetxt("/home/jose/PycharmProjects/the_speech/data/tr_idx_fold_{}".format(fold), train_index)
-        #np.savetxt("/home/jose/PycharmProjects/the_speech/data/tst_idx_fold_{}".format(fold), test_index)
-        # print("TRAIN:", train_index, "TEST:", test_index)
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-        # print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
-        svc.fit(X_train, np.ravel(y_train))
-        y_pred = svc.predict(X_test)
-        predicciones.append(y_pred)
-        ground_truths.append(y_test)
+    scores = []
+    for train_index, test_index in sgkf.split(_x_train, _y_train, groups):
+        svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
+        x_train, x_test, y_train, y_test = \
+            _x_train[train_index], _x_train[test_index], _y_train[train_index], _y_train[test_index]
+        print('Train: %s | test: %s' % (train_index, test_index))
+        svc.fit(x_train, y_train)
+        scores.append(svc.score(x_test, y_test))
 
-    predicciones = np.ravel(np.vstack(predicciones))
-    ground_truths = np.ravel(np.vstack(ground_truths))
-    print(sk.metrics.accuracy_score(ground_truths, predicciones))
-
-    return predicciones, ground_truths
+    return scores
 
 
 def best_pca_components(x):

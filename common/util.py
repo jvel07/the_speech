@@ -11,7 +11,7 @@ import pickle
 def read_pickle(file_name):
     with open(file_name, 'rb') as f:
         data = pickle.load(f)
-        print("Pickle loaded from:", file_name, "With lenght:", len(data))
+        print("Pickle loaded from:", file_name, "With lenght:", len(data), "First ele. shape:", data[0].shape)
     return data
 
 
@@ -19,7 +19,7 @@ def read_pickle(file_name):
 def save_pickle(file_name, data):
     with open(file_name, 'wb') as f:
         pickle.dump(data, f)
-        print("Data pickled to file:", file_name)
+        print("Data pickled to file:", file_name, "With lenght:", len(data), "First ele. shape:", data[0].shape)
 
 
 # Read training, dev and test features

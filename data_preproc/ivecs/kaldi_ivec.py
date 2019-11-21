@@ -6,12 +6,12 @@ from common import util
 
 
 def train_models(mfccs_ubm, list_mfccs_ivecs, diag, full, ivec_mdl, num_gauss, idim):
-    num_iters = 200
+    num_iters = 100
     ivector_dim = idim
     min_post = 0.025
     post_scale = 1
     # Train diagonal GMM
-    print("\nTraining " + str(num_gauss) + " diagonal-GMM")
+    print("\nTraining " + str(num_gauss) + " diagonal-GMM...")
     dubm = bob.kaldi.ubm_train(mfccs_ubm, diag,
                                num_gauss=num_gauss, num_iters=num_iters,
                                num_gselect=int(np.log2(num_gauss)))
@@ -70,15 +70,15 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = '1del'
-    obs_ivec = '1del'
-    num_mfccs = '20'
+    obs = '2del'
+    obs_ivec = '2del'
+    num_mfccs = '13_aug'
     ivecs_dim = 256
 
     # ---Input Files---
     # MFCCs
     file_mfccs_ivec = work_dir + '/data/mfccs/dem/mfccs_dem_{}_{}'.format(num_mfccs, obs)
-    file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_dem_{}_{}'.format(num_mfccs, obs)
+    file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_bea_13'#.format(num_mfccs, obs)
     # Load MFCCs for UBM
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
@@ -91,7 +91,7 @@ def main():
     for g in num_gauss:
         # ---OUTPUT FILES---
         # i-vecs
-        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(g) + '-{}mf-100i--{}'.format(num_mfccs, obs_ivec)
+        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(g) + '-{}mf-{}--{}i'.format(num_mfccs, obs_ivec, ivecs_dim)
         # models for i-vecs
         file_diag_ubm_model = work_dir + '/data/models/dem/dubm_mdl_{}g_dem_{}'.format(g, obs)
         file_full_ubm_model = work_dir + '/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
