@@ -77,12 +77,13 @@ def train_model_stratk_group(_x_train, _y_train, n_splits, groups, _c):
         svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
         x_train, x_test, y_train, y_test = \
             _x_train[train_index], _x_train[test_index], _y_train[train_index], _y_train[test_index]
-        print('Train: %s | test: %s' % (train_index, test_index))
+        #print('Train: %s | test: %s' % (train_index, test_index))
         svc.fit(x_train, y_train)
         # Getting the indexes for the 75 speakers only
         test_index_75 = list(set(orig_75_idx).intersection(test_index))
         test_index_75.sort()
-        print('TEST75: ', test_index_75)
+        #print('TEST75: ', test_index_75)
+        # Testing on 75
         scores.append(svc.score(_x_train[test_index_75], _y_train[test_index_75]))
 
     return scores

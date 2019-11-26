@@ -1,4 +1,4 @@
-#import bob.io.audio
+import bob.io.audio
 import os
 import random
 
@@ -16,8 +16,8 @@ def load_audio_file(file_path):
 
 
 def load_audio_bob(file):
-    #data = bob.io.audio.reader(file)
-    return 0#data.load()[0]
+    data = bob.io.audio.reader(file)
+    return data.load()[0]
 
 
 def save_wav(file_name, rate, data):  # /home/egasj/PycharmProjects/iVectorsBob/audio/wav-demencia-all/001A_szurke.wav'
@@ -32,6 +32,7 @@ def reading_anon75():
         wav_file = '{}.wav'.format(it)
         wavlista_anon_75_225.append(wav_file)
     return wavlista_anon_75_225
+
 
 def add_noise(data, noise_factor):
     noise = np.random.randn(len(data))
@@ -67,25 +68,17 @@ def change_speed_anon75():
     dir_ = 'C:/Users/Win10/Documents/audio/audio/wav_anon_75_225/'
     for item2 in list_audios:
         data2 = load_audio_file(dir_ + item2)
-        aug = librosa.effects.time_stretch(data2, random.uniform(0, 2))
+        aug = librosa.effects.time_stretch(data2, random.uniform(0, 3))
         scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_stretched.wav', 16000, aug)
 
 
-def shift_time(data, sampling_rate, shift_max, shift_direction):
-    shift = np.random.randint(sampling_rate * shift_max)
-    if shift_direction == 'right':
-        shift = -shift
-    elif shift_direction == 'both':
-        direction = np.random.randint(0, 2)
-        if direction == 1:
-            shift = -shift
-    augmented_data = np.roll(data, shift)
-    # Set to silence for heading/ tailing
-    if shift > 0:
-        augmented_data[:shift] = 0
+def shift_time(data):
+    start_ = int(np.random.uniform(-4800, 4800))
+    if start_ >= 0:
+        wav_time_shift = np.r_[data[start_:], np.random.uniform(-0.001, 0.001, start_)]
     else:
-        augmented_data[shift:] = 0
-    return augmented_data
+        wav_time_shift = np.r_[np.random.uniform(-0.001, 0.001, -start_), data[:start_]]
+    return wav_time_shift
 
 
 def shifting_anon75():
