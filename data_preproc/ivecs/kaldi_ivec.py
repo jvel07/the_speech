@@ -66,19 +66,19 @@ def load_models(diag_ubm, full_ubm, ivec_extr):
 
 
 def main():
-    work_dir = '/home/jose/PycharmProjects/the_speech'
+    work_dir = '/opt/project'
 
     set_ = ''
     set_models = ''
-    obs = '2del'
-    obs_ivec = '2del'
-    num_mfccs = '13_aug'
+    obs = 'aug_2del'
+    obs_ivec = '2del_aug'
+    num_mfccs = '20'
     ivecs_dim = 256
 
     # ---Input Files---
     # MFCCs
-    file_mfccs_ivec = work_dir + '/data/mfccs/dem/mfccs_dem_{}_{}'.format(num_mfccs, obs)
-    file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_bea_13'#.format(num_mfccs, obs)
+    file_mfccs_ivec = '/opt/project/data/mfccs/alzheimer/mfccs_dem_{}_{}'.format(num_mfccs, obs)
+    file_mfccs_ubm = '/opt/project/data/mfccs/alzheimer/mfccs_ubm_bea_{}'.format(num_mfccs)
     # Load MFCCs for UBM
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
@@ -93,9 +93,9 @@ def main():
         # i-vecs
         ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(g) + '-{}mf-{}--{}i'.format(num_mfccs, obs_ivec, ivecs_dim)
         # models for i-vecs
-        file_diag_ubm_model = work_dir + '/data/models/dem/dubm_mdl_{}g_dem_{}'.format(g, obs)
-        file_full_ubm_model = work_dir + '/data/models/dem/fubm_mdl_{}g_dem_{}'.format(g, obs)
-        file_ivec_extractor_model = work_dir + '/data/models/dem/ivec_mdl_{}g_dem_{}'.format(g, obs)
+        file_diag_ubm_model = work_dir + '/data/models/ivecs_alz/dubm_mdl_{}g_dem_{}'.format(g, obs_ivec)
+        file_full_ubm_model = work_dir + '/data/models/ivecs_alz/fubm_mdl_{}g_dem_{}'.format(g, obs_ivec)
+        file_ivec_extractor_model = work_dir + '/data/models/ivecs_alz/ivec_mdl_{}g_dem_{}'.format(g, obs_ivec)
         # Train models
         model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
                                                              file_full_ubm_model, file_ivec_extractor_model, g, ivecs_dim)

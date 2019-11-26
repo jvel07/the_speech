@@ -1,15 +1,13 @@
 import random
+from collections import Counter, defaultdict
 
-import librosa
 import numpy as np
-#import bob.io.audio
-#import bob.io.base.test_utils
-import scipy
+# import bob.io.audio
+# import bob.io.base.test_utils
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
-from collections import Counter, defaultdict
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA, LinearDiscriminantAnalysis
 
 
 def fit_PCA(_x_train, n_components, svd_solver, whiten):

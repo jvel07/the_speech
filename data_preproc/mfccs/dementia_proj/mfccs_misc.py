@@ -2,8 +2,8 @@ import pickle
 
 import bob.io.audio
 import bob.kaldi
-# import librosa
-# from python_speech_features import mfcc as p_mfcc
+#import librosa
+from python_speech_features import mfcc as p_mfcc
 from common import util
 
 
@@ -40,8 +40,9 @@ def compute_mfccs_psf(path, audio_list):
     return list_mfccs
 
 
+# Read just original 75 speakers
 def just_original_75():
-    lines = open("/home/jose/PycharmProjects/the_speech/data/wavlista-anon-75-225.txt").read().splitlines()
+    lines = open("../data/wavlista-anon-75-225.txt").read().splitlines()
     wavlista_anon_75_225 = []
     for it in lines:
         wav_file = '{}.wav'.format(it)
@@ -51,24 +52,24 @@ def just_original_75():
 
 def main():
     work_dir = '/home/jose/PycharmProjects/the_speech'
-    # audio_dir = 'D:/VHD/audio'
+    audio_dir = 'C:/Users/Win10/Documents/'
 
     # Input files
-    dir_wav_ubm = work_dir + '/audio/wav-bea-diktafon/'
-    dir_anon_75 = work_dir + '/audio/wav_anon_75_225/'
-    audio_list_ubm = util.read_files_from_dir(dir_wav_ubm)
-    audio_list_dementia_aug = util.read_files_from_dir(dir_anon_75)
+    dir_wav_ubm ='../audio/wav-bea-diktafon'
+    dir_anon_75 = '../audio/wav_anon_75_225'
+    audio_list_ubm = util.read_files_from_dir(dir_wav_ubm)  # Reading BEA files
+    audio_list_dementia_aug = util.read_files_from_dir(dir_anon_75)  # Reading augmented dementia files
 
     # Output files
     observation = '2del'
-    file_mfccs_dem = work_dir + '/data/mfccs/dem/mfccs_dem_13_{}'.format(observation)
-    file_mfccs_dem_aug = work_dir + '/data/mfccs/dem/mfccs_dem_13_aug_{}'.format(observation)
-    file_mfccs_ubm = work_dir + '/data/mfccs/dem/mfccs_ubm_dem_13_{}'.format(observation)
+    file_mfccs_dem = '../data/mfccs/alzheimer/mfccs_dem_13_{}'.format(observation)
+    file_mfccs_dem_aug = '../data/mfccs/alzheimer/mfccs_dem_13_aug_{}'.format(observation)
+    file_mfccs_ubm = '../data/mfccs/alzheimer/mfccs_ubm_dem_13_{}'.format(observation)
 
     # ---Calculating and saving MFCCs---
-    # for augmented audios
-    util.save_pickle(file_mfccs_dem_aug, compute_mfccs_bkaldi(dir_anon_75, audio_list_dementia_aug))
     # for original audios
+    util.save_pickle(file_mfccs_dem_aug, compute_mfccs_bkaldi(dir_anon_75, audio_list_dementia_aug))
+    # for augmented audios
     util.save_pickle(file_mfccs_dem, compute_mfccs_bkaldi(dir_anon_75, just_original_75()))
     # for UBM (BEA diktafon)
     util.save_pickle(file_mfccs_ubm, compute_mfccs_bkaldi(dir_wav_ubm, audio_list_ubm))

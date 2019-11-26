@@ -1,4 +1,4 @@
-#import bob
+# import bob
 import numpy as np
 import os, fnmatch
 import re
@@ -150,19 +150,21 @@ def group_wavs_speakers(iterable, n):  # iterate every n element within a list
 # group speakers per type of audio (normal, noisy, stretched, pitched)
 def group_per_audio_type(features):
     """group speakers per type of audio (normal, noisy, stretched, pitched)"""
-    #features = read_pickle(file)
+    # features = read_pickle(file)
     length = len(features)
     number_of_rows = 4
     number_of_group = 12
-    return [list(features[i:i+number_of_group][j::number_of_rows]) for i in range(0, length, number_of_group) for j in range(number_of_rows)]
+    return [list(features[i:i + number_of_group][j::number_of_rows]) for i in range(0, length, number_of_group) for j in
+            range(number_of_rows)]
 
 
 def group_per_audio_type_2(features):
-   # features = read_pickle(file)
+    # features = read_pickle(file)
     length = 3
     step = 4
     size = step * length
-    return np.array(features).reshape(len(features) // size, length, step).transpose(0, 2, 1).reshape(len(features) // length, length)
+    return np.array(features).reshape(len(features) // size, length, step).transpose(0, 2, 1).reshape(
+        len(features) // length, length)
 
 
 # Concatenate speakers wavs (3) in one single array
@@ -185,7 +187,10 @@ def traverse_dir(dir, file_type):
             if file.endswith(file_type):
                 lista.append(os.path.join(root, file))
     return lista
+
+
 """FOR THE DEMENTIA DATASET PREPROCESSING  ---  END"""
+
 
 # Open MFCCs from file
 def read_mfcc(file_name):
@@ -193,6 +198,10 @@ def read_mfcc(file_name):
         mfccs = pickle.load(f)
         print("MFCCs loaded from:", file_name)
     return mfccs
+
+
+def put_commas_to(_string):
+    return re.sub("\s+", ",", _string.strip())
 
 
 """

@@ -88,34 +88,28 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 0
-    list_num_gauss = [2,4,8,16,32,64,128]
+    list_num_gauss = [2]
     # obs = 'fbanks_40'
     feat_type = '13mf'
     n_filters = '256i'
-    deltas = '2del_newubm'
+    deltas = '2del_aug'
     vad = ''
     pca_comp = 20
-    scores = []
 
     for num_gauss in list_num_gauss:
         # Loading data
-        file_x = '/home/jose/PycharmProjects/the_speech/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss,
-                                                                                                          feat_type,
-                                                                                                          deltas,
-                                                                                                          vad,
-                                                                                                          n_filters
-                                                                                                          )
-        file_y = 'labels_75.npy'
+        file_x = '../data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
+        file_y = 'ids_labels_300.txt'
 
         # Load data for 75 spk
-        x = np.loadtxt(file_x)
-        y = np.load('labels_75.npy')
-        y_train = encode_labels_alz(y)  # Encode labels
+       # x = np.loadtxt(file_x)
+        #y = np.load('labels_75.npy')
+        #y_train = encode_labels_alz(y)  # Encode labels
 
         # Load augmented data (for 300 spk)
-        #x_train, y_df = load_data(file_x, file_y, load_mode='txt')
-        #y_train = y_df.diag_code.values
-        #groups = np.array(y_df.patient_id.values)
+        x, y_df = load_data(file_x, file_y, load_mode='txt')
+        y_train = y_df.diag_code.values
+        groups = np.array(y_df.patient_id.values)
 
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
         x_train_grouped = util.group_wavs_speakers(x, 3)
@@ -126,10 +120,11 @@ if __name__ == '__main__':
         scl.fit(x_train)
         x_train = scl.transform(x_train)
         #x_train = tools.min_max_scaling(x_train)
-        c = grid_search(x_train, y_train)
-        scores.append(train_model_cv(x_train, y, 5, c))
-        for i in scores:
-            print(np.mean(i))
+
+        #c = grid_search(x_train, y_train)
+        svc = train_model_stratk_group(x_train, y_train, 5, groups, 0.0001)  # training model
+        scores = test_75(svc, x_train, y_train, groups)
+
         #acc = metrics(ground, pred)
         # print_conf_matrix(ground, pred)
        # results_to_csv('C:/Users/Win10/PycharmProjects/the_speech/data/results_dem.csv',
