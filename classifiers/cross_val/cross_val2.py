@@ -122,7 +122,7 @@ if __name__ == '__main__':
         #x_train = tools.min_max_scaling(x_train)
 
         #c = grid_search(x_train, y_train)
-        svc = train_model_stratk_group(x_train, y_train, 5, groups, 0.0001)  # training model
+        svc = train_model_stratk_group(x_train, y_train, 5, groups, 0.0001)  # training cv model
         scores = test_75(svc, x_train, y_train, groups)
 
         #acc = metrics(ground, pred)
