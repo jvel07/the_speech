@@ -47,7 +47,7 @@ def join_speakers_wavs(list_group_wavs):
         for a, b, c in zip_longest(*[iter(element)] * 3):  # iterate over the sublist of the list
             array = np.concatenate((a, b, c))  # concatenating arrays (every 3)
             x.append(array)
-    print("Speakers' wavs concatenated!")
+    #print("Speakers' wavs concatenated!")
     return np.vstack(x)
 
 
@@ -88,18 +88,18 @@ def plot_pca_variance():
 if __name__ == '__main__':
 
     pca_ = 0
-    list_num_gauss = [2]
+    list_num_gauss = [2,4,8,16,32,64,128]
     # obs = 'fbanks_40'
     feat_type = '13mf'
     n_filters = '256i'
-    deltas = '2del_aug'
+    deltas = '2del_augv2'
     vad = ''
-    pca_comp = 20
+    pca_comp = 13
 
     for num_gauss in list_num_gauss:
         # Loading data
-        file_x = '../data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
-        file_y = 'ids_labels_300.txt'
+        file_x = '/opt/project/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
+        file_y = '/opt/project/data/ids_labels_375.txt'
 
         # Load data for 75 spk
        # x = np.loadtxt(file_x)
@@ -112,18 +112,21 @@ if __name__ == '__main__':
         groups = np.array(y_df.patient_id.values)
 
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-        x_train_grouped = util.group_wavs_speakers(x, 3)
+        #x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
+        x_train_grouped = util.group_per_audio_type(x, st=5)  # for augmented data
         # Concatenate 3 wavs per/spk into 1 wav per/spk
         x_train = join_speakers_wavs(x_train_grouped)
 
         scl = PowerTransformer()
         scl.fit(x_train)
-        x_train = scl.transform(x_train)
-        #x_train = tools.min_max_scaling(x_train)
+        #x_train = scl.transform(x_train)
+        x_train = tools.standardize_data(x_train)
 
         #c = grid_search(x_train, y_train)
-        svc = train_model_stratk_group(x_train, y_train, 5, groups, 0.0001)  # training cv model
-        scores = test_75(svc, x_train, y_train, groups)
+        scores = []
+        scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.0001))  # training model with augmented
+        for i in scores:
+            print(np.mean(i))
 
         #acc = metrics(ground, pred)
         # print_conf_matrix(ground, pred)

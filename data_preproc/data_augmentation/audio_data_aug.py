@@ -1,10 +1,12 @@
-import bob.io.audio
+#import bob.io.audio
 import os
 import random
+from audiotsm import phasevocoder
 
 import librosa
 import numpy as np
 import scipy
+import pyrubberband
 
 # Audio data augmentation
 from common import util
@@ -23,6 +25,8 @@ def load_audio_bob(file):
 def save_wav(file_name, rate, data):  # /home/egasj/PycharmProjects/iVectorsBob/audio/wav-demencia-all/001A_szurke.wav'
     scipy.io.wavfile.write(file_name, rate, data)
 
+
+working_dir= 'C:/Users/Win10/PycharmProjects/the_speech'
 
 def reading_anon75():
     # Reading list of anon 75-225 wav files
@@ -69,6 +73,7 @@ def change_speed_anon75():
     for item2 in list_audios:
         data2 = load_audio_file(dir_ + item2)
         aug = librosa.effects.time_stretch(data2, random.uniform(0, 3))
+        #aug = pyrubberband.pyrb.time_stretch(data2, 2.0)
         scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_stretched.wav', 16000, aug)
 
 

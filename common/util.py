@@ -148,23 +148,23 @@ def group_wavs_speakers(iterable, n):  # iterate every n element within a list
 
 
 # group speakers per type of audio (normal, noisy, stretched, pitched)
-def group_per_audio_type(features):
+def group_per_audio_type(features, st):
     """group speakers per type of audio (normal, noisy, stretched, pitched)"""
     # features = read_pickle(file)
     length = len(features)
-    number_of_rows = 4
-    number_of_group = 12
+    number_of_rows = st
+    number_of_group = 15
     return [list(features[i:i + number_of_group][j::number_of_rows]) for i in range(0, length, number_of_group) for j in
             range(number_of_rows)]
 
 
-def group_per_audio_type_2(features):
+def group_per_audio_type_2(features, st):
     # features = read_pickle(file)
     length = 3
-    step = 4
+    step = st  # grouping audio features every n...
     size = step * length
-    return np.array(features).reshape(len(features) // size, length, step).transpose(0, 2, 1).reshape(
-        len(features) // length, length)
+    return list(np.array(features).reshape(len(features) // size, length, step).transpose(0, 2, 1).reshape(
+        len(features) // length, length))
 
 
 # Concatenate speakers wavs (3) in one single array

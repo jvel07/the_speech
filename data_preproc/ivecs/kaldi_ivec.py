@@ -70,9 +70,9 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = 'aug_2del'
-    obs_ivec = '2del_aug'
-    num_mfccs = '20'
+    obs = 'augv2_2del'
+    obs_ivec = '2del_augv2'
+    num_mfccs = '13'
     ivecs_dim = 256
 
     # ---Input Files---

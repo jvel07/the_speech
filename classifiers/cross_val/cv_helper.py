@@ -67,9 +67,14 @@ def train_model_cv(_x_train, _y_train, n_splits, _c):
     return scores
 
 
-# train SVM model with stratified group kfold cross-validation
+# train SVM model with stratified group kfold cross-validation for augmented data
 def train_model_stratk_group(_x_train, _y_train, n_splits, groups, _c):
-    orig_75_idx = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144, 148, 152, 156, 160, 164, 168, 172, 176, 180, 184, 188, 192, 196, 200, 204, 208, 212, 216, 220, 224, 228, 232, 236, 240, 244, 248, 252, 256, 260, 264, 268, 272, 276, 280, 284, 288, 292, 296]
+    orig_75_idx_aug = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112,
+                       116, 120, 124, 128, 132, 136, 140, 144, 148, 152, 156, 160, 164, 168, 172, 176, 180, 184, 188, 192, 196, 200, 204,
+                       208, 212, 216, 220, 224, 228, 232, 236, 240, 244, 248, 252, 256, 260, 264, 268, 272, 276, 280, 284, 288, 292, 296]
+    orig_75_idx_augv2 = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 345, 350, 355, 360, 365, 370]
+
+
     sgkf = StratifiedGroupKfold(n_splits=n_splits)
     svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
     scores = []
@@ -80,7 +85,7 @@ def train_model_stratk_group(_x_train, _y_train, n_splits, groups, _c):
         #print('Train: %s | test: %s' % (train_index, test_index))
         svc.fit(x_train, y_train)
         # Getting the indexes for the 75 speakers only
-        test_index_75 = list(set(orig_75_idx).intersection(test_index))
+        test_index_75 = list(set(orig_75_idx_augv2).intersection(test_index))
         test_index_75.sort()
         #print('TEST75: ', test_index_75)
         # Testing on 75
