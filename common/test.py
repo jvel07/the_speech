@@ -7,6 +7,12 @@ import librosa
 import numpy as np
 from scipy import signal
 from scipy.io import wavfile
+import argparse
+import librosa
+from specAugment import spec_augment_tensorflow
+import os, sys
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 # y_labels of dem speaker to pandas Dataframe 
@@ -20,15 +26,21 @@ def augment_alz_labels():
 
 # augment_alz_labels()
 
-def aud_to_spec(file):
-    x, sr = librosa.load(file, sr=16000)
-    X = librosa.stft(x)
-    Xdb = librosa.amplitude_to_db(abs(X))
-    plt.figure(figsize=(14, 5))
-    display.specshow(Xdb, sr=sr, x_axis='time', y_axis='hz')
-    plt.colorbar()
-    plt.show()
 
+audio, sampling_rate = librosa.load('../audio/wav_anon_75_225/001A_szurke.wav')
+mel_spectrogram = librosa.feature.melspectrogram(y=audio,
+                                                 sr=sampling_rate,
+                                                 n_mels=256,
+                                                 hop_length=128,
+                                                 fmax=8000)
+# reshape spectrogram shape to [batch_size, time, frequency, 1]
+shape = mel_spectrogram.shape
+mel_spectrogram = np.reshape(mel_spectrogram, (-1, shape[0], shape[1], 1))
 
-aud_to_spec('../audio/wav_anon_75_225/001A_szurke.wav')
+# Show Raw mel-spectrogram
+plt.figure(figsize=(10, 4))
+librosa.display.specshow(librosa.power_to_db(mel_spectrogram[0, :, :, 0], ref=np.max), y_axis='mel', fmax=8000, x_axis='time')
+plt.title("title1")
+plt.tight_layout()
+#plt.show()
 

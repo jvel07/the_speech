@@ -112,14 +112,14 @@ if __name__ == '__main__':
         groups = np.array(y_df.patient_id.values)
 
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-        #x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
+        # x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
         x_train_grouped = util.group_per_audio_type(x, st=5)  # for augmented data
         # Concatenate 3 wavs per/spk into 1 wav per/spk
         x_train = join_speakers_wavs(x_train_grouped)
 
         scl = PowerTransformer()
         scl.fit(x_train)
-        #x_train = scl.transform(x_train)
+        x_train = scl.transform(x_train)
         x_train = tools.standardize_data(x_train)
 
         #c = grid_search(x_train, y_train)
