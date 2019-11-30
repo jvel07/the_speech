@@ -114,6 +114,15 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
 
 """FOR THE DEMENTIA DATASET PREPROCESSING --- START"""
 
+# Read just original 75 speakers
+def just_original_75():
+    lines = open("../data/wavlista-anon-75-225.txt").read().splitlines()
+    wavlista_anon_75_225 = []
+    for it in lines:
+        wav_file = '{}.wav'.format(it)
+        wavlista_anon_75_225.append(wav_file)
+    return wavlista_anon_75_225
+
 
 # Select between szurke or feher
 def select_type_recording(id_type):
