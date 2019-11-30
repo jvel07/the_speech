@@ -22,4 +22,4 @@ warped_masked_spectrogram = spec_augment_tensorflow.spec_augment(mel_spectrogram
 
 a = librosa.feature.inverse.mel_to_audio(warped_masked_spectrogram)
 
-scipy.io.wavfile.write('test.wav', 16000, a)
+#scipy.io.wavfile.write('test.wav', 16000, a)
