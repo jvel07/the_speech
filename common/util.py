@@ -1,4 +1,5 @@
 # import bob
+import h5py
 import numpy as np
 import os, fnmatch
 import re
@@ -13,6 +14,59 @@ def read_pickle(file_name):
         data = pickle.load(f)
         print("Pickle loaded from:", file_name, "With lenght:", len(data), "First ele. shape:", data[0].shape)
     return data
+
+
+# save as hdf5
+def save_as_hdf5(file_name, dataset_name, data):
+    hf = h5py.File(file_name, 'w')
+    hf.create_dataset(dataset_name, data=data)
+    hf.close()
+    print("HDF5 to file:", file_name)
+
+
+# FOR PICKLING FILES MORE THAN 4GB
+class MacOSFile(object):
+
+    def __init__(self, f):
+        self.f = f
+
+    def __getattr__(self, item):
+        return getattr(self.f, item)
+
+    def read(self, n):
+        # print("reading total_bytes=%s" % n, flush=True)
+        if n >= (1 << 31):
+            buffer = bytearray(n)
+            idx = 0
+            while idx < n:
+                batch_size = min(n - idx, 1 << 31 - 1)
+                # print("reading bytes [%s,%s)..." % (idx, idx + batch_size), end="", flush=True)
+                buffer[idx:idx + batch_size] = self.f.read(batch_size)
+                # print("done.", flush=True)
+                idx += batch_size
+            return buffer
+        return self.f.read(n)
+
+    def write(self, buffer):
+        n = len(buffer)
+        print("writing total_bytes=%s..." % n, flush=True)
+        idx = 0
+        while idx < n:
+            batch_size = min(n - idx, 1 << 31 - 1)
+            print("writing bytes [%s, %s)... " % (idx, idx + batch_size), end="", flush=True)
+            self.f.write(buffer[idx:idx + batch_size])
+            print("done.", flush=True)
+            idx += batch_size
+
+
+def pickle_dump_big(obj, file_path):
+    with open(file_path, "wb") as f:
+        return pickle.dump(obj, MacOSFile(f), protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def pickle_load_big(file_path):
+    with open(file_path, "rb") as f:
+        return pickle.load(MacOSFile(f))
 
 
 # save pickle
@@ -116,7 +170,7 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
 
 # Read just original 75 speakers
 def just_original_75():
-    lines = open("../data/wavlista-anon-75-225.txt").read().splitlines()
+    lines = open("/Users/jose/PycharmProjects/the_speech/data/wavlista-anon-75-225.txt").read().splitlines()
     wavlista_anon_75_225 = []
     for it in lines:
         wav_file = '{}.wav'.format(it)

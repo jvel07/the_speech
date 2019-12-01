@@ -1,25 +1,11 @@
-import argparse
-import librosa
-import scipy
 from specAugment import spec_augment_tensorflow
-import os, sys
-import numpy as np
-import copy
+from common import util
 
+original_specs = util.pickle_load_big('/Users/jose/PycharmProjects/the_speech/data/melspecs/melspec_dem_256')
+warped_specs = []
+for item in original_specs:
+    warped_masked_spectrogram = \
+        spec_augment_tensorflow.spec_augment(mel_spectrogram=item)
+    warped_specs.append(warped_masked_spectrogram)
 
-
-
-
-audio, sampling_rate = librosa.load('/home/egasj/PycharmProjects/the_speech/audio/wav_anon_75_225/001A_szurke.wav')
-mel_spectrogram = librosa.feature.melspectrogram(y=audio,
-                                                 sr=16000,
-                                                 n_mels=256,
-                                                 hop_length=128,
-                                                 fmax=8000)
-
-warped_masked_spectrogram = spec_augment_tensorflow.spec_augment(mel_spectrogram=mel_spectrogram)
-
-
-a = librosa.feature.inverse.mel_to_audio(warped_masked_spectrogram)
-
-#scipy.io.wavfile.write('test.wav', 16000, a)
+util.pickle_dump_big(warped_specs, '/Users/jose/PycharmProjects/the_speech/data/melspecs/melspec_dem_256_warped')

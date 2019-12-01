@@ -87,33 +87,34 @@ def plot_pca_variance():
 
 if __name__ == '__main__':
 
+    work_dir = '/Users/jose/PycharmProjects/the_speech'
     pca_ = 0
-    list_num_gauss = [2,4,8,16,32,64,128]
+    list_num_gauss = [2]
     # obs = 'fbanks_40'
-    feat_type = '13mf'
-    n_filters = '256i'
-    deltas = '2del_augv2'
+    feat_type = ''
+    n_filters = '100i'
+    deltas = '1del'
     vad = ''
     pca_comp = 13
 
     for num_gauss in list_num_gauss:
         # Loading data
-        file_x = '/opt/project/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
-        file_y = '/opt/project/data/ids_labels_375.txt'
+        file_x = work_dir +'/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, n_filters, vad, deltas)
+        #file_y = work_dir +'/data/ids_labels_375.txt'
 
         # Load data for 75 spk
-       # x = np.loadtxt(file_x)
-        #y = np.load('labels_75.npy')
-        #y_train = encode_labels_alz(y)  # Encode labels
+        x = np.loadtxt(file_x)
+        y = np.load('labels_75.npy')
+        y_train = encode_labels_alz(y)  # Encode labels
 
         # Load augmented data (for 300 spk)
-        x, y_df = load_data(file_x, file_y, load_mode='txt')
-        y_train = y_df.diag_code.values
-        groups = np.array(y_df.patient_id.values)
+        #x, y_df = load_data(file_x, file_y, load_mode='txt')
+        #y_train = y_df.diag_code.values
+        #groups = np.array(y_df.patient_id.values)
 
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-        # x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
-        x_train_grouped = util.group_per_audio_type(x, st=5)  # for augmented data
+        x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
+        #x_train_grouped = util.group_per_audio_type(x, st=5)  # for augmented data
         # Concatenate 3 wavs per/spk into 1 wav per/spk
         x_train = join_speakers_wavs(x_train_grouped)
 
