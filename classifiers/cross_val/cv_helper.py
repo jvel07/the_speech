@@ -57,6 +57,7 @@ def train_model_cv(_x_train, _y_train, n_splits, _c):
     for train_index, test_index in skf.split(_x_train, _y_train):
         x_train, x_test, y_train, y_test = \
             _x_train[train_index], _x_train[test_index], _y_train[train_index], _y_train[test_index]
+        #svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
         #print('Train: %s | test: %s' % (train_index, test_index))
         svc.fit(x_train, y_train)
         #y_pred = svc.predict(x_test)

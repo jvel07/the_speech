@@ -26,6 +26,7 @@ def save_wav(file_name, rate, data):  # /home/egasj/PycharmProjects/iVectorsBob/
 
 working_dir= 'C:/Users/Win10/PycharmProjects/the_speech'
 
+
 def reading_anon75():
     # Reading list of anon 75-225 wav files
     lines = open("C:/Users/Win10/PycharmProjects/the_speech/data/wavlista-anon-75-225.txt").read().splitlines()
@@ -55,7 +56,7 @@ def add_noise_to_anon75(noise_factor):
         scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_noised.wav', 16000, aug)
 
 
-def change_pitch_       anon75():
+def change_pitch_anon75():
     list_audios = reading_anon75()
     dir_ = 'C:/Users/Win10/Documents/audio/audio/wav_anon_75_225/'
     for item2 in list_audios:
