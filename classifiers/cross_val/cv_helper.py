@@ -53,13 +53,13 @@ def train_model_cv(_x_train, _y_train, n_splits, _c):
     scores = []
     # scores2 = []
     skf = StratifiedKFold(n_splits=n_splits)
+    svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
     for train_index, test_index in skf.split(_x_train, _y_train):
-        svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
         x_train, x_test, y_train, y_test = \
             _x_train[train_index], _x_train[test_index], _y_train[train_index], _y_train[test_index]
-        print('Train: %s | test: %s' % (train_index, test_index))
+        #print('Train: %s | test: %s' % (train_index, test_index))
         svc.fit(x_train, y_train)
-        y_pred = svc.predict(x_test)
+        #y_pred = svc.predict(x_test)
         scores.append(svc.score(x_test, y_test))
         # scores2.append(accuracy_score(y_test, y_pred))
         # pp['final-average'] = predicciones+ground_truths
@@ -79,7 +79,7 @@ def train_model_stratk_group(_x_train, _y_train, n_splits, groups, _c):
     svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
     scores = []
     for train_index, test_index in sgkf.split(_x_train, _y_train, groups):
-        svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
+       # svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
         x_train, x_test, y_train, y_test = \
             _x_train[train_index], _x_train[test_index], _y_train[train_index], _y_train[test_index]
         #print('Train: %s | test: %s' % (train_index, test_index))

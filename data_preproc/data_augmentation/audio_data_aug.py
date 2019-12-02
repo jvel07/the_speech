@@ -1,15 +1,13 @@
 #import bob.io.audio
 import os
 import random
-from audiotsm import phasevocoder
 
 import librosa
 import numpy as np
 import scipy
-import pyrubberband
+
 
 # Audio data augmentation
-from common import util
 
 
 def load_audio_file(file_path):
@@ -57,7 +55,7 @@ def add_noise_to_anon75(noise_factor):
         scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_noised.wav', 16000, aug)
 
 
-def change_pitch_anon75():
+def change_pitch_       anon75():
     list_audios = reading_anon75()
     dir_ = 'C:/Users/Win10/Documents/audio/audio/wav_anon_75_225/'
     for item2 in list_audios:
@@ -72,7 +70,7 @@ def change_speed_anon75():
     dir_ = 'C:/Users/Win10/Documents/audio/audio/wav_anon_75_225/'
     for item2 in list_audios:
         data2 = load_audio_file(dir_ + item2)
-        aug = librosa.effects.time_stretch(data2, random.uniform(0, 3))
+        aug = librosa.effects.time_stretch(data2, random.uniform(0, 1))
         #aug = pyrubberband.pyrb.time_stretch(data2, 2.0)
         scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_stretched.wav', 16000, aug)
 

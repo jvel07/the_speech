@@ -216,7 +216,7 @@ def group_per_audio_type(features, st):
     # features = read_pickle(file)
     length = len(features)
     number_of_rows = st
-    number_of_group = 15
+    number_of_group = 12 #12, 15
     return [list(features[i:i + number_of_group][j::number_of_rows]) for i in range(0, length, number_of_group) for j in
             range(number_of_rows)]
 
