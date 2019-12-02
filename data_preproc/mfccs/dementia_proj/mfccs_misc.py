@@ -24,7 +24,7 @@ def compute_mfccs_bkaldi(path, audio_list):
     print('Computing MFCCs on:', path)
     for item in audio_list:
         data = bob.io.audio.reader(path + item)
-        mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=True, num_ceps=13) #bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=0, rate=data.rate, normalization=False, num_ceps=20)
+        mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False, num_ceps=13) #bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=0, rate=data.rate, normalization=False, num_ceps=20)
         list_mfccs.append(mfcc)
     return list_mfccs
 
