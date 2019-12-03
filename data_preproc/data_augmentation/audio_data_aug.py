@@ -16,7 +16,7 @@ def load_audio_file(file_path):
 
 
 def load_audio_bob(file):
-    data = bob.io.audio.reader(file)
+    data =0# bob.io.audio.reader(file)
     return data.load()[0]
 
 
@@ -66,9 +66,9 @@ def change_pitch_anon75():
     for item2 in list_audios:
         #data2 = bob.io.audio.reader(dir_ + item2)
         data2 = load_audio_file(dir_ + item2)
-        aug = librosa.effects.pitch_shift(data2, 16000, 1.0)
+        aug = librosa.effects.pitch_shift(data2, 16000, -1.0)
         #aug = pyrubberband.pyrb.pitch_shift(data2, 16000, 4) #random.uniform(-4, 4))
-        scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_pitched_p1.wav', 16000, aug)
+        scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_pitched_m1.wav', 16000, aug)
     print("Augmented with pitch!")
 
 
@@ -80,9 +80,9 @@ def change_speed_anon75():
     dir_ = working_dir + '/audio/wav_anon_75_225/'
     for item2 in list_audios:
         data2 = load_audio_file(dir_ + item2)
-        aug = librosa.effects.time_stretch(data2, 0.81)#random.uniform(0, 1))
+        aug = librosa.effects.time_stretch(data2, 1.23)#random.uniform(0, 1))
         #aug = pyrubberband.pyrb.time_stretch(data2, 2.0)
-        scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_stretched_081.wav', 16000, aug)
+        scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_stretched_123.wav', 16000, aug)
     print("Augmented with stretch!")
 
 

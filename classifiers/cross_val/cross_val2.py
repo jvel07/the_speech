@@ -93,28 +93,28 @@ if __name__ == '__main__':
     # obs = 'fbanks_40'
     feat_type = '13mf'
     n_filters = '256i'
-    deltas = '2del'
+    deltas = '2del_aug'
     vad = ''
     pca_comp = 13
 
     for num_gauss in list_num_gauss:
         # Loading data
         file_x = work_dir +'/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,deltas, vad, n_filters)
-       # file_y = work_dir +'/data/ids_labels_300.txt'
+        file_y = work_dir +'/data/ids_labels_300.txt'
 
         # Load data for 75 spk
-        x = np.loadtxt(file_x)
-        y = np.load('labels_75.npy')
-        y_train = encode_labels_alz(y)  # Encode labels
+        #x = np.loadtxt(file_x)
+        #y = np.load('labels_75.npy')
+        #y_train = encode_labels_alz(y)  # Encode labels
 
         # Load augmented data (for 300 spk)
-        #x, y_df = load_data(file_x, file_y, load_mode='txt')
-        #y_train = y_df.diag_code.values
-        #groups = np.array(y_df.patient_id.values)
+        x, y_df = load_data(file_x, file_y, load_mode='txt')
+        y_train = y_df.diag_code.values
+        groups = np.array(y_df.patient_id.values)
 
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-        x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
-        #x_train_grouped = util.group_per_audio_type(x, st=4)  # for augmented data
+        #x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
+        x_train_grouped = util.group_per_audio_type(x, gr=21, st=7)  # for augmented data
         len(x_train_grouped)
         # Concatenate 3 wavs per/spk into 1 wav per/spk
         x_train = join_speakers_wavs(x_train_grouped)
@@ -126,8 +126,8 @@ if __name__ == '__main__':
 
         #c = grid_search(x_train, y_train)
         scores = []
-        #scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.001))  # training model with augmented
-        scores.append(train_model_cv(x_train, y_train, 5, 0.01))  # training model with original
+        scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.001))  # training model with augmented
+        #scores.append(train_model_cv(x_train, y_train, 5, 0.01))  # training model with original
         for i in scores:
             print(np.mean(i))
 
