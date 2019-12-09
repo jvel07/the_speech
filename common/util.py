@@ -59,20 +59,22 @@ class MacOSFile(object):
             idx += batch_size
 
 
-def pickle_dump_big(obj, file_path):
-    with open(file_path, "wb") as f:
-        return pickle.dump(obj, MacOSFile(f), protocol=pickle.HIGHEST_PROTOCOL)
+def pickle_dump_big(obj, file_name):
+    with open(file_name, "wb") as f:
+        pickle.dump(obj, MacOSFile(f), protocol=pickle.HIGHEST_PROTOCOL)
+        print("Data pickled to file:", file_name, "With lenght:", len(obj), "First ele. shape:", obj[0].shape)
 
 
 def pickle_load_big(file_path):
     with open(file_path, "rb") as f:
-        return pickle.load(MacOSFile(f))
-
+        data = pickle.load(MacOSFile(f))
+        print("Pickle loaded from:", file_path, "With lenght:", len(data), "First ele. shape:", data[0].shape)
+        return data
 
 # save pickle
 def save_pickle(file_name, data):
     with open(file_name, 'wb') as f:
-        pickle.dump(data, f)
+        pickle.dump(data, f, protocol=-1)
         print("Data pickled to file:", file_name, "With lenght:", len(data), "First ele. shape:", data[0].shape)
 
 
@@ -170,7 +172,7 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
 
 # Read just original 75 speakers
 def just_original_75():
-    lines = open("/Users/jose/PycharmProjects/the_speech/data/wavlista-anon-75-225.txt").read().splitlines()
+    lines = open("/opt/project/data/wavlista-anon-75-225.txt").read().splitlines()
     wavlista_anon_75_225 = []
     for it in lines:
         wav_file = '{}.wav'.format(it)

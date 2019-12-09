@@ -70,8 +70,8 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = 'augv2_2del'
-    obs_ivec = '2del_augv2'
+    obs = 'augv3_2del'
+    obs_ivec = '2del_augv3'
     num_mfccs = '13'
     ivecs_dim = 256
 
@@ -87,7 +87,7 @@ def main():
     # and join (concatenate) 3 wavs per speaker
     # list_mfccs_joint = util.join_speakers_wavs(util.group_per_audio_type(list_mfccs_ivecs))
 
-    num_gauss = [2, 4, 8, 16, 32, 64, 128]
+    num_gauss = [2,4,8,16,32,64, 128]
     for g in num_gauss:
         # ---OUTPUT FILES---
         # i-vecs

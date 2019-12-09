@@ -57,7 +57,7 @@ def add_noise_to_anon75(noise_factor=0.034):
     print("Augmented with noise!")
 
 
-add_noise_to_anon75()
+#add_noise_to_anon75()
 
 
 def change_pitch_anon75():
@@ -66,9 +66,9 @@ def change_pitch_anon75():
     for item2 in list_audios:
         #data2 = bob.io.audio.reader(dir_ + item2)
         data2 = load_audio_file(dir_ + item2)
-        aug = librosa.effects.pitch_shift(data2, 16000, -1.0)
+        aug = librosa.effects.pitch_shift(data2, 16000, 2.0)
         #aug = pyrubberband.pyrb.pitch_shift(data2, 16000, 4) #random.uniform(-4, 4))
-        scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_pitched_m1.wav', 16000, aug)
+        scipy.io.wavfile.write(dir_ + os.path.splitext(os.path.basename(dir_+item2))[0] + '_pitched_p2.wav', 16000, aug)
     print("Augmented with pitch!")
 
 
@@ -86,7 +86,7 @@ def change_speed_anon75():
     print("Augmented with stretch!")
 
 
-change_speed_anon75()
+#change_speed_anon75()
 
 
 def shift_time(data):
