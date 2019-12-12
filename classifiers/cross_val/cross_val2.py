@@ -72,31 +72,21 @@ def results_to_csv(file_name, g, feat_type, num_filters, deltas, vad, pca, acc):
             print("File " + file_name + " updated!")
 
 
-def plot_pca_variance():
-    pca_var = PCA().fit(x_train)
-    plt.figure()
-    plt.plot(np.cumsum(pca_var.explained_variance_ratio_))
-    plt.xlabel('Number of Components')
-    plt.ylabel('Variance (%)')  # for each component
-    plt.title('Dataset Explained Variance')
-    plt.show()
-
-
 if __name__ == '__main__':
 
-    work_dir = '/opt/project' #C:/Users/Win10/PycharmProjects/the_speech'
+    work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
     pca_ = 0
     list_num_gauss = [2,4,8,16,32,64,128]
     # obs = 'fbanks_40'
-    feat_type = '13mf'
-    n_filters = '256i'
-    deltas = '2del_augv3'
+    feat_type = 'fb'
+    n_filters = ''
+    deltas = '40_aug'
     vad = ''
     pca_comp = 13
 
     for num_gauss in list_num_gauss:
         # Loading data
-        file_x = work_dir +'/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,deltas, vad, n_filters)
+        file_x = work_dir +'/data/fisher_vecs/fisher-{}-{}-{}-{}-{}'.format(num_gauss, feat_type,deltas, vad, n_filters)
         file_y = work_dir +'/data/ids_labels_675.txt'
 
         # Load data for 75 spk
@@ -112,7 +102,7 @@ if __name__ == '__main__':
         # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
         #x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
         x_train_grouped = util.group_per_audio_type(x, gr=27, st=9)  # for augmented data
-        len(x_train_grouped)
+        print(len(x_train_grouped))
         # Concatenate 3 wavs per/spk into 1 wav per/spk
         x_train = join_speakers_wavs(x_train_grouped)
 

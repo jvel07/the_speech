@@ -3,10 +3,10 @@ from common import util
 import numpy as np
 
 # Loading Files
-file_mfccs = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_dem_aug_40' #'../data/mfccs/mfccs_dem_no_deltas_13_vad'
-file_mfccs_bea = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_bea_dem_aug_40'
-list_mfccs = util.read_pickle(file_mfccs)
-array_mfccs_bea = util.read_pickle(file_mfccs_bea)
+file_mfccs = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_dem_40_aug.npy' #'../data/mfccs/mfccs_dem_no_deltas_13_vad'
+file_mfccs_bea = 'C:/Users/Win10/PycharmProjects/the_speech/data/fbanks/fbanks_bea_dem_40_aug.npy'
+list_mfccs = np.load(file_mfccs, allow_pickle=True)
+array_mfccs_bea = np.load(file_mfccs_bea)
 
 # convert list of mfccs to array
 # array_mfccs = np.vstack(list_mfccs)
