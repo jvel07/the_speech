@@ -86,7 +86,7 @@ def train_model_stratk_group(_x_train, _y_train, n_splits, groups, _c):
         svc = svm.LinearSVC(C=_c, verbose=0, max_iter=965000)  # class_weight='balanced',
         svc.fit(x_train, y_train)
         # Getting the indexes for the 75 speakers only
-        test_index_75 = list(set(orig_75_idx_augv3).intersection(test_index))
+        test_index_75 = list(set(orig_75_idx_aug).intersection(test_index))
         test_index_75.sort()
         #print('TEST75: ', test_index_75, 'test_ind:', test_index)
         # Testing on 75

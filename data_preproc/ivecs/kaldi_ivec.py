@@ -70,15 +70,16 @@ def main():
 
     set_ = ''
     set_models = ''
-    obs = 'augv3_2del'
-    obs_ivec = '2del_augv3'
-    num_mfccs = '13'
+    obs1 = 'aug_2del'
+    obs = '2del_aug-ubm'
+    obs_ivec = '2del_aug-ubm-augv1-mf'
+    num_mfccs = '20'
     ivecs_dim = 256
 
     # ---Input Files---
     # MFCCs
-    file_mfccs_ivec = '/opt/project/data/mfccs/alzheimer/mfccs_dem_{}_{}'.format(num_mfccs, obs)
-    file_mfccs_ubm = '/opt/project/data/mfccs/alzheimer/mfccs_ubm_bea_{}'.format(num_mfccs)
+    file_mfccs_ivec = '/opt/project/data/mfccs/alzheimer/mfccs_dem_{}_{}'.format(num_mfccs, obs1)
+    file_mfccs_ubm = '/opt/project/data/mfccs/alzheimer/mfccs_ubm_dem_{}_{}'.format(num_mfccs, obs)
     # Load MFCCs for UBM
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction
@@ -87,18 +88,21 @@ def main():
     # and join (concatenate) 3 wavs per speaker
     # list_mfccs_joint = util.join_speakers_wavs(util.group_per_audio_type(list_mfccs_ivecs))
 
-    num_gauss = [2,4,8,16,32,64, 128]
+    num_gauss = [2, 4, 8, 16, 32, 64, 128]
     for g in num_gauss:
         # ---OUTPUT FILES---
         # i-vecs
-        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(g) + '-{}mf-{}--{}i'.format(num_mfccs, obs_ivec, ivecs_dim)
+        ivector_2D_file = work_dir + '/data/ivecs/alzheimer/ivecs-' + str(g) + '-{}mf-{}--{}i'.format(num_mfccs,
+                                                                                                      obs_ivec,
+                                                                                                      ivecs_dim)
         # models for i-vecs
         file_diag_ubm_model = work_dir + '/data/models/ivecs_alz/dubm_mdl_{}g_dem_{}'.format(g, obs_ivec)
         file_full_ubm_model = work_dir + '/data/models/ivecs_alz/fubm_mdl_{}g_dem_{}'.format(g, obs_ivec)
         file_ivec_extractor_model = work_dir + '/data/models/ivecs_alz/ivec_mdl_{}g_dem_{}'.format(g, obs_ivec)
         # Train models
         model_dubm, model_fubm, model_ivector = train_models(mfccs_wav_ubm, list_mfccs_ivecs, file_diag_ubm_model,
-                                                             file_full_ubm_model, file_ivec_extractor_model, g, ivecs_dim)
+                                                             file_full_ubm_model, file_ivec_extractor_model, g,
+                                                             ivecs_dim)
 
         # Extract ivectors
         print("Extracting i-vecs...")

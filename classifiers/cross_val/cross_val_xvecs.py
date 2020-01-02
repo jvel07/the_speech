@@ -44,7 +44,7 @@ def join_speakers_wavs(list_group_wavs):
         for a, b, c in zip_longest(*[iter(element)] * 3):  # iterate over the sublist of the list
             array = np.concatenate((a, b, c))  # concatenating arrays (every 3)
             x.append(array)
-    #print("Speakers' wavs concatenated!")
+    # print("Speakers' wavs concatenated!")
     return np.vstack(x)
 
 
@@ -75,49 +75,47 @@ def results_to_csv(file_name, g, feat_type, num_filters, deltas, vad, pca, acc):
 if __name__ == '__main__':
 
     work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
-    pca_ = 0
-    list_num_gauss = [2,4,8,16,32,64,128]
     # obs = 'fbanks_40'
-    feat_type = '20mf'
-    n_filters = '256i'
-    deltas = '2del_aug-ubm-augv1-mf'
+    feat_type = '23mf'
+    n_filters = '512x'
+    deltas = ''
     vad = ''
+    num_gauss = ''
 
-    for num_gauss in list_num_gauss:
-        # Loading data
-        file_x = work_dir +'/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
-        file_y = work_dir +'/data/ids_labels_300.txt'
+    # Loading data
+    file_x = work_dir + '/data/xvecs/xvecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
+    file_y = work_dir + '/data/ids_labels_300.txt'
 
-        # Load data for 75 spk
-        x = np.loadtxt(file_x)
-        y = np.load('labels_75.npy')
-        y_train = encode_labels_alz(y)  # Encode labels
+    # Load data for 75 spk
+    x = np.loadtxt(file_x)
+    y = np.load('labels_75.npy')
+    y_train = encode_labels_alz(y)  # Encode labels
 
-        # Load augmented data (for 300 or + spk)
-        #x, y_df = load_data(file_x, file_y, load_mode='txt')
-        #y_train = y_df.diag_code.values
-        #groups = np.array(y_df.patient_id.values)
+    # Load augmented data (for 300 or + spk)
+    # x, y_df = load_data(file_x, file_y, load_mode='txt')
+    # y_train = y_df.diag_code.values
+    # groups = np.array(y_df.patient_id.values)
 
-        # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
-        x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
-        #x_train_grouped = util.group_per_audio_type(x, gr=12, st=4)  # for augmented data
-        #print(len(x_train_grouped))
-        # Concatenate 3 wavs per/spk into 1 wav per/spk
-        x_train = join_speakers_wavs(x_train_grouped)
+    # (For Alzheimer's) Each speaker has 3 samples, group every 3 samples
+    x_train_grouped = util.group_wavs_speakers(x, 3)  # for original data
+    # x_train_grouped = util.group_per_audio_type(x, gr=12, st=4)  # for augmented data
+    # print(len(x_train_grouped))
+    # Concatenate 3 wavs per/spk into 1 wav per/spk
+    x_train = join_speakers_wavs(x_train_grouped)
 
-        scl = PowerTransformer()
-        scl.fit(x_train)
-        x_train = scl.transform(x_train)
-        x_train = tools.standardize_data(x_train)
+    scl = PowerTransformer()
+    scl.fit(x_train)
+    #x_train = scl.transform(x_train)
+    #x_train = tools.standardize_data(x_train)
 
-        #c = grid_search(x_train, y_train)
-        scores = []
-        scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
-        #scores.append(train_model_cv(x_train, np.ravel(y_train), 5, 0.001))  # training model with original
-        for ii in scores:
-            print(np.mean(ii))
+    # c = grid_search(x_train, y_train)
+    scores = []
+    #scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
+    scores.append(train_model_cv(x_train, np.ravel(y_train), 5, 0.001))  # training model with original
+    for ii in scores:
+        print(np.mean(ii))
 
-        #acc = metrics(ground, pred)
-        # print_conf_matrix(ground, pred)
-       # results_to_csv('C:/Users/Win10/PycharmProjects/the_speech/data/results_dem.csv',
-        #               str(num_gauss), feat_type, n_filters, deltas, str(vad), str(pca_comp), str(acc))
+    # acc = metrics(ground, pred)
+    # print_conf_matrix(ground, pred)
+# results_to_csv('C:/Users/Win10/PycharmProjects/the_speech/data/results_dem.csv',
+#               str(num_gauss), feat_type, n_filters, deltas, str(vad), str(pca_comp), str(acc))
