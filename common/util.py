@@ -172,7 +172,8 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
 
 # Read just original 75 speakers
 def just_original_75():
-    lines = open("/opt/project/data/wavlista-anon-75-225.txt").read().splitlines()
+    work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' #/opt/project/
+    lines = open(work_dir + "/data/wavlista-anon-75-225.txt").read().splitlines()
     wavlista_anon_75_225 = []
     for it in lines:
         wav_file = '{}.wav'.format(it)
