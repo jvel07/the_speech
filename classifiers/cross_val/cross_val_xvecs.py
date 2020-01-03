@@ -74,10 +74,10 @@ def results_to_csv(file_name, g, feat_type, num_filters, deltas, vad, pca, acc):
 
 if __name__ == '__main__':
 
-    work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
+    work_dir = '/home/egasj/PycharmProjects/the_speech'
     # obs = 'fbanks_40'
     feat_type = '23mf'
-    n_filters = '512x'
+    n_filters = '512x2'
     deltas = ''
     vad = ''
     num_gauss = ''
@@ -104,14 +104,14 @@ if __name__ == '__main__':
     x_train = join_speakers_wavs(x_train_grouped)
 
     scl = PowerTransformer()
-    scl.fit(x_train)
+    #scl.fit(x_train)
     #x_train = scl.transform(x_train)
     #x_train = tools.standardize_data(x_train)
 
     # c = grid_search(x_train, y_train)
     scores = []
     #scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
-    scores.append(train_model_cv(x_train, np.ravel(y_train), 5, 0.0001))  # training model with original
+    scores.append(train_model_cv(x_train, np.ravel(y_train), 5, 10))  # training model with original
     for ii in scores:
         print(np.mean(ii))
 

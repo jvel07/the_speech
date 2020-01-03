@@ -74,7 +74,7 @@ def results_to_csv(file_name, g, feat_type, num_filters, deltas, vad, pca, acc):
 
 if __name__ == '__main__':
 
-    work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
+    work_dir = '/home/egasj/PycharmProjects/the_speech'
     pca_ = 0
     list_num_gauss = [2,4,8,16,32,64,128]
     # obs = 'fbanks_40'

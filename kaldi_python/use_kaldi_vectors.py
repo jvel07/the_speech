@@ -1,5 +1,6 @@
 # Reading ark and scp files that were extracted using Kaldi.
 import kaldi_io
+import numpy as np
 
 
 def read_as_dict(file):
@@ -32,11 +33,16 @@ class SPKID_Dataset(Dataset):
     return len(self.feat_list)
 
   def __getitem__(self, idx):
-    feat = kaldi_io. read_vec_flt(self.feat_list[idx])
+    feat = kaldi_io.read_vec_flt(self.feat_list[idx])
     return feat
 
 
-dataset = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.1.scp')
-dataset2 = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.2.scp')
-dataset3 = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.3.scp')
-dataset4 = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.4.scp')
+dataset = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.scp')
+xvecs = []
+for i in range(len(dataset)):
+  xvecs.append(dataset.__getitem__(i))
+
+x = np.vstack(xvecs)
+np.savetxt('../data/xvecs/xvecs--23mf---512x2', x)
+print(x.shape)
+
