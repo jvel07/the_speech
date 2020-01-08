@@ -5,7 +5,8 @@ from common import util
 import pandas as pd
 import os
 
-# y_labels of dem speaker to pandas Dataframe 
+
+# y_labels of dem speaker to pandas Dataframe
 def augment_alz_labels():
     lista = np.loadtxt('../classifiers/cross_val/labels-75.txt', delimiter=',', dtype='str').tolist()
     contador = 0
@@ -17,4 +18,5 @@ def augment_alz_labels():
 
 
 
-a=create_utt2spk_kaldi()
+
+
