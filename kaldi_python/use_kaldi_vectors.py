@@ -38,13 +38,12 @@ class SPKID_Dataset(Dataset):
 
 
 def get_xvecs():
-    dataset = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.scp')
+    dataset = SPKID_Dataset('../kaldi_python/exp/xvectors_test1/xvector.scp')
     xvecs = []
     for i in range(len(dataset)):
         xvecs.append(dataset.__getitem__(i))
-
     x = np.vstack(xvecs)
-    np.savetxt('../data/xvecs/xvecs--23mf---512x2', x)
+    np.savetxt('../data/xvecs/xvecs--23mf---512_ctest', x)
     print(x.shape)
 
 
@@ -55,9 +54,8 @@ def get_ivecs():
         dataset = SPKID_Dataset('../kaldi_python/exp/ivectors_train/ivector.{}.scp'.format(number))
         for i in range(len(dataset)):
             xvecs.append(dataset.__getitem__(i))
-
     x = np.vstack(xvecs)
     np.savetxt('../data/ivecs/alzheimer/ivecs-8-20mf---256i', x)
     print(x.shape)
 
-get_ivecs()
+get_xvecs()

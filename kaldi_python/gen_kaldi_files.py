@@ -7,13 +7,15 @@ import numpy as np
 
 
 def create_scp_kaldi():
-    path = '/home/egasj/kaldi/egs/cold/audio/test1/'  # path to the kaldi folder
-    #work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
+    _set = 'test1'
+    path = '/home/egasj/kaldi/egs/cold/audio/{}/'.format(_set)  # path to the kaldi folder
+    # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
 
     list_audios = util.read_files_from_dir(path)  # util.just_original_75()
     new_list = []
     for item2 in list_audios:
         new_list.append(item2 + ' ' + path + item2)
+    np.savetxt('wav_c{}_new.scp'.format(_set), new_list, fmt="%s", delimiter=' ')
     return new_list
 
 
@@ -37,7 +39,7 @@ def create_utt2spk_kaldi_2():
     new_list = []
     for i in list_audios:
         ii = os.path.splitext(i)[0]
-        new_list.append(i + ' ' + ii[0:10])
+        new_list.append(i + ' ' + ii[0:5])
     return new_list
 
 
@@ -51,3 +53,40 @@ def generate_utt2spk():
     for i, j in zip(utt, spk):
         n.append(j[:5] + "_" + i + ' ' + j[:5])
     return n
+
+
+# order wavs according to spk id for generating a new wav.scp (cold db)
+def order_wavs():
+    _set = 'test1'
+    df = pd.read_csv("wav_c{}.scp".format(_set), sep=" ", header=None)
+    df2 = pd.read_csv("utt2spk_c{}".format(_set), sep=" ", header=None)
+    df.columns = ['wav', 'path']
+    df2.columns = ['wav', 'id']
+    ordered_wavs = df.wav.values
+    ordered_paths = df.path.values
+    ordered_ids = df2.id.values
+    # new = []
+    # for i, j, k in zip(ordered_wavs, ordered_paths, ordered_ids):
+    #   new.append(i + " " + j + " " + k)
+    df3 = pd.DataFrame(list(zip(ordered_wavs, ordered_paths, ordered_ids)))  # (better than for loop)
+    df3.columns = ['wav', 'path', 'spkid']
+    df4 = df3.sort_values(by=['spkid', 'wav'])  # sorting wavs by spkid
+    df4.columns = ['wav', 'path', 'spkid']
+    new_order_wavs = df4.wav.values
+    new_order_paths = df4.path.values
+    new_order_ids = df4.spkid.values
+    n = []  # new list of wavs and paths (kaldi's ordering)
+    #for i, j in zip(new_order_wavs, new_order_paths):
+     #   n.append(i + ' ' + j)
+    #np.savetxt('test.txt'.format(_set), n, fmt="%s", delimiter=' ')
+    # rename wavs in kaldi's ordering (renaming needed for kaldi's need)
+    for wav, id in zip(new_order_wavs, new_order_ids):
+        new_name = id + '_' + wav
+        os.rename("/home/egasj/kaldi/egs/cold/audio/{}/{}".format(_set, wav),
+                  "/home/egasj/kaldi/egs/cold/audio/{}/{}".format(_set, new_name))
+
+
+    return n
+
+
+create_scp_kaldi()
