@@ -38,11 +38,23 @@ def standardize_data(x_t):
     return scaled_data
 
 
+def fit_standardize_data(x_t):
+    scaler = preprocessing.StandardScaler().fit(x_t)
+    print("Data standardized...")
+    return scaler
+
+
 def normalize_data(x_t):
     scaler = preprocessing.Normalizer().fit(x_t)
     norm_data = scaler.transform(x_t)
     print("Data normalized...")
     return norm_data
+
+
+def fit_normalize_data(x_t):
+    scaler = preprocessing.Normalizer().fit(x_t)
+    print("Data fitted as normalized...")
+    return scaler
 
 
 def min_max_scaling(_x):

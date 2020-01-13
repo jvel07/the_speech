@@ -33,6 +33,7 @@ class SPKID_Dataset(Dataset):
         return len(self.feat_list)
 
     def __getitem__(self, idx):
+ #       feat = kaldi_io.read_mat(self.feat_list[idx])
         feat = kaldi_io.read_vec_flt(self.feat_list[idx])
         return feat
 
@@ -43,7 +44,7 @@ def get_xvecs():
     for i in range(len(dataset)):
         xvecs.append(dataset.__getitem__(i))
     x = np.vstack(xvecs)
-    np.savetxt('../data/xvecs/xvecs--23mf---512_ctest', x)
+    np.savetxt('../data/xvecs/xvecs--23mf---512_ctest2', x)
     print(x.shape)
 
 
