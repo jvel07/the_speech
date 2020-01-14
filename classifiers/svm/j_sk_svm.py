@@ -1,5 +1,5 @@
-#from optunity.solvers import GridSearch
-from sklearn import svm
+# from optunity.solvers import GridSearch
+from sklearn.svm import LinearSVC
 from sklearn import preprocessing
 import sklearn as sk
 import numpy as np
@@ -11,10 +11,13 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.metrics import roc_auc_score
+
+from classifiers.cross_val.cv_helper import grid_search
 from common import data_proc_tools as t
 from collections import Counter
-
 
 work_dir = '/home/egasj/PycharmProjects/the_speech'
 feat_type = '23mf'
@@ -43,12 +46,12 @@ Y_dev = np.loadtxt(lbl_dev)
 X_test = np.loadtxt(file_test)
 Y_test = np.loadtxt(lbl_test)
 
-#y_train[y_train == 2] = 0
-#le = preprocessing.LabelBinarizer()
-#le.fit(y_train_str)
-#y_train = le.transform(y_train_str)
-#y_dev = le.transform(y_dev_str)
-#y_test = le.transform(y_test_str)
+# y_train[y_train == 2] = 0
+# le = preprocessing.LabelBinarizer()
+# le.fit(y_train_str)
+# y_train = le.transform(y_train_str)
+# y_dev = le.transform(y_dev_str)
+# y_test = le.transform(y_test_str)
 
 print(sorted(Counter(Y_train).items()))
 # Resampling
@@ -57,27 +60,23 @@ X_resampled, y_resampled = smote_enn.fit_resample(X_train, Y_train)
 print(sorted(Counter(y_resampled).items()))
 
 # pipeline
-pipeline = make_pipeline(
-    #preprocessing.Normalizer(),
-    #preprocessing.StandardScaler(),
-    #RandomForestClassifier(n_estimators=3)
-    #svm.SVC(kernel='linear', C=0.01, verbose=1)
-    svm.LinearSVC(C=1, max_iter=100000, verbose=1)
-    #LogisticRegression(solver='liblinear')
-)
-pipeline.fit(X_resampled, y_resampled)
-y_pred = pipeline.predict(X_dev)
 
-# Predicting
-#y_pred = svc_clf.predict(X_dev)
-#y_pred_prob = svc_clf._predict_proba_lr(X_dev_scaled)
-#util.save_data_to_file("sk_svm_dem_prob_results.txt", y_pred_prob, '%.4f')
+pipeline = Pipeline(
+    [
+        ('standardize', preprocessing.StandardScaler()),
+        ('svm', LinearSVC(verbose=0, class_weight='balanced', max_iter=10000))
+    ])
 
-# Evaluation
+parameters = {
+    'svm__C': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10]
+}
+
+gridder = GridSearchCV(pipeline, parameters, scoring='roc_auc', n_jobs=-1, cv=5)
+gridder.fit(X_train, Y_train)
+
+y_pred = gridder.predict(X_dev)
+y_pr=gridder.decision_function(X_dev)
+
+print('predict', roc_auc_score(Y_dev, y_pred))
+print('decision', roc_auc_score(Y_dev, y_pr))
 print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_dev, y_pred))
-cm = sk.metrics.confusion_matrix(Y_dev, y_pred)
-recall1 = cm[0, 0] / (cm[0, 0] + cm[0, 1])
-recall2 = cm[1, 1] / (cm[1, 0] + cm[1, 1])
-uar = (recall1 + recall2) / 2
-print(uar)
-
