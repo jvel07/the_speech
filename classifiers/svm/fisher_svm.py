@@ -1,23 +1,13 @@
-# from optunity.solvers import GridSearch
-from sklearn.svm import LinearSVC
-from sklearn import preprocessing
-import sklearn as sk
-import numpy as np
-import bob
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from bob.learn.linear import WCCNTrainer
-from imblearn.combine import SMOTETomek, SMOTEENN
-from imblearn.under_sampling import RandomUnderSampler
-from imblearn.over_sampling import RandomOverSampler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import make_pipeline, Pipeline
-from sklearn.metrics import roc_auc_score, precision_recall_curve
-
-from classifiers.cross_val.cv_helper import grid_search
-from common import data_proc_tools as t
 from collections import Counter
+
+import numpy as np
+import sklearn as sk
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn import preprocessing
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
 
 work_dir = '/home/egasj/PycharmProjects/the_speech'
 feat_type = '23mf'
@@ -27,23 +17,23 @@ vad = ''
 num_gauss = ''
 
 # Set data directories
-file_train = work_dir + '/data/xvecs/xvecs-{}-{}-{}-{}-{}_ctrain2'.format(num_gauss, feat_type, deltas, vad, n_filters)
+file_train = work_dir + '/data/fisher/features.fv-mfcc.improved.2.train.txt'
 lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
-file_dev = work_dir + '/data/xvecs/xvecs-{}-{}-{}-{}-{}_cdev2'.format(num_gauss, feat_type, deltas, vad, n_filters)
+file_dev = work_dir + '/data/fisher/features.fv-mfcc.improved.2.dev.txt'
 lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
-file_test = work_dir + '/data/xvecs/xvecs-{}-{}-{}-{}-{}_ctest2'.format(num_gauss, feat_type, deltas, vad, n_filters)
+file_test = work_dir + '/data/fisher/features.fv-mfcc.improved.2.test.txt'
 lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
 # Load data
-X_train = np.loadtxt(file_train)
+X_train = np.loadtxt(file_train, delimiter=',')
 Y_train = np.loadtxt(lbl_train)
 
-X_dev = np.loadtxt(file_dev)
+X_dev = np.loadtxt(file_dev, delimiter=',')
 Y_dev = np.loadtxt(lbl_dev)
 
-X_test = np.loadtxt(file_test)
+X_test = np.loadtxt(file_test, delimiter=',')
 Y_test = np.loadtxt(lbl_test)
 
 # y_train[y_train == 2] = 0
@@ -63,7 +53,7 @@ print(sorted(Counter(y_resampled).items()))
 
 pipeline = Pipeline(
     [
-        ('standardize', preprocessing.StandardScaler()),
+        ('standardize', preprocessing.PowerTransformer()),
         ('svm', LinearSVC(verbose=0, class_weight='balanced', max_iter=10000))
     ])
 
