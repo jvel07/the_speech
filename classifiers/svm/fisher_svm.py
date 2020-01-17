@@ -18,15 +18,15 @@ vad = ''
 num_gauss = ''
 
 # Set data directories
-file_train = work_dir + '/data/fisher/fisher-20-2del_tdubm-4-train'
+file_train = 'D:/fishers/fisher-13-2del_tdubm-32-train'
 # file_train = work_dir + '/data/fisher/features.fv-mfcc.improved.2.train.txt'
 lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
-file_dev = work_dir + '/data/fisher/fisher-20-2del_tdubm-4-dev'
+file_dev = 'D:/fishers/fisher-13-2del_tdubm-32-dev'
 # file_dev = work_dir + '/data/fisher/features.fv-mfcc.improved.2.dev.txt'
 lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
-file_test = work_dir + '/data/fisher/fisher-20-2del_tdubm-4-test'
+file_test = 'D:/fishers/fisher-13-2del_tdubm-32-test'
 # file_test = work_dir + '/data/fisher/features.fv-mfcc.improved.2.test.txt'
 lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
@@ -60,7 +60,6 @@ X_resampled, y_resampled = smote_enn.fit_resample(X, Y)
 print(sorted(Counter(y_resampled).items()))
 
 # pipeline
-
 pipeline = Pipeline(
     [
         ('power', preprocessing.PowerTransformer()),
@@ -69,7 +68,7 @@ pipeline = Pipeline(
         ('svm', LinearSVC(verbose=0, max_iter=1000, class_weight='balanced'))
     ])
 
-com_values = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10]
+com_values = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10]
 for c in com_values:
     pipeline.set_params(svm__C=c).fit(X_resampled, y_resampled)
     y_pr = pipeline.decision_function(X_test)
