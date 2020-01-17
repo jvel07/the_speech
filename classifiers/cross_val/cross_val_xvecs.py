@@ -77,7 +77,7 @@ if __name__ == '__main__':
     work_dir = '/home/egasj/PycharmProjects/the_speech'
     # obs = 'fbanks_40'
     feat_type = '23mf'
-    n_filters = '512x7'
+    n_filters = '512_dem'
     deltas = ''
     vad = ''
     num_gauss = ''
@@ -108,12 +108,13 @@ if __name__ == '__main__':
     #x_train = scl.transform(x_train)
     #x_train = tools.standardize_data(x_train)
 
-    c = grid_search(x_train, y_train)
+    #c = grid_search(x_train, y_train)
     scores = []
     #scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
-    scores.append(train_model_cv(x_train, np.ravel(y_train), 5, c))  # training model with original
-    for ii in scores:
-        print(np.mean(ii))
+    for com in [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]:
+        scores.append(train_model_cv(x_train, np.ravel(y_train), 5, com))  # training model with original
+        for ii in scores:
+            print(np.mean(ii))
 
     # acc = metrics(ground, pred)
     # print_conf_matrix(ground, pred)

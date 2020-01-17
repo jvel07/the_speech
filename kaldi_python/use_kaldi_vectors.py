@@ -39,12 +39,12 @@ class SPKID_Dataset(Dataset):
 
 
 def get_xvecs():
-    dataset = SPKID_Dataset('../kaldi_python/exp/xvectors_test1/xvector.scp')
+    dataset = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.scp')
     xvecs = []
     for i in range(len(dataset)):
         xvecs.append(dataset.__getitem__(i))
     x = np.vstack(xvecs)
-    np.savetxt('../data/xvecs/xvecs--23mf---512_ctest2', x)
+    np.savetxt('../data/xvecs/xvecs--23mf---512_dem', x)
     print(x.shape)
 
 
