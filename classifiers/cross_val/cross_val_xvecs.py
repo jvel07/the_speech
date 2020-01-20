@@ -106,13 +106,17 @@ if __name__ == '__main__':
     scl = PowerTransformer()
     #scl.fit(x_train)
     #x_train = scl.transform(x_train)
-    #x_train = tools.standardize_data(x_train)
+    x_train = tools.normalize_data(x_train)
+    
+    var_ratio = tools.get_var_ratio_pca(x_train)
+    components = tools.sel_pca_comp(var_ratio, goal_var=0.95)
+    x_train_pca = tools.fit_PCA(x_train, components, 'auto', True)
 
     #c = grid_search(x_train, y_train)
     scores = []
     #scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
     for com in [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]:
-        scores.append(train_model_cv(x_train, np.ravel(y_train), 5, com))  # training model with original
+        scores.append(train_model_cv(x_train_pca, np.ravel(y_train), 5, com))  # training model with original
         for ii in scores:
             print(np.mean(ii))
 

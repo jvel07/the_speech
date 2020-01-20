@@ -13,7 +13,7 @@ from sklearn.preprocessing import MinMaxScaler
 def fit_PCA(_x_train, n_components, svd_solver, whiten):
     pca = PCA(n_components=n_components, svd_solver=svd_solver, whiten=whiten).fit(_x_train)
     # B = pca.transform(_x_train_dem)
-    return pca
+    return pca.transform(_x_train)
 
 
 def perform_PCA_manual(_x_train_bea, _x_train_dem, n_components, svd_solver, whiten):

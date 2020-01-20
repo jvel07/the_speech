@@ -47,30 +47,40 @@ Y_train[Y_train == 2] = 0
 Y_dev[Y_dev == 2] = 0
 Y_test[Y_test == 2] = 0
 Y[Y == 2] = 0
+
+
 # le = preprocessing.LabelBinarizer()
 # le.fit(y_train_str)
 # y_train = le.transform(y_train_str)
 # y_dev = le.transform(y_dev_str)
 # y_test = le.transform(y_test_str)
 
-print(sorted(Counter(Y_train).items()))
+
 # Resampling
-smote_enn = RandomUnderSampler()
-X_resampled, y_resampled = smote_enn.fit_resample(X, Y)
-print(sorted(Counter(y_resampled).items()))
+def resampling(X, Y):
+    print(sorted(Counter(Y_train).items()))
+    smote_enn = RandomUnderSampler()
+    X_resampled, y_resampled = smote_enn.fit_resample(X, Y)
+    print(sorted(Counter(y_resampled).items()))
+    return X_resampled, y_resampled
+
+
+resampling(X=X, Y=Y)
 
 # pipeline
 pipeline = Pipeline(
     [
-        ('power', preprocessing.PowerTransformer()),
+        # ('power', preprocessing.PowerTransformer()),
         # ('standardize', preprocessing.StandardScaler()),
         ('normalizer', preprocessing.Normalizer()),
-        ('svm', LinearSVC(verbose=0, max_iter=1000, class_weight='balanced'))
+        ('logistic', sk.linear_model.SGDClassifier(loss="perceptron", eta0=1, learning_rate="constant", penalty=None))
+        # ('svm', LinearSVC(verbose=0, max_iter=1000, class_weight='balanced'))
     ])
 
-com_values = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10]
+com_values = [1e-6]
 for c in com_values:
-    pipeline.set_params(svm__C=c).fit(X_resampled, y_resampled)
+    # pipeline.set_params(svm__C=c).fit(X_resampled, y_resampled)
+    pipeline.fit(X, Y)
     y_pr = pipeline.decision_function(X_test)
     y_pred = pipeline.predict(X_test)
     print("With:", c)

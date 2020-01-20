@@ -3,9 +3,8 @@ from sklearn.svm import LinearSVC
 from sklearn import preprocessing
 import sklearn as sk
 import numpy as np
-import bob
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from bob.learn.linear import WCCNTrainer
+
 from imblearn.combine import SMOTETomek, SMOTEENN
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
@@ -60,17 +59,10 @@ X_resampled, y_resampled = smote_enn.fit_resample(X_train, Y_train)
 print(sorted(Counter(y_resampled).items()))
 
 # pipeline
-
 pipeline = Pipeline(
     [
-        ('standardize', preprocessing.Normalizer()),
+        ('normalize', preprocessing.Normalizer()),
         ('svm', LinearSVC(verbose=0, class_weight='balanced', max_iter=10000))
-    ])
-
-pipeline = Pipeline(
-    [
-        ('standardize', preprocessing.Normalizer()),
-        ('svm', LinearSVC(verbose=0, max_iter=10000))
     ])
 
 com_values = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10]
