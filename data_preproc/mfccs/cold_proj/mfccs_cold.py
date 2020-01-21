@@ -92,8 +92,8 @@ if __name__ == '__main__':
     audio_list_wav_ubm = audio_list_timit_train + audio_list_timit_test
     lista_mfccs_ubm = []
     lista_mfccs_ivecs = []
-    mfccs_file_ivecs = '/home/egasj/PycharmProjects/iVectorsBob/data/mfccs/cold/mfccs_cold_{}_20_{}'.format(set_, observation)
-    mfccs_file_ubm = '../data/mfccs/cold/mfccs_ubm_cold_{}_20_{}'.format(set_, observation)
+    mfccs_file_ivecs = '/home/egasj/PycharmProjects/iVectorsBob/data/hc/cold/mfccs_cold_{}_20_{}'.format(set_, observation)
+    mfccs_file_ubm = '../data/hc/cold/mfccs_ubm_cold_{}_20_{}'.format(set_, observation)
 
     # Calculating MFCCs
     if set_ == 'traini':

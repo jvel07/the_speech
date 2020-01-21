@@ -73,8 +73,8 @@ if __name__ == '__main__':
     # audio_list_bea_and_non75 = audio_list_wav_ubm + audio_list_non_75
     lista_mfccs_ubm = []
     lista_mfccs_ivecs = []
-    mfccs_file_ivecs = '/home/egasj/PycharmProjects/iVectorsBob/data/mfccs/mfccs_dem_{}_13'.format(observation)
-    mfccs_file_ubm = '/home/egasj/PycharmProjects/iVectorsBob/data/mfccs/mfccs_ubm_dem_{}_13'.format(observation)
+    mfccs_file_ivecs = '/home/egasj/PycharmProjects/iVectorsBob/data/hc/mfccs_dem_{}_13'.format(observation)
+    mfccs_file_ubm = '/home/egasj/PycharmProjects/iVectorsBob/data/hc/mfccs_ubm_dem_{}_13'.format(observation)
 
     lines = open("/home/egasj/PycharmProjects/iVectorsBob/data/wavlista-anon-75-225.txt").read().splitlines()
     wavlista_anon_75_225 = []

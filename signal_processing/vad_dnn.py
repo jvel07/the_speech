@@ -67,7 +67,7 @@ def save_vads(file, lista):
 
 
 ##  Activity detection
-#  Activity detection (requires mfccs and vads in the form of nparrays)
+#  Activity detection (requires hc and vads in the form of nparrays)
 def remove_non_active_segments(mfccs, vads, file):
     new = []
     for m1 in mfccs:

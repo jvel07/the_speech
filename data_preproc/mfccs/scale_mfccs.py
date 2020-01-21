@@ -26,15 +26,15 @@ if __name__ == '__main__':
     proj = 'cold'
 
     # Output files of new scaled MFCCs
-    mfccs_file_ivec_train_scl = '../data/mfccs/{}/mfccs_{}_train_20_scl'.format(proj, proj)
-    mfccs_file_ivec_dev_scl = '../data/mfccs/{}/mfccs_{}_dev_20_scl'.format(proj, proj)
-    mfccs_file_ivec_test_scl = '../data/mfccs/{}/mfccs_{}_test_20_scl'.format(proj, proj)
-    mfccs_file_ubm_scl = '../data/mfccs/{}/mfccs_{}_ubm_20_{}_scl'.format(proj, proj, obs)
+    mfccs_file_ivec_train_scl = '../data/hc/{}/mfccs_{}_train_20_scl'.format(proj, proj)
+    mfccs_file_ivec_dev_scl = '../data/hc/{}/mfccs_{}_dev_20_scl'.format(proj, proj)
+    mfccs_file_ivec_test_scl = '../data/hc/{}/mfccs_{}_test_20_scl'.format(proj, proj)
+    mfccs_file_ubm_scl = '../data/hc/{}/mfccs_{}_ubm_20_{}_scl'.format(proj, proj, obs)
 
     # Standarize-scale the MFCCs and pickle-dump them
     if set_ == 'ubm':
         # Load MFCCs to be used for training the UBM
-        mfccs_file_ubm = '../data/mfccs/{}/mfccs_cold_ubm_20_{}'.format(proj, obs)
+        mfccs_file_ubm = '../data/hc/{}/mfccs_cold_ubm_20_{}'.format(proj, obs)
         mfccs_ubm = np.vstack(read_mfcc(mfccs_file_ubm))
 
         # Scale UBM MFCCs
@@ -45,9 +45,9 @@ if __name__ == '__main__':
         print("UBM MFCCs scaled and saved successfully to:", mfccs_file_ubm_scl)
     else:
         # MFCCs files to be used in i-vecs extraction
-        mfccs_file_ivec_train = '../data/mfccs/{}/mfccs_{}_train_20_'.format(proj, proj)
-        mfccs_file_ivec_dev = '../data/mfccs/{}/mfccs_{}_dev_20_'.format(proj, proj)
-        mfccs_file_ivec_test = '../data/mfccs/{}/mfccs_{}_test_20_'.format(proj, proj)
+        mfccs_file_ivec_train = '../data/hc/{}/mfccs_{}_train_20_'.format(proj, proj)
+        mfccs_file_ivec_dev = '../data/hc/{}/mfccs_{}_dev_20_'.format(proj, proj)
+        mfccs_file_ivec_test = '../data/hc/{}/mfccs_{}_test_20_'.format(proj, proj)
 
         # Scale i-vecs MFCCs and save them
         mfccs_ivecs_train = np.vstack(read_mfcc(mfccs_file_ivec_train))  # Load MFCCs as array for fitting the scaler

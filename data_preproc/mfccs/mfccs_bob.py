@@ -92,8 +92,8 @@ if __name__ == '__main__':
     # audio_list_bea_and_non75 = audio_list_wav_ubm + audio_list_non_75
     lista_mfccs_ubm = []
     lista_mfccs_ivecs = []
-    mfccs_file_ivecs = '../data/mfccs/cold/mfccs_cold_{}_20_{}'.format(set_, observation)
-    mfccs_file_ubm = '../data/mfccs/cold/mfccs_ubm_cold_{}_20_{}'.format(set_, observation)
+    mfccs_file_ivecs = '../data/hc/cold/mfccs_cold_{}_20_{}'.format(set_, observation)
+    mfccs_file_ubm = '../data/hc/cold/mfccs_ubm_cold_{}_20_{}'.format(set_, observation)
 
     # Calculating MFCCs
     if set_ == 'traini':

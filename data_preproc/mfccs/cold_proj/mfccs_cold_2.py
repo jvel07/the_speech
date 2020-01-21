@@ -27,8 +27,8 @@ def compute_mfccs_bkaldi(path, audio_list):
     print('Computing MFCCs on:', path, '\nNumber of files to process:', len(audio_list))
     for item in audio_list:
         data = bob.io.audio.reader(path + item)
-        mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False,
-                              num_ceps=20)  # bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=0, rate=data.rate, normalization=False, num_ceps=20)
+        mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=True, num_ceps=13, snip_edges=False)
+        #mfcc = bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=0, rate=data.rate, normalization=False, num_ceps=20)
         list_mfccs.append(mfcc)
     return list_mfccs
 
@@ -57,15 +57,15 @@ if __name__ == '__main__':
 
     # Output files
     observation = '2del'
-    num_mfccs = 20
-    # file_mfccs_ubm = work_dir + '/data/mfccs/cold/mfccs_ubm_dem_{}_{}'.format(num_mfccs, observation)
+    num_mfccs = 13
+    # file_mfccs_ubm = work_dir + '/data/hc/cold/mfccs_ubm_dem_{}_{}'.format(num_mfccs, observation)
 
     # ---Calculating and saving MFCCs---
     # for original audios
     for name in list_sets:
         dir_wavs = work_dir + '/audio/{}/'.format(name)
         audio_list = util.read_files_from_dir(dir_wavs)  # Reading wav files
-        file_mfccs_cold = work_dir + '/data/mfccs/cold/mfccs_cold_{}_{}_{}'.format(num_mfccs, name, observation)
+        file_mfccs_cold = work_dir + '/data/hc/cold/mfccs_cold_{}_{}_{}'.format(num_mfccs, name, observation)
         util.save_pickle(file_mfccs_cold, compute_mfccs_bkaldi(dir_wavs, audio_list))
 
     # for UBM

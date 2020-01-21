@@ -140,7 +140,7 @@ def read_mfc_htk_file(filename):  # save_as):
 
 # Processing set of HTK files, receives as parameter regex e.g. r'^train'
 # if the file starts with train, with r'^dev' if it starts with development, etc.
-# returns a list of processed and trasnposed mfccs ready to be fed to Fishers
+# returns a list of processed and trasnposed hc ready to be fed to Fishers
 def process_htk_files_for_fishers_trans(path_to_mfccs, regex):
     list_processed = []
     list_of_files = read_files_from_dir(path_to_mfccs, regex)

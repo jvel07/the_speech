@@ -78,8 +78,8 @@ def main():
 
     # ---Input Files---
     # MFCCs
-    file_mfccs_ivec = '/opt/project/data/mfccs/alzheimer/mfccs_dem_{}_{}'.format(num_mfccs, obs1)
-    file_mfccs_ubm = '/opt/project/data/mfccs/alzheimer/mfccs_ubm_dem_{}_{}'.format(num_mfccs, obs)
+    file_mfccs_ivec = '/opt/project/data/hc/alzheimer/mfccs_dem_{}_{}'.format(num_mfccs, obs1)
+    file_mfccs_ubm = '/opt/project/data/hc/alzheimer/mfccs_ubm_dem_{}_{}'.format(num_mfccs, obs)
     # Load MFCCs for UBM
     mfccs_wav_ubm = np.vstack(util.read_pickle(file_mfccs_ubm))
     # Load MFCCs for i-vectors extraction

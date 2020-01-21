@@ -66,10 +66,11 @@ def main():
     audio_list_dementia_aug = util.read_files_from_dir(dir_anon_75)  # Reading augmented dementia files
 
     # Output files
-    observation = '2del'
-    file_mfccs_dem = '../data/mfccs/alzheimer/mfccs_dem_13_{}'.format(observation)
-    file_mfccs_dem_aug = '../data/mfccs/alzheimer/mfccs_dem_13_aug_{}'.format(observation)
-    file_mfccs_ubm = '../data/mfccs/alzheimer/mfccs_ubm_dem_13_{}'.format(observation)
+    observation = '2del_aug-ubm'
+    num_mfccs = 20
+    #file_mfccs_dem = work_dir + '/data/hc/alzheimer/mfccs_dem_{}_{}'.format(num_mfccs, observation)
+    #file_mfccs_dem_aug = work_dir + '/data/hc/alzheimer/mfccs_dem_{}_augv3_{}'.format(num_mfccs, observation)
+    file_mfccs_ubm = work_dir + '/data/hc/alzheimer/mfccs_ubm_dem_{}_{}'.format(num_mfccs, observation)
 
     # ---Calculating and saving MFCCs---
     # for original audios

@@ -117,8 +117,8 @@ for i in sets:
         file_ubm_model = '../data/models/cold/ubm_mdl_{}g_cold_{}.hdf5'.format(num_gauss, obs_ivec)
         file_ivec_model = '../data/models/cold/ivec_mdl_{}g_cold_{}.hdf5'.format(num_gauss, obs_ivec)
         # Load MFCCs
-        mfccs_file_ivec = '../data/mfccs/cold/mfccs_cold_{}_20_scl'.format(set_)
-        mfccs_file_ubm = '../data/mfccs/cold/mfccs_cold_ubm_20_fulltmt_scl'
+        mfccs_file_ivec = '../data/hc/cold/mfccs_cold_{}_20_scl'.format(set_)
+        mfccs_file_ubm = '../data/hc/cold/mfccs_cold_ubm_20_fulltmt_scl'
         mfccs_wav_ubm = np.asarray(np.vstack(util.read_pickle(mfccs_file_ubm)), dtype='float64')
         list_mfccs_ivecs = util.read_pickle(mfccs_file_ivec)
         f2 = np.vectorize(f)
@@ -147,7 +147,7 @@ for i in sets:
         file_ubm_model = '../data/models/cold/ubm_mdl_{}g_cold_{}.hdf5'.format(num_gauss, obs_ivec)
         file_ivec_model = '../data/models/cold/ivec_mdl_{}g_cold_{}.hdf5'.format(num_gauss, obs_ivec)
         # Load MFCCs
-        mfccs_file_ivec = '../data/mfccs/cold/mfccs_cold_{}_20_scl'.format(set_)
+        mfccs_file_ivec = '../data/hc/cold/mfccs_cold_{}_20_scl'.format(set_)
         list_mfccs_ivecs = util.read_pickle(mfccs_file_ivec)
         f2 = np.vectorize(f)
         list_mfccs_ivecs = [f2(i) for i in list_mfccs_ivecs]  # converting arrays to float64 within the list
@@ -170,7 +170,7 @@ for i in sets:
         file_ubm_model = '../data/models/cold/ubm_mdl_{}g_cold_{}.hdf5'.format(num_gauss, obs_ivec)
         file_ivec_model = '../data/models/cold/ivec_mdl_{}g_cold_{}.hdf5'.format(num_gauss, obs_ivec)
         # Load MFCCs
-        mfccs_file_ivec = '../data/mfccs/cold/mfccs_cold_{}_20_scl'.format(set_)
+        mfccs_file_ivec = '../data/hc/cold/mfccs_cold_{}_20_scl'.format(set_)
         list_mfccs_ivecs = util.read_pickle(mfccs_file_ivec)
         f2 = np.vectorize(f)
         list_mfccs_ivecs = [f2(i) for i in list_mfccs_ivecs]  # converting arrays to float64 within the list
