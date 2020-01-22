@@ -22,12 +22,12 @@ def extract_fishers(list_sets, num_feats_got_mfccs, training_type=0):
     file_mfccs_1 = 'C:/Users/Win10/PycharmProjects/the_speech/data/hc/cold/mfccs_cold_{}_train_2del'.format(num_feats)
     array_mfccs_1 = np.load(file_mfccs_1, allow_pickle=True)
     file_mfccs_2 = 'C:/Users/Win10/PycharmProjects/the_speech/data/hc/cold/mfccs_cold_{}_dev_2del'.format(num_feats)
-    #array_mfccs_2 = np.load(file_mfccs_2, allow_pickle=True)
+    array_mfccs_2 = np.load(file_mfccs_2, allow_pickle=True)
 
     # convert list to array
     array_mfccs_1 = np.vstack(array_mfccs_1)
-    #array_mfccs_2 = np.vstack(array_mfccs_2)
-    #array_mfccs_3 = np.concatenate((array_mfccs_1, array_mfccs_2))
+    array_mfccs_2 = np.vstack(array_mfccs_2)
+    array_mfccs_3 = np.concatenate((array_mfccs_1, array_mfccs_2))
     #print(array_mfccs_3.shape)
 
     # training GMM

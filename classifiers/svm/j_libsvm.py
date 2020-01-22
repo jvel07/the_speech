@@ -1,6 +1,6 @@
-from svmutil import *
-from common2 import util
-from svm import *
+#from svmutil import *
+from common import util
+#from svm
 from sklearn import preprocessing
 
 ######Loading training, dev and test features######

@@ -6,6 +6,7 @@ import os
 from common import util
 
 
+# Computes mfccs from wavs existing in the directories provided by the user
 def do_mfccs():
     audio_dir = '/opt/project/audio/'
     out_dir = '/opt/project/data/'
