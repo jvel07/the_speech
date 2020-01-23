@@ -19,7 +19,7 @@ def do_mfccs():
         extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=20, recipe='pcgita', folder_name=folder_name)
 
 
-def do_ivecs():
+def do_fishers():
     recipe='pcgita'
     mfccs_dir = '/opt/project/data/{}/'.format(recipe)
     out_dir = '/opt/project/data/'
@@ -33,18 +33,18 @@ def do_ivecs():
                                         file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
 
 
-def do_fishers():
+def do_ivecs():
     print("fish")
 
 
-def indirect(i):
+def steps(i):
     switcher = {
         0: do_mfccs,
-        1: do_ivecs,
-        2: do_fishers
+        1: do_fishers,
+        2: do_ivecs
     }
     func = switcher.get(i)
     return func()
 
 
-indirect(1)
+steps(1)
