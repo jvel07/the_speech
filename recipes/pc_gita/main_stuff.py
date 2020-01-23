@@ -27,7 +27,7 @@ def do_ivecs():
 
     list_sets = ['DDK_analysis', 'monologue', 'read_text', 'sentences', 'sentences2']
     for folder_name in list_sets:
-        print("Reading dir:", '/opt/project/data/'+folder_name)
+        print("Reading dir:", mfccs_dir+folder_name)
         list_of_mfccs = util.traverse_dir(mfccs_dir+folder_name, '.mfcc')
         extract_fishers.compute_fishers(list_of_mfccs, out_dir, num_feats_got_feats=20,
                                         file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
