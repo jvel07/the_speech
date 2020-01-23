@@ -47,13 +47,13 @@ def fit_standardize_data(x_t):
 def normalize_data(x_t):
     scaler = preprocessing.Normalizer().fit(x_t)
     norm_data = scaler.transform(x_t)
-    print("Data normalized...")
+    #print("Data normalized...")
     return norm_data
 
 
 def fit_normalize_data(x_t):
     scaler = preprocessing.Normalizer().fit(x_t)
-    print("Data fitted as normalized...")
+   # print("Data fitted as normalized...")
     return scaler
 
 

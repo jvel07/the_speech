@@ -57,7 +57,7 @@ def compute_mfccs(list_wavs, out_dir, num_mfccs, recipe, folder_name):
         if not os.path.isdir(out_dir + recipe + '/' + folder_name):
             os.mkdir(out_dir + recipe + '/' + folder_name)
 
-    file_mfccs_cold = out_dir + recipe + '/' + folder_name + '/mfccs_{}_{}_{}_{}'.format(recipe,
+    file_mfccs_cold = out_dir + recipe + '/' + folder_name + '/mfccs_{}_{}_{}_{}.mfcc'.format(recipe,
                                                                                                                    num_mfccs,
                                                                                                                    folder_name,
                                                                                                                    observation)
