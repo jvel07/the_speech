@@ -20,16 +20,17 @@ def do_mfccs():
 
 
 def do_ivecs():
-    mfccs_dir = '/opt/project/data/'
+    recipe='pcgita'
+    mfccs_dir = '/opt/project/data/{}/'.format(recipe)
     out_dir = '/opt/project/data/'
-    file_ubm = '/opt/project/pcgita/DDK_analysis/mfccs_pcgita_20_DDK_analysis_2del'
+    file_ubm = '/opt/project/data/pcgita/DDK_analysis/mfccs_pcgita_20_DDK_analysis_2del.mfcc'
 
     list_sets = ['DDK_analysis', 'monologue', 'read_text', 'sentences', 'sentences2']
     for folder_name in list_sets:
-        print("Reading dir:", folder_name)
+        print("Reading dir:", '/opt/project/data/'+folder_name)
         list_of_mfccs = util.traverse_dir(mfccs_dir+folder_name, '.mfcc')
-        extract_fishers.compute_fishers(list_sets, num_feats_got_mfccs=20,
-                                        file_ubm_mfccs=file_ubm, recipe='pcgita', folder_name=folder_name)
+        extract_fishers.compute_fishers(list_of_mfccs, out_dir, num_feats_got_feats=20,
+                                        file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
 
 
 def do_fishers():
@@ -46,4 +47,4 @@ def indirect(i):
     return func()
 
 
-indirect(0)
+indirect(1)
