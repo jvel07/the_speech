@@ -72,7 +72,7 @@ def compute_ivecs(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feats,
     print("File of MFCCs for UBM:", file_ubm_feats)
     array_mfccs_ubm = np.load(file_ubm_feats, allow_pickle=True)
 
-    num_gauss = [2, 4, 8, 16, 32, 64, 128]
+    num_gauss = [2, 4, 8, 16, 32, 64]
     print("Fisher-vecs will be extracted using 2, 4, 8 ..., 64 number of Gaussians!")
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
