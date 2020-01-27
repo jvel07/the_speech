@@ -1,12 +1,14 @@
 from collections import Counter
 
+from sklearn.decomposition import PCA
+
 from common import data_proc_tools
 
 import matplotlib.pyplot as plt
 import numpy as np
 import sklearn as sk
 from imblearn.over_sampling import SMOTE, ADASYN
-from imblearn.under_sampling import RandomUnderSampler
+from imblearn.under_sampling import RandomUnderSampler, ClusterCentroids, TomekLinks, AllKNN
 from sklearn import preprocessing
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -74,7 +76,7 @@ class LinearSVC_proba(LinearSVC):
 # Resampling
 def resampling(X, Y, r):
    # print(sorted(Counter(Y).items()))
-    smote_enn = RandomUnderSampler(random_state=r)
+    smote_enn = RandomUnderSampler()
     X_resampled, y_resampled = smote_enn.fit_resample(X, Y)
     #print(sorted(Counter(y_resampled).items()))
     return X_resampled, y_resampled
@@ -104,14 +106,23 @@ def do_lda(X, Y, X_dev, X_test):
     return X_lda, X_lda_dev, X_lda_test
 
 
+def do_pca(X, Y, X_dev, X_test):
+    lda = PCA(n_components=0.95).fit(X, Y)
+    X_lda = lda.transform(X)
+    X_lda_dev = lda.transform(X_dev)
+    X_lda_test = lda.transform(X_test)
+    return X_lda, X_lda_dev, X_lda_test
+
+#plt.scatter(X_train[:, 0], X_train[:, 1], c=Y_train, s=20, cmap=plt.cm.Spectral);
+
 com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
 for c in com_values:
     posteriors = []
     for number in [37, 42, 16, 59, 77, 15, 1, 9, 25, 6]:
-        X_resampled, Y_resampled = resampling(X_combined, Y_combined, r=number)
-        X_pow, X_pow_dev, X_pow_test = powert(X_resampled, X_dev, X_test)
-        X_norm, X_norm_dev, X_norm_test = normalization(X_pow, X_pow_dev, X_pow_test)
-
+        X_resampled, Y_resampled = resampling(X_train, Y_train, r=number)  # resampling
+        X_pow, X_pow_dev, X_pow_test = powert(X_resampled, X_dev, X_test)  # Power Norm
+        X_norm, X_norm_dev, X_norm_test = normalization(X_resampled, X_dev, X_test) #(X_pow, X_pow_dev, X_pow_test)
+       # X_lda, X_lda_dev, X_lda_test = do_pca(X_norm, Y_resampled, X_norm_dev, X_norm_test)  # LDA
 
         clf = LinearSVC(C=c, verbose=0, max_iter=1000, class_weight='balanced').fit(X_norm, Y_resampled)
         #pipeline.set_params(svm__C=c, und__random_state=number).fit_resample(X_train, Y_train)
@@ -120,7 +131,7 @@ for c in com_values:
         #y_pred = pipeline.predict(X_dev)
         posteriors.append(clf._predict_proba_lr(X_norm_dev))
     mean_post = np.mean(posteriors, axis=0)
-    np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_test_posteriors_{}.txt".format(str(c)),
+    np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_dev_posteriors_{}.txt".format(str(c)),
                mean_post, fmt='%.7f')
     print("With:", c)
     p0 = mean_post[:, 0:1]

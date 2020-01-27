@@ -25,11 +25,12 @@ def mfccs_librosa(path, audio_list, num_feats):
 
 
 def mfccs_bkaldi(signal, num_feats):
-    #print('Computing MFCCs on:', path, '\nNumber of files to process:', len(audio_list))
+    # print('Computing MFCCs on:', path, '\nNumber of files to process:', len(audio_list))
     data = bob.io.audio.reader(signal)
     mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=True, num_ceps=num_feats, snip_edges=True)
     # mfcc = bob.kaldi.cepstral(data.load()[0], cepstral_type="mfcc", delta_order=0, rate=data.rate, normalization=False, num_ceps=20)
     return mfcc
+
 
 # With python speech features
 def mfccs_psf(path, audio_list, num_feats):
@@ -44,6 +45,7 @@ def mfccs_psf(path, audio_list, num_feats):
 
 
 def compute_mfccs(list_wavs, out_dir, num_mfccs, recipe, folder_name):
+    print("Compute MFFCs for {} wavs in: {}".format(len(list_wavs), folder_name))
     # Output details
     observation = '2del'
     num_mfccs = num_mfccs
@@ -53,13 +55,13 @@ def compute_mfccs(list_wavs, out_dir, num_mfccs, recipe, folder_name):
     for wav in list_wavs:
         mfcc = mfccs_bkaldi(wav, num_mfccs)
         list_mfccs.append(mfcc)
-    # parent_dir = os.path.basename(os.path.dirname(list_wavs[0]))
+        # parent_dir = os.path.basename(os.path.dirname(list_wavs[0]))
         if not os.path.isdir(out_dir + recipe + '/' + folder_name):
             os.mkdir(out_dir + recipe + '/' + folder_name)
 
     file_mfccs_cold = out_dir + recipe + '/' + folder_name + '/mfccs_{}_{}_{}_{}.mfcc'.format(recipe,
-                                                                                                                   num_mfccs,
-                                                                                                                   folder_name,
-                                                                                                                   observation)
+                                                                                              num_mfccs,
+                                                                                              folder_name,
+                                                                                              observation)
     print("Extracted {} mfccs from {} utterances".format(len(list_mfccs), len(list_wavs)))
     util.save_pickle(file_mfccs_cold, list_mfccs)

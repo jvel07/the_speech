@@ -10,7 +10,7 @@ from common import util
 def do_mfccs():
     recipe='cold'
     audio_dir = '/opt/project/audio/'
-    out_dir = '/opt/project/data/cold/'
+    out_dir = '/opt/project/data/'
 
     list_sets = ['train', 'dev', 'test']
     for folder_name in list_sets:
@@ -23,7 +23,7 @@ def do_mfccs():
 def do_fishers():
     recipe='cold'
     mfccs_dir = '/opt/project/data/{}/'.format(recipe)
-    out_dir = '/opt/project/data/cold/'
+    out_dir = '/opt/project/data/'
     file_ubm = '/opt/project/data/cold/train/mfccs_cold_train_2del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
 
     list_sets = ['train', 'dev', 'test']
@@ -53,4 +53,5 @@ def steps(i):
     return func()
 
 
+steps(0)
 steps(1)

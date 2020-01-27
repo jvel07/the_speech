@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sklearn as sk
 from imblearn.over_sampling import SMOTE, ADASYN
-from imblearn.under_sampling import RandomUnderSampler
+from imblearn.under_sampling import RandomUnderSampler, NearMiss, TomekLinks
 from sklearn import preprocessing
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -63,7 +63,7 @@ Y_combined[Y_combined == 2] = 0
 # Resampling
 def resampling(X, Y, r):
    # print(sorted(Counter(Y).items()))
-    smote_enn = RandomUnderSampler(random_state=r)
+    smote_enn = TomekLinks()
     X_resampled, y_resampled = smote_enn.fit_resample(X, Y)
     #print(sorted(Counter(y_resampled).items()))
     return X_resampled, y_resampled
@@ -73,11 +73,11 @@ def resampling(X, Y, r):
 # pipeline
 pipeline = Pipeline(
     [
+        ('und', RandomUnderSampler()),
         ('power', preprocessing.PowerTransformer()),
         # ('standardize', preprocessing.StandardScaler()),
         ('normalizer', preprocessing.Normalizer()),
-        ('und', RandomUnderSampler()),
-        #('lda', PCA(n_components=0.95)),
+        ('lda', LinearDiscriminantAnalysis()),
         #('logistic', sk.linear_model.SGDClassifier(loss="hinge", eta0=1, learning_rate="constant", penalty='l2'))
         ('svm', LinearSVC(verbose=0, max_iter=3000, class_weight='balanced')),
     ])
