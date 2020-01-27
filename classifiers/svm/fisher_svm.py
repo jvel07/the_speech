@@ -17,7 +17,7 @@ from imblearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC, SVC
 
 work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
-work_dir2 = 'D:/fishers'
+work_dir2 = 'D:/VHD/fishers'
 feat_type = '23mf'
 n_filters = '512'
 deltas = ''
@@ -25,26 +25,26 @@ vad = ''
 num_gauss = ''
 
 # Set data directories
-file_train = 'D:/VHD/fishers/fisher-13-2del-8-train'
-# file_train = work_dir2 + '/features.fv-mfcc.improved.2.train.txt'
+#file_train = 'D:/VHD/fishers/fisher-13-2del-2-train'
+file_train = work_dir2 + '/features.fv-mfcc.improved.2.train.txt'
 lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
-file_dev = 'D:/VHD/fishers/fisher-13-2del-8-dev'
-# file_dev = work_dir2 + '/features.fv-mfcc.improved.2.dev.txt'
+#file_dev = 'D:/VHD/fishers/fisher-13-2del-2-dev'
+file_dev = work_dir2 + '/features.fv-mfcc.improved.2.dev.txt'
 lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
-file_test = 'D:/VHD/fishers/fisher-13-2del-8-test'
-# file_test = work_dir2 + '/features.fv-mfcc.improved.2.test.txt'
+#file_test = 'D:/VHD/fishers/fisher-13-2del-2-test'
+file_test = work_dir2 + '/features.fv-mfcc.improved.2.test.txt'
 lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
 # Load dataste correo realizo cor
-X_train = np.loadtxt(file_train, delimiter=' ')
+X_train = np.loadtxt(file_train, delimiter=',')
 Y_train = np.loadtxt(lbl_train)
 
-X_dev = np.loadtxt(file_dev, delimiter=' ')
+X_dev = np.loadtxt(file_dev, delimiter=',')
 Y_dev = np.loadtxt(lbl_dev)
 
-X_test = np.loadtxt(file_test, delimiter=' ')
+X_test = np.loadtxt(file_test, delimiter=',')
 Y_test = np.loadtxt(lbl_test)
 
 # Putting train and dev together
@@ -80,22 +80,6 @@ def resampling(X, Y, r):
     return X_resampled, y_resampled
 
 
-
-# pipeline
-pipeline = Pipeline(
-    [
-        #('power', preprocessing.PowerTransformer()),
-        # ('standardize', preprocessing.StandardScaler()),
-        ('normalizer', preprocessing.MinMaxScaler()),
-        ('und', RandomUnderSampler()),
-        # ('lda', LinearDiscriminantAnalysis()),
-        # ('logistic', sk.linear_model.SGDClassifier(loss="perceptron", eta0=1, learning_rate="constant", penalty=None))
-        ('svm', SVC(kernel='linear', verbose=1, max_iter=3000, class_weight='balanced', probability=True)),
-    ])
-
-# y_pred_prob = svc_clf._predict_proba_lr(X_dev_scaled)
-
-
 def powert(X, X_dev, X_test):
     power = preprocessing.PowerTransformer()
     x_pow = power.fit_transform(X)
@@ -111,7 +95,13 @@ def normalization(X, X_dev, X_test):
     X_test_norm = norm.transform(X_test)
     return X_train_norm, X_dev_norm, X_test_norm
 
-#X_norm, X_norm_dev = normalization()
+
+def do_lda(X, Y, X_dev, X_test):
+    lda = LinearDiscriminantAnalysis().fit(X, Y)
+    X_lda = lda.transform(X)
+    X_lda_dev = lda.transform(X_dev)
+    X_lda_test = lda.transform(X_test)
+    return X_lda, X_lda_dev, X_lda_test
 
 
 com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
@@ -121,12 +111,14 @@ for c in com_values:
         X_resampled, Y_resampled = resampling(X_combined, Y_combined, r=number)
         X_pow, X_pow_dev, X_pow_test = powert(X_resampled, X_dev, X_test)
         X_norm, X_norm_dev, X_norm_test = normalization(X_pow, X_pow_dev, X_pow_test)
+
+
         clf = LinearSVC(C=c, verbose=0, max_iter=1000, class_weight='balanced').fit(X_norm, Y_resampled)
         #pipeline.set_params(svm__C=c, und__random_state=number).fit_resample(X_train, Y_train)
         # clf = CalibratedClassifierCV(base_estimator=pipeline, cv=10).fit(X,Y)
         # y_pr = pipeline.decision_function(X_dev)
         #y_pred = pipeline.predict(X_dev)
-        posteriors.append(clf._predict_proba_lr(X_norm_test))
+        posteriors.append(clf._predict_proba_lr(X_norm_dev))
     mean_post = np.mean(posteriors, axis=0)
     np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_test_posteriors_{}.txt".format(str(c)),
                mean_post, fmt='%.7f')
@@ -134,7 +126,7 @@ for c in com_values:
     p0 = mean_post[:, 0:1]
     p1 = mean_post[:, 1:]
     y_p = 1*(p1 > p0)
-    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_test, y_p))
-    one = sk.metrics.recall_score(Y_test, y_p, pos_label=0)
-    two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
+    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_dev, y_p))
+    one = sk.metrics.recall_score(Y_dev, y_p, pos_label=0)
+    two = sk.metrics.recall_score(Y_dev, y_p, pos_label=1)
     print("UAR:", (one + two) / 2, "\n")

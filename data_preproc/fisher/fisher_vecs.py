@@ -30,7 +30,7 @@ for name in list_sets:
     for g in num_clusters:
         # means, covs, priors, LL, posteriors = vlf.gmm.gmm(array_mfccs_1, n_clusters=g, n_repetitions=2, verbose=0)  # UBM Train only
         # means, covs, priors, LL, posteriors = vlf.gmm.gmm(array_mfccs_2, n_clusters=g, n_repetitions=2, verbose=0)  # UBM Dev only
-        means, covs, priors, LL, posteriors = vlf.gmm.gmm(array_mfccs_1, n_clusters=g, n_repetitions=2, verbose=0)  # UBM Train and Dev
+        means, covs, priors, LL, posteriors = vlf.gmm.gmm(array_mfccs_1, n_clusters=g, n_repetitions=1, verbose=0)  # UBM Train and Dev
         # fisher encoding
         list_fisher = []
         print("Ëxtracting {}-GMM fisher vecs from:".format(g), os.path.basename(file_mfccs), "Number of files:",

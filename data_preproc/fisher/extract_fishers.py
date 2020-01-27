@@ -6,7 +6,7 @@ import numpy as np
 
 
 def do_gmm(features, num_gaussian):
-    print("Training {}-GMM fisher's with gaussians:".format(num_gaussian))
+    print("Training {}-GMM fisher's.".format(num_gaussian))
     means, covs, priors, LL, posteriors = vlf.gmm.gmm(features, n_clusters=num_gaussian, n_repetitions=1, verbose=0)
     return means, covs, priors
 
@@ -26,6 +26,7 @@ def compute_fishers(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feat
 
     num_clusters = [2, 4, 8, 16, 32, 64]
     # print(list_feats[0])
+    print("Fisher-vecs will be extracted using 2, 4, 8 ..., 64 number of Gaussians!")
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         for g in num_clusters:
