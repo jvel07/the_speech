@@ -45,7 +45,7 @@ def mfccs_psf(path, audio_list, num_feats):
 
 
 def compute_mfccs(list_wavs, out_dir, num_mfccs, recipe, folder_name):
-    print("Compute MFFCs for {} wavs in: {}".format(len(list_wavs), folder_name))
+    print("Extracting MFFCs for {} wavs in: {}".format(len(list_wavs), folder_name))
     # Output details
     observation = '2del'
     num_mfccs = num_mfccs

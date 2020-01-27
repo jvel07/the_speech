@@ -119,7 +119,7 @@ com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
 for c in com_values:
     posteriors = []
     for number in [37, 42, 16, 59, 77, 15, 1, 9, 25, 6]:
-        X_resampled, Y_resampled = resampling(X_train, Y_train, r=number)  # resampling
+        X_resampled, Y_resampled = resampling(X_combined, Y_combined, r=number)  # resampling
         X_pow, X_pow_dev, X_pow_test = powert(X_resampled, X_dev, X_test)  # Power Norm
         X_norm, X_norm_dev, X_norm_test = normalization(X_resampled, X_dev, X_test) #(X_pow, X_pow_dev, X_pow_test)
        # X_lda, X_lda_dev, X_lda_test = do_pca(X_norm, Y_resampled, X_norm_dev, X_norm_test)  # LDA
@@ -129,15 +129,15 @@ for c in com_values:
         # clf = CalibratedClassifierCV(base_estimator=pipeline, cv=10).fit(X,Y)
         # y_pr = pipeline.decision_function(X_dev)
         #y_pred = pipeline.predict(X_dev)
-        posteriors.append(clf._predict_proba_lr(X_norm_dev))
+        posteriors.append(clf._predict_proba_lr(X_norm_test))
     mean_post = np.mean(posteriors, axis=0)
-    np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_dev_posteriors_{}.txt".format(str(c)),
+    np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_test_posteriors_{}.txt".format(str(c)),
                mean_post, fmt='%.7f')
     print("With:", c)
     p0 = mean_post[:, 0:1]
     p1 = mean_post[:, 1:]
     y_p = 1*(p1 > p0)
-    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_dev, y_p))
-    one = sk.metrics.recall_score(Y_dev, y_p, pos_label=0)
-    two = sk.metrics.recall_score(Y_dev, y_p, pos_label=1)
+    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_test, y_p))
+    one = sk.metrics.recall_score(Y_test, y_p, pos_label=0)
+    two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
     print("UAR:", (one + two) / 2, "\n")

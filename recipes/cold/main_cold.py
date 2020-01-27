@@ -14,28 +14,38 @@ def do_mfccs():
 
     list_sets = ['train', 'dev', 'test']
     for folder_name in list_sets:
-        print("Reading dir:", folder_name)
+        print("\nReading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir+folder_name, '.wav')
         #print(list_of_wavs[0])
-        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=20, recipe=recipe, folder_name=folder_name)
+        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=13, recipe=recipe, folder_name=folder_name)
 
 
 def do_fishers():
     recipe='cold'
     mfccs_dir = '/opt/project/data/{}/'.format(recipe)
     out_dir = '/opt/project/data/'
-    file_ubm = '/opt/project/data/cold/train/mfccs_cold_train_2del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
+    file_ubm = '/opt/project/data/cold/train/mfccs_cold_13_train_2del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
 
     list_sets = ['train', 'dev', 'test']
     for folder_name in list_sets:
-        print("Reading dir:", mfccs_dir+folder_name)
+        print("\nReading dir:", mfccs_dir+folder_name)
         list_mfcc_files = util.traverse_dir(mfccs_dir+folder_name, '.mfcc')
-        extract_fishers.compute_fishers(list_mfcc_files, out_dir, num_feats_got_feats=20,
+        extract_fishers.compute_fishers(list_mfcc_files, out_dir, num_feats_got_feats=13,
                                         file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
 
 
 def do_ivecs():
-    print("fish")
+    recipe = 'pcgita'
+    mfccs_dir = '/opt/project/data/{}/'.format(recipe)
+    out_dir = '/opt/project/data/'
+    file_ubm = '/opt/project/data/cold/train/mfccs_pcgita_20_monologue_2del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
+
+    list_sets = ['DDK_analysis', 'monologue', 'read_text', 'sentences', 'sentences2']
+    for folder_name in list_sets:
+        print("\nReading dir:", mfccs_dir + folder_name)
+        list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')
+        extract_fishers.compute_fishers(list_mfcc_files, out_dir, num_feats_got_feats=20,
+                                        file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
 
 
 def do_svm():
