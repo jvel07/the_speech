@@ -16,7 +16,8 @@ from sklearn.metrics import roc_auc_score, precision_recall_curve
 from sklearn.model_selection import GridSearchCV
 # from sklearn.pipeline import Pipeline
 from imblearn.pipeline import Pipeline
-from sklearn.svm import LinearSVC, SVC
+from sklearn.svm import LinearSVC
+from sklearn import svm
 
 work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
 work_dir2 = 'D:/VHD/fishers'
@@ -27,26 +28,26 @@ vad = ''
 num_gauss = ''
 
 # Set data directories
-#file_train = 'D:/VHD/fishers/fisher-13-2del-2-train'
-file_train = work_dir2 + '/features.fv-mfcc.improved.2.train.txt'
+file_train = work_dir + '/data/cold/train/fisher-23mf-2del-2g-train.fish'
+#file_train = work_dir2 + '/features.fv-mfcc.improved.2.train.txt'
 lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
-#file_dev = 'D:/VHD/fishers/fisher-13-2del-2-dev'
-file_dev = work_dir2 + '/features.fv-mfcc.improved.2.dev.txt'
+file_dev = work_dir + '/data/cold/dev/fisher-23mf-2del-2g-dev.fish'
+#file_dev = work_dir2 + '/features.fv-mfcc.improved.2.dev.txt'
 lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
-#file_test = 'D:/VHD/fishers/fisher-13-2del-2-test'
-file_test = work_dir2 + '/features.fv-mfcc.improved.2.test.txt'
+file_test = work_dir + '/data/cold/test/fisher-23mf-2del-2g-test.fish'
+#file_test = work_dir2 + '/features.fv-mfcc.improved.2.test.txt'
 lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
 # Load dataste correo realizo cor
-X_train = np.loadtxt(file_train, delimiter=',')
+X_train = np.loadtxt(file_train, delimiter=' ')
 Y_train = np.loadtxt(lbl_train)
 
-X_dev = np.loadtxt(file_dev, delimiter=',')
+X_dev = np.loadtxt(file_dev, delimiter=' ')
 Y_dev = np.loadtxt(lbl_dev)
 
-X_test = np.loadtxt(file_test, delimiter=',')
+X_test = np.loadtxt(file_test, delimiter=' ')
 Y_test = np.loadtxt(lbl_test)
 
 # Putting train and dev together
@@ -76,7 +77,7 @@ class LinearSVC_proba(LinearSVC):
 # Resampling
 def resampling(X, Y, r):
    # print(sorted(Counter(Y).items()))
-    smote_enn = RandomUnderSampler()
+    smote_enn = RandomUnderSampler(random_state=r)
     X_resampled, y_resampled = smote_enn.fit_resample(X, Y)
     #print(sorted(Counter(y_resampled).items()))
     return X_resampled, y_resampled
@@ -121,17 +122,18 @@ for c in com_values:
     for number in [37, 42, 16, 59, 77, 15, 1, 9, 25, 6]:
         X_resampled, Y_resampled = resampling(X_combined, Y_combined, r=number)  # resampling
         X_pow, X_pow_dev, X_pow_test = powert(X_resampled, X_dev, X_test)  # Power Norm
-        X_norm, X_norm_dev, X_norm_test = normalization(X_resampled, X_dev, X_test) #(X_pow, X_pow_dev, X_pow_test)
+        X_norm, X_norm_dev, X_norm_test = normalization(X_resampled, X_dev, X_test)  # (X_pow, X_pow_dev, X_pow_test)
        # X_lda, X_lda_dev, X_lda_test = do_pca(X_norm, Y_resampled, X_norm_dev, X_norm_test)  # LDA
-
-        clf = LinearSVC(C=c, verbose=0, max_iter=1000, class_weight='balanced').fit(X_norm, Y_resampled)
+        clf = svm.SVC(kernel='linear', C=c, verbose=0, max_iter=1000, probability=True)
+        #clf = LinearSVC(C=c, verbose=0, max_iter=1000)
+        clf.fit(X_norm, Y_resampled)
         #pipeline.set_params(svm__C=c, und__random_state=number).fit_resample(X_train, Y_train)
         # clf = CalibratedClassifierCV(base_estimator=pipeline, cv=10).fit(X,Y)
         # y_pr = pipeline.decision_function(X_dev)
         #y_pred = pipeline.predict(X_dev)
-        posteriors.append(clf._predict_proba_lr(X_norm_test))
+        posteriors.append(clf.predict_proba(X_norm_test))
     mean_post = np.mean(posteriors, axis=0)
-    np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_test_posteriors_{}.txt".format(str(c)),
+    np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_dev2_posteriors_{}.txt".format(str(c)),
                mean_post, fmt='%.7f')
     print("With:", c)
     p0 = mean_post[:, 0:1]

@@ -50,18 +50,19 @@ def compute_mfccs(list_wavs, out_dir, num_mfccs, recipe, folder_name):
     observation = '2del'
     num_mfccs = num_mfccs
 
+    # parent_dir = os.path.basename(os.path.dirname(list_wavs[0]))
+    if not os.path.isdir(out_dir + recipe + '/' + folder_name):
+        os.mkdir(out_dir + recipe + '/' + folder_name)
+
     # ---Calculating and saving MFCCs---
     list_mfccs = []
     for wav in list_wavs:
         mfcc = mfccs_bkaldi(wav, num_mfccs)
         list_mfccs.append(mfcc)
-        # parent_dir = os.path.basename(os.path.dirname(list_wavs[0]))
-        if not os.path.isdir(out_dir + recipe + '/' + folder_name):
-            os.mkdir(out_dir + recipe + '/' + folder_name)
-
     file_mfccs_cold = out_dir + recipe + '/' + folder_name + '/mfccs_{}_{}_{}_{}.mfcc'.format(recipe,
-                                                                                              num_mfccs,
-                                                                                              folder_name,
-                                                                                              observation)
+                                                                                             num_mfccs,
+                                                                                             folder_name,
+                                                                                             observation)
     print("Extracted {} mfccs from {} utterances".format(len(list_mfccs), len(list_wavs)))
     util.save_pickle(file_mfccs_cold, list_mfccs)
+    #np.savetxt(file_mfccs_cold, list_mfccs, fmt='%.7f')

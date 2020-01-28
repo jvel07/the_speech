@@ -74,8 +74,8 @@ def resampling(X, Y, r):
 pipeline = Pipeline(
     [
         ('und', RandomUnderSampler()),
-        ('power', preprocessing.PowerTransformer()),
-        # ('standardize', preprocessing.StandardScaler()),
+        #('power', preprocessing.PowerTransformer()),
+        ('standardize', preprocessing.StandardScaler()),
         ('normalizer', preprocessing.Normalizer()),
         ('lda', LinearDiscriminantAnalysis()),
         #('logistic', sk.linear_model.SGDClassifier(loss="hinge", eta0=1, learning_rate="constant", penalty='l2'))

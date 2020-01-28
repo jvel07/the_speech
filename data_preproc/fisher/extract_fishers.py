@@ -34,7 +34,8 @@ def compute_fishers(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feat
             means, covs, priors = do_gmm(array_mfccs_ubm, g)  # training GMM
             for feat in list_feat:  # iterating over the wavs (mfccs)
                 #print("Features shape:", feat.shape)
-                list_fishers.append(do_fishers(feat, means, covs, priors))  # Extracting fishers from features
+                fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), covs.transpose(), priors, improved=True)
+                list_fishers.append(fish)  # Extracting fishers from features
                 # Output file (fishers)
             obs = '2del'
             file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fish'.format(
