@@ -11,6 +11,7 @@ list_sets = ['train', 'dev', 'test']
 
 # Computes mfccs from wavs existing in the directories provided by the user
 def do_mfccs():
+    print("=======MFCC extraction phase========\n")
     recipe = 'cold'
     audio_dir = '/opt/project/audio/'
     out_dir = '/opt/project/data/'
@@ -24,6 +25,7 @@ def do_mfccs():
 
 
 def do_fishers():
+    print("=======fisher-vector extraction phase========")
     recipe = 'cold'
     mfccs_dir = '/opt/project/data/{}/'.format(recipe)
     out_dir = '/opt/project/data/'
@@ -37,6 +39,7 @@ def do_fishers():
 
 
 def do_ivecs():
+    print("=======i-vector extraction phase========")
     recipe = 'cold'
     mfccs_dir = '/opt/project/data/{}/'.format(recipe)
     out_dir = '/opt/project/data/'
@@ -65,6 +68,6 @@ def steps(i):
     return func()
 
 
-steps(0)
-# steps(1)
-# steps(2)
+#steps(0)
+steps(1)
+steps(2)

@@ -1,3 +1,5 @@
+import os
+
 import bob.io.audio
 import bob.kaldi
 import librosa
@@ -33,6 +35,11 @@ def compute_mfccs_bkaldi(path, audio_list):
     return list_mfccs
 
 
+def compute_one_mfcc(path, file):
+    data = bob.io.audio.reader(path + file)
+    mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=True, num_ceps=13, snip_edges=False)
+    return mfcc, len(mfcc)
+
 # With python speech features
 def compute_mfccs_psf(path, audio_list):
     list_mfccs = []
@@ -51,23 +58,19 @@ if __name__ == '__main__':
     work_dir = '/opt/project'  # C:/Users/Win10/PycharmProjects/the_speech'
     list_sets = ["train", "dev", "test"]
 
-    # Input files
-    # dir_wav_ubm = work_dir + '/audio/-bea-diktafon/'
-    # audio_list_ubm = util.read_files_from_dir(dir_wav_ubm)  # Reading BEA files
-
     # Output files
     observation = '2del'
     num_mfccs = 13
-    # file_mfccs_ubm = work_dir + '/data/hc/cold/mfccs_ubm_dem_{}_{}'.format(num_mfccs, observation)
 
     # ---Calculating and saving MFCCs---
     # for original audios
     for name in list_sets:
         dir_wavs = work_dir + '/audio/{}/'.format(name)
         audio_list = util.read_files_from_dir(dir_wavs)  # Reading wav files
-        file_mfccs_cold = work_dir + '/data/hc/cold/mfccs_cold_{}_{}_{}'.format(num_mfccs, name, observation)
-        util.save_pickle(file_mfccs_cold, compute_mfccs_bkaldi(dir_wavs, audio_list))
-
+        for audio in audio_list:
+            feat, length = compute_one_mfcc(dir_wavs, audio)
+            file_mfccs_cold = work_dir + '/data/cold/mfccs/{}_cold_{}_{}_{}'.format(os.path.splitext(audio)[0], num_mfccs, observation, length)
+            np.savetxt(file_mfccs_cold, feat)
     # for UBM
     # util.save_pickle(file_mfccs_ubm, compute_mfccs_bkaldi())
 
