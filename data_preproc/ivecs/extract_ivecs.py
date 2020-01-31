@@ -73,7 +73,7 @@ def compute_ivecs(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feats,
     array_mfccs_ubm = np.load(file_ubm_feats, allow_pickle=True)
 
     num_gauss = [2, 4, 8, 16, 32, 64]
-    print("Fisher-vecs will be extracted using 2, 4, 8 ..., 64 number of Gaussians!")
+    print("i-vecs will be extracted using 2, 4, 8 ..., 64 for UBM!")
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         for g in num_gauss:
@@ -91,7 +91,7 @@ def compute_ivecs(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feats,
             ivectors_list = []
             n_gselect = int(np.log2(g))
             print(n_gselect)
-            for i2 in list_feat:
+            for i2 in list_feat: # extracting i-vecs
                 ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=n_gselect)
                 ivectors_list.append(ivector_array)
             a_ivectors = np.vstack(ivectors_list)
@@ -99,7 +99,6 @@ def compute_ivecs(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feats,
             # Save i-vectors to a txt file
             obs = '2del'
             file_ivecs = out_dir + recipe + '/' + folder_name + '/ivecs-{}mf-{}-{}g-{}.ivecs'.format(
-                num_feats_got_feats,
-                obs, g, folder_name)
+                num_feats_got_feats, obs, g, folder_name)
             np.savetxt(file_ivecs, a_ivectors, fmt='%.7f')
             print("i-vectors saved to:", file_ivecs)

@@ -28,15 +28,15 @@ vad = ''
 num_gauss = ''
 
 # Set data directories
-file_train = work_dir + '/data/cold/train/fisher-23mf-2del-16g-train.fish'
+file_train = work_dir + '/data/cold/train/ivecs-13mf-2del-2g-train.ivecs'
 #file_train = work_dir2 + '/features.fv-mfcc.improved.2.train.txt'
 lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
-file_dev = work_dir + '/data/cold/dev/fisher-23mf-2del-16g-dev.fish'
+file_dev = work_dir + '/data/cold/dev/ivecs-13mf-2del-2g-dev.ivecs'
 #file_dev = work_dir2 + '/features.fv-mfcc.improved.2.dev.txt'
 lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
-file_test = work_dir + '/data/cold/test/fisher-23mf-2del-16g-test.fish'
+file_test = work_dir + '/data/cold/test/ivecs-13mf-2del-2g-test.ivecs'
 #file_test = work_dir2 + '/features.fv-mfcc.improved.2.test.txt'
 lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
@@ -108,7 +108,7 @@ def do_lda(X, Y, X_dev, X_test):
 
 
 def do_pca(X, Y, X_dev, X_test):
-    lda = PCA(n_components=0.95).fit(X, Y)
+    lda = PCA(n_components=0.95, svd_solver='full', whiten=True).fit(X, Y)
     X_lda = lda.transform(X)
     X_lda_dev = lda.transform(X_dev)
     X_lda_test = lda.transform(X_test)
@@ -119,27 +119,27 @@ def do_pca(X, Y, X_dev, X_test):
 com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
 for c in com_values:
     posteriors = []
-    for number in [37, 42, 16, 59, 77, 15, 1, 9, 25, 6]:
-        X_resampled, Y_resampled = resampling(X_combined, Y_combined, r=number)  # resampling
-        X_pow, X_pow_dev, X_pow_test = powert(X_resampled, X_dev, X_test)  # Power Norm
-        X_norm, X_norm_dev, X_norm_test = normalization(X_resampled, X_dev, X_test)  # (X_pow, X_pow_dev, X_pow_test)
-       # X_lda, X_lda_dev, X_lda_test = do_pca(X_norm, Y_resampled, X_norm_dev, X_norm_test)  # LDA
+    for number in [137, 42, 15986, 4242, 7117, 15, 1, 923, 25, 656]:
+        X_resampled, Y_resampled = resampling(X_train, Y_train, r=number)  # resampling
+        # X_pow, X_pow_dev, X_pow_test = powert(X_resampled, X_dev, X_test)  # Power Norm
+        X_norm, X_norm_dev, X_norm_test = normalization(X_resampled, X_dev, X_test) # (X_pow, X_pow_dev, X_pow_test)
+        X_lda, X_lda_dev, X_lda_test = do_lda(X_norm, Y_resampled, X_norm_dev, X_norm_test)  # LDA
        #  clf = svm.SVC(kernel='linear', C=c, verbose=0, max_iter=1000, probability=True, class_weight='balanced')
-        clf = LinearSVC(C=c, verbose=0, max_iter=1000)
-        clf.fit(X_norm, Y_resampled)
+       #  clf = LinearSVC(C=c, verbose=0, max_iter=1000)
+       #  clf.fit(X_norm, Y_resampled)
         #pipeline.set_params(svm__C=c, und__random_state=number).fit_resample(X_train, Y_train)
-        # clf = CalibratedClassifierCV(base_estimator=pipeline, cv=10).fit(X,Y)
+        clf = CalibratedClassifierCV(base_estimator=LinearSVC(C=c), cv=10).fit(X_lda, Y_resampled)
         # y_pr = pipeline.decision_function(X_dev)
         #y_pred = pipeline.predict(X_dev)
-        posteriors.append(clf._predict_proba_lr(X_norm_test))
+        posteriors.append(clf.predict_proba(X_lda_dev))
     mean_post = np.mean(posteriors, axis=0)
-    np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_dev2_posteriors_{}.txt".format(str(c)),
-               mean_post, fmt='%.7f')
+    # np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_dev2_posteriors_{}.txt".format(str(c)),
+    #            mean_post, fmt='%.7f')
     print("With:", c)
     p0 = mean_post[:, 0:1]
     p1 = mean_post[:, 1:]
     y_p = 1*(p1 > p0)
-    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_test, y_p))
-    one = sk.metrics.recall_score(Y_test, y_p, pos_label=0)
-    two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
+    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_dev, y_p))
+    one = sk.metrics.recall_score(Y_dev, y_p, pos_label=0)
+    two = sk.metrics.recall_score(Y_dev, y_p, pos_label=1)
     print("UAR:", (one + two) / 2, "\n")

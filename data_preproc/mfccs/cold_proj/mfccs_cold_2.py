@@ -56,7 +56,7 @@ def compute_mfccs_psf(path, audio_list):
 if __name__ == '__main__':
 
     work_dir = '/opt/project'  # C:/Users/Win10/PycharmProjects/the_speech'
-    list_sets = ["train", "dev", "test"]
+    list_sets = ["test"]
 
     # Output files
     observation = '2del'
