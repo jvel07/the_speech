@@ -6,17 +6,16 @@ import os
 from common import util
 
 # List of audio-sets (folders containing audio samples)
-list_sets = ['train', 'dev', 'test']
+list_sets = ['train']#, 'dev', 'test']
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
 def do_mfccs():
-    print("=======MFCC extraction phase========\n")
+    print("=======MFCC extraction phase========")
     recipe = 'cold'
     audio_dir = '/opt/project/audio/'
     out_dir = '/opt/project/data/'
 
-    list_sets = ['train', 'dev', 'test']
     for folder_name in list_sets:
         print("\nReading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
@@ -45,7 +44,6 @@ def do_ivecs():
     out_dir = '/opt/project/data/'
     file_ubm = '/opt/project/data/cold/train/mfccs_cold_13_train_2del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
 
-    list_sets = ['train', 'dev', 'test']
     for folder_name in list_sets:
         print("\nReading dir:", mfccs_dir + folder_name)
         list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')
@@ -68,6 +66,6 @@ def steps(i):
     return func()
 
 
-#steps(0)
-#steps(1)
-steps(2)
+# steps(0)
+steps(1)
+# steps(2)

@@ -33,3 +33,5 @@ def take_only_colds(wavs_dir, labels):
     for wav, label in zip(all_wavs, labels):
         if label == 1: lista.append(wav)
     return lista
+
+# a = take_only_colds('../audio/train', '../data/labels/labels.num.train.txt')
