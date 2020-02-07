@@ -17,19 +17,18 @@ def do_fishers(features, means, covs, priors):
     return fish
 
 
-def compute_fishers(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feats, recipe, folder_name):
+def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feats, recipe, folder_name):
     # Loading File for UBM
     print("File of MFCCs for UBM:", file_ubm_feats)
     array_mfccs_ubm = np.load(file_ubm_feats, allow_pickle=True)
     # convert list to array
     array_mfccs_ubm = np.vstack(array_mfccs_ubm)
 
-    num_clusters = [2, 4, 8, 16, 32, 64]
     # print(list_feats[0])
-    print("Fisher-vecs will be extracted using 2, 4, 8 ..., 64 number of Gaussians!")
+    print("Fisher-vecs will be extracted using {} number of Gaussians!".format(list_n_clusters))
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
-        for g in num_clusters:
+        for g in list_n_clusters:
             list_fishers = []
             means, covs, priors = do_gmm(array_mfccs_ubm, g)  # training GMM
             for feat in list_feat:  # iterating over the wavs (mfccs)
@@ -42,4 +41,4 @@ def compute_fishers(list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feat
                 num_feats_got_feats,
                 obs, g, folder_name)
             np.savetxt(file_fishers, list_fishers, fmt='%.7f')
-            print("Fishers saved to:", file_fishers)
+            print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape)
