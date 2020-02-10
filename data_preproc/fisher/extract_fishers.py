@@ -7,7 +7,7 @@ import numpy as np
 
 def do_gmm(features, num_gaussian):
     print("Training {}-GMM fisher's.".format(num_gaussian))
-    means, covs, priors, LL, posteriors = vlf.gmm.gmm(features, n_clusters=num_gaussian, n_repetitions=1, verbose=0)
+    means, covs, priors, LL, posteriors = vlf.gmm.gmm(features, init_mode='kmeans', n_clusters=num_gaussian, n_repetitions=2, verbose=0)
     return means, covs, priors
 
 
@@ -30,9 +30,8 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, num_feats_got_fea
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         for g in list_n_clusters:
             list_fishers = []
-            means, covs, priors = do_gmm(array_mfccs_ubm, g)  # training GMM
+            means, covs, priors = do_gmm(array_mfccs_ubm[:2000], g)  # training GMM
             for feat in list_feat:  # iterating over the wavs (mfccs)
-                #print("Features shape:", feat.shape)
                 fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), covs.transpose(), priors, improved=True)
                 list_fishers.append(fish)  # Extracting fishers from features
                 # Output file (fishers)

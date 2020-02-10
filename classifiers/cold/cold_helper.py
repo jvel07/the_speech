@@ -16,29 +16,29 @@ def load_data(gauss):
     work_dir2 = 'D:/VHD/fishers'
 
     # Set data directories
-    file_train = work_dir + '/data/cold/train/fisher-13mf-2del-{}g-train.fish'.format(gauss)
-    # file_train = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.train.txt'.format(gauss)
-    # file_train = work_dir2 + '/features.fv-mfcc.improved.2.train.txt'
+    # file_train = work_dir + '/data/cold/train/fisher-13mf-2del-{}g-train.fish'.format(gauss)
+    file_train = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.train.txt'.format(gauss)
+    # file_train = work_dir2 + '/features.fv-mfcc.improved.{}.train.txt'.format(gauss)
     lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
-    file_dev = work_dir + '/data/cold/dev/fisher-13mf-2del-{}g-dev.fish'.format(gauss)
-    # file_dev = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.dev.txt'.format(gauss)
-    # file_dev = work_dir2 + '/features.fv-mfcc.improved.2.dev.txt'
+    # file_dev = work_dir + '/data/cold/dev/fisher-13mf-2del-{}g-dev.fish'.format(gauss)
+    file_dev = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.dev.txt'.format(gauss)
+    # file_dev = work_dir2 + '/features.fv-mfcc.improved.{}.dev.txt'.format(gauss)
     lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
-    file_test = work_dir + '/data/cold/test/fisher-13mf-2del-{}g-test.fish'.format(gauss)
-    # file_test = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.test.txt'.format(gauss)
-    # file_test = work_dir2 + '/features.fv-mfcc.improved.2.test.txt'
+    # file_test = work_dir + '/data/cold/test/fisher-13mf-2del-{}g-test.fish'.format(gauss)
+    file_test = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.test.txt'.format(gauss)
+    # file_test = work_dir2 + '/features.fv-mfcc.improved.{}.test.txt'.format(gauss)
     lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
     # Load dataste correo realizo cor
-    X_train = np.loadtxt(file_train, delimiter=' ')
+    X_train = np.loadtxt(file_train, delimiter=',')
     Y_train = np.loadtxt(lbl_train)
 
-    X_dev = np.loadtxt(file_dev, delimiter=' ')
+    X_dev = np.loadtxt(file_dev, delimiter=',')
     Y_dev = np.loadtxt(lbl_dev)
 
-    X_test = np.loadtxt(file_test, delimiter=' ')
+    X_test = np.loadtxt(file_test, delimiter=',')
     Y_test = np.loadtxt(lbl_test)
 
     # Putting train and dev together
@@ -141,3 +141,13 @@ def train_model_stkgroup_cv(X, Y, n_splits, _c, groups, gaussians):
         two = sk.metrics.recall_score(Y, y_p, pos_label=1)
         uar_tot = (one + two) / 2
     return uar_tot, svc
+
+
+def train_model(X, Y, c):
+    seeds = [137, 895642, 15986, 4242, 7117, 1255, 1, 923, 75, 9656]
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
+    for number in seeds:
+        X_resampled, Y_resampled, indi = resample_data(X, Y, r=number)  # resampling
+        svc.fit(X_resampled, Y_resampled)  # Training the SVM
+
+    return svc

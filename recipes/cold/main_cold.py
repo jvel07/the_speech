@@ -6,10 +6,10 @@ import os
 from common import util
 
 # List of audio-sets (folders containing audio samples)
-list_sets = ['train']#, 'dev', 'test']
+list_sets = ['train', 'dev', 'test']
 
 # List of number of clusters wanted to use
-list_n_clusters = [2, 4, 8, 16, 32, 64]
+list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
