@@ -30,9 +30,9 @@ for g in [128]: #[2, 4, 8, 16, 32, 64, 128]:
     # X_train_norm = scaler.transform(X_train_norm)
     # X_test_norm = scaler.transform(X_test_norm)
     #
-    scaler = PCA(n_components=0.95)
-    X_train_norm = scaler.fit_transform(X_train_norm)
-    X_test_norm = scaler.transform(X_test_norm)
+   # scaler = PCA(n_components=0.95)
+    #X_train_norm = scaler.fit_transform(X_train_norm)
+    #X_test_norm = scaler.transform(X_test_norm)
 
     for c in com_values:
         # groups = pre_groups[indi]
