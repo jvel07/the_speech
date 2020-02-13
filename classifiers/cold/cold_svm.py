@@ -8,31 +8,33 @@ from classifiers.cross_val import StatifiedGroupK_Fold
 
 from classifiers.cold import cold_helper as ch
 
-# com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
-com_values = [0.1]
+com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
+# com_values = [0.1]
 
 # retrieving groups for stratified group k-fold CV
 groups = ch.read_utt_spk_lbl()
 
 # iterating over the gaussians
-for g in [128]: #[2, 4, 8, 16, 32, 64, 128]:
+for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
     print("CV Process (gaussians):", g)
     # Loading Train, Dev, Test, and Combined (T+D)
     X_train, Y_train, X_dev, Y_dev, X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
     # X, Y = shuffle(X_train, Y_train, random_state=0)
 
-    # Normalize data
-    scaler = preprocessing.Normalizer().fit(X_combined)
-    X_train_norm = scaler.transform(X_combined)
-    X_test_norm = scaler.transform(X_test)
+    # Power Transformer
+    scaler = preprocessing.PowerTransformer().fit(X_combined)
+    X_train_pca = scaler.transform(X_combined)
+    X_test_pca = scaler.transform(X_test)
 
-    # scaler = preprocessing.PowerTransformer().fit(X_train_norm)
-    # X_train_norm = scaler.transform(X_train_norm)
+    # Normalize data
+    normalizer = preprocessing.Normalizer(norm='l2').fit(X_train_pca)
+    X_train_norm = normalizer.transform(X_train_pca)
+    X_test_norm = normalizer.transform(X_test_pca)
+
+    # PCA
+    # scaler = PCA(n_components=0.95)
+    # X_train_norm = scaler.fit_transform(X_train_norm)
     # X_test_norm = scaler.transform(X_test_norm)
-    #
-   # scaler = PCA(n_components=0.95)
-    #X_train_norm = scaler.fit_transform(X_train_norm)
-    #X_test_norm = scaler.transform(X_test_norm)
 
     for c in com_values:
         # groups = pre_groups[indi]

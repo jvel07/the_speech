@@ -19,7 +19,6 @@ def uar_scoring(y_true, y_pred, **kwargs):
     uar_ = (one + two) / 2
     return uar_
 
-
 my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 
 # retrieving groups for stratified group k-fold CV
@@ -47,18 +46,35 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     # gskf = list(StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5).split(X_resampled, Y_resampled, groups))
     sgkf = StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5)
 
-    xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1,
-                        scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
-                        n_estimators=350, objective="binary:hinge")
-    xgd.fit(X_resampled, Y_resampled)
+    # xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1,
+    #                     scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
+    #                     n_estimators=350, objective="binary:hinge")
+    # xgd.fit(X_resampled, Y_resampled)
+    #
+    # probs = xgd.predict_proba(X_test)
+    # y_p = np.argmax(probs, axis=1)
+    # print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_test, y_p))
+    # one = sk.metrics.recall_score(Y_test, y_p, pos_label=0)
+    # two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
+    # uar_ = (one + two) / 2
+    # print(uar_)
 
-    probs = xgd.predict_proba(X_test)
-    y_p = np.argmax(probs, axis=1)
-    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_test, y_p))
-    one = sk.metrics.recall_score(Y_test, y_p, pos_label=0)
-    two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
-    uar_ = (one + two) / 2
-    print(uar_)
+
+    def tun_estimators_maxdep_rate(X, Y, groups):
+        param_test1 = {
+            'max_depth': [3, 4, 5, 6, 7],
+            'n_estimators': [100, 200, 300, 350, 450, 500, 550, 650],
+            'learning_rate': [0.001, 0.01, 0.03, 0.1, 0.2, 0.3, 1]
+        }
+        gsearch1 = GridSearchCV(
+            estimator=XGBClassifier(booster='gbtree', gamma=0, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1,
+                                    scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
+                                    n_estimators=350, objective="binary:hinge"),
+            param_grid=param_test1, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
+        gsearch1.fit(X, Y, groups=groups)
+        return gsearch1.cv_results_, gsearch1.best_params_, gsearch1.best_score_
+
+    scores7, params7, best_score7 = tun_estimators_maxdep_rate(X_resampled, Y_resampled, groups)
 
 
     def tun_1(X, Y, groups):
@@ -141,7 +157,7 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
                                     n_jobs=-1, objective="binary:hinge",
                                     scale_pos_weight=1, reg_alpha=reg_alpha, reg_lambda=0.05, colsample_bytree=colsample,
                                     subsample=subsample,
-                                    n_estimators=450),
+                                    n_estimators=350),
             param_grid=param_test6, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch6.fit(X, Y, groups)
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
@@ -159,12 +175,12 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
                                     n_jobs=-1, objective="binary:hinge",
                                     scale_pos_weight=1, reg_alpha=reg_alpha, reg_lambda=0.05, colsample_bytree=colsample,
                                     subsample=subsample,
-                                    n_estimators=450),
+                                    n_estimators=350),
             param_grid=param_test6, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch6.fit(X, Y, groups)
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
 
-    scores6, params6, best_score6 = tun_6(X_resampled, Y_resampled, groups, params['max_depth'],
-                                          params['min_child_weight'], params2['gamma'], params3['subsample'],
-                                          params3['colsample_bytree'], params4['reg_alpha'], params5['reg_lambda'])
+    # scores6, params6, best_score6 = tun_6(X_resampled, Y_resampled, groups, params['max_depth'],
+    #                                       params['min_child_weight'], params2['gamma'], params3['subsample'],
+    #                                       params3['colsample_bytree'], params4['reg_alpha'], params5['reg_lambda'])
