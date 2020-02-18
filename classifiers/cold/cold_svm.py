@@ -17,8 +17,9 @@ groups = ch.read_utt_spk_lbl()
 # iterating over the gaussians
 for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
     print("CV Process (gaussians):", g)
-    # Loading Train, Dev, Test, and Combined (T+D)
-    X_train, Y_train, X_dev, Y_dev, X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
+    # Loading Test, and Combined (Train+Dev)
+    # X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
+    X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
     # X, Y = shuffle(X_train, Y_train, random_state=0)
 
     # Power Transformer

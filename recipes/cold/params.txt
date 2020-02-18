@@ -1,0 +1,55 @@
+0.682
+xgd = XGBClassifier(booster='gbtree', gamma=0, max_depth=3, min_child_weight=1, learning_rate=0.03, n_jobs=-1,
+                    scale_pos_weight=1, reg_alpha=0.001, reg_lambda=0.05, colsample_bytree=0.8, subsample=0.5, n_estimators=450)
+
+UAR = 0.6934
+xgd = XGBClassifier(booster='gbtree', gamma=0, max_depth=3, min_child_weight=1, learning_rate=0.03, n_jobs=-1, objective="binary:hinge",
+                    scale_pos_weight=1, reg_alpha=0.001, reg_lambda=0.05, colsample_bytree=0.8, subsample=0.5,
+                    n_estimators=450)
+
+
+uar = 69.75
+xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1, objective="binary:hinge",
+                     scale_pos_weight=1, reg_alpha=100, reg_lambda=1e-5, colsample_bytree=0.6, subsample=0.9,
+                     n_estimators=350)
+
+
+uar = 0.7031
+xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1,
+                     scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
+                     n_estimators=350, objective="binary:hinge")
+
+
+CV grid
+{'max_depth': 5, 'min_child_weight': 5}
+
+
+params
+{'max_depth': 3, 'min_child_weight': 5}
+params2
+{'gamma': 0.4}
+params3
+{'colsample_bytree': 0.6, 'subsample': 0.9}
+params4
+{'reg_alpha': 100}
+params5
+{'reg_lambda': 1e-05}
+
+new grids
+params
+{'max_depth': 3, 'min_child_weight': 5}
+params2
+{'gamma': 0.0}
+params3
+{'colsample_bytree': 0.6, 'subsample': 0.9}
+params4
+{'reg_alpha': 100}
+params5
+{'reg_lambda': 0.01}
+
+
+################################# compare feats ###############################
+
+
+
+

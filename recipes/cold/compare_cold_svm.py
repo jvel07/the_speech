@@ -22,8 +22,10 @@ com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]
 # retrieving groups for stratified group k-fold CV
 groups = ch.read_utt_spk_lbl()
 
-# Loading Train, Dev, Test, and Combined (T+D)
-X_train, Y_train, X_dev, Y_dev, X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
+# Loading Test, and Combined (Train+Dev)
+# X_test, Y_test, X_combined, Y_combined = ch.load_data()  # Load fishers data
+# X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()  # Load compare data
+X_train, X_test, Y_train, Y_test= ch.load_combined_fandc(64)  # Load fish and compare combined
 # X, Y = shuffle(X_train, Y_train, random_state=0)
 
 # Power Transformer
@@ -32,9 +34,9 @@ X_train, Y_train, X_dev, Y_dev, X_test, Y_test, X_combined, Y_combined = ch.load
 # X_test_pca = scaler.transform(X_test)
 
 # Normalize data
-normalizer = preprocessing.StandardScaler().fit(X_combined)
-X_train_norm = normalizer.transform(X_combined)
-X_test_norm = normalizer.transform(X_test)
+# normalizer = preprocessing.StandardScaler().fit(X_combined)
+# X_train_norm = normalizer.transform(X_combined)
+# X_test_norm = normalizer.transform(X_test)
 
 # PCA
 # scaler = PCA(n_components=0.95)
@@ -43,7 +45,7 @@ X_test_norm = normalizer.transform(X_test)
 
 for c in com_values:
     # groups = pre_groups[indi]
-    uar, clf = ch.train_model_stkgroup_cv(X_train_norm, Y_combined, 5, c, groups, 0)  # With group-strat
+    uar, clf = ch.train_model_stkgroup_cv(X_train, Y_train, 5, c, groups, 0)  # With group-strat
     # clf = ch.train_model(X_train_norm, Y_combined, c)
     print("With:", c, "->", uar)
 

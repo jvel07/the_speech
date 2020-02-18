@@ -3,6 +3,7 @@ import sklearn as sk
 from imblearn.under_sampling import TomekLinks, RandomUnderSampler
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils import shuffle
@@ -26,7 +27,8 @@ groups = ch.read_utt_spk_lbl()
 
 for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     # Loading Train, Dev, Test, and Combined (T+D)
-    X_train, Y_train, X_dev, Y_dev, X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
+    # X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
+    X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
 
     # # Normalize data
     # scaler = preprocessing.Normalizer().fit(X_combined)
@@ -34,9 +36,7 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     # X_test_norm = scaler.transform(X_test)
     #
     # # PCA
-    # scaler = PCA(n_components=0.95)
-    # X_train_pca = scaler.fit_transform(X_train_norm)
-    # X_test_pca = scaler.transform(X_test_norm)
+
 
     undersampler = RandomUnderSampler(random_state=42)
     X_resampled, Y_resampled = undersampler.fit_resample(X_combined, Y_combined)
@@ -46,9 +46,10 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     # gskf = list(StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5).split(X_resampled, Y_resampled, groups))
     sgkf = StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5)
 
-    # xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1,
+    # xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.3, n_jobs=-1,
     #                     scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
-    #                     n_estimators=350, objective="binary:hinge")
+    #                     n_estimators=100, objective="binary:hinge")
+    # #{'learning_rate': 0.3, 'max_depth': 3, 'n_estimators': 100} 0.03 350
     # xgd.fit(X_resampled, Y_resampled)
     #
     # probs = xgd.predict_proba(X_test)
@@ -85,12 +86,12 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         gsearch1 = GridSearchCV(
             estimator=XGBClassifier(booster='gbtree', gamma=0, max_depth=3, min_child_weight=1, learning_rate=0.03, n_jobs=-1,
                                     scale_pos_weight=1, reg_alpha=0.01, reg_lambda=0.05, colsample_bytree=0.8, subsample=0.5,
-                                    n_estimators=450, objective="binary:hinge"),
+                                    n_estimators=150, objective="binary:hinge"),
             param_grid=param_test1, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch1.fit(X, Y, groups=groups)
         return gsearch1.cv_results_, gsearch1.best_params_, gsearch1.best_score_
 
-    # scores, params, best_score = tun_1(X_resampled, Y_resampled, groups)
+    scores, params, best_score = tun_1(X_resampled, Y_resampled, groups)
 
     def tun_2(X, Y, groups, max, min):
         param_test3 = {
@@ -99,14 +100,14 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         gsearch3 = GridSearchCV(
             estimator=XGBClassifier(booster='gbtree', gamma=0, max_depth=max, min_child_weight=min, learning_rate=0.03, n_jobs=-1,
                                     scale_pos_weight=1, reg_alpha=0.01, reg_lambda=0.05, colsample_bytree=0.8, subsample=0.5,
-                                    n_estimators=450, objective="binary:hinge"),
+                                    n_estimators=150, objective="binary:hinge"),
             param_grid=param_test3, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch3.fit(X, Y, groups)
         return gsearch3.cv_results_, gsearch3.best_params_, gsearch3.best_score_
 
 
-    # scores2, params2, best_score2 = tun_2(X_resampled, Y_resampled, groups, params['max_depth'],
-    #                                       params['min_child_weight'])
+    scores2, params2, best_score2 = tun_2(X_resampled, Y_resampled, groups, params['max_depth'],
+                                          params['min_child_weight'])
 
 
     def tun_3(X, Y, groups, max, min, gamma):
@@ -119,14 +120,14 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
                                     n_jobs=-1, objective="binary:hinge",
                                     scale_pos_weight=1, reg_alpha=0.001, reg_lambda=0.05, colsample_bytree=0.8,
                                     subsample=0.5,
-                                    n_estimators=450),
+                                    n_estimators=150),
             param_grid=param_test4, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch4.fit(X, Y, groups)
         return gsearch4.cv_results_, gsearch4.best_params_, gsearch4.best_score_
 
 
-    # scores3, params3, best_score3 = tun_3(X_resampled, Y_resampled, groups, params['max_depth'],
-    #                                       params['min_child_weight'], params2['gamma'])
+    scores3, params3, best_score3 = tun_3(X_resampled, Y_resampled, groups, params['max_depth'],
+                                          params['min_child_weight'], params2['gamma'])
 
 
     def tun_4(X, Y, groups, max, min, gamma, subsample, colsample):
@@ -138,14 +139,14 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
                                     n_jobs=-1, objective="binary:hinge",
                                     scale_pos_weight=1, reg_alpha=0.001, reg_lambda=0.05, colsample_bytree=colsample,
                                     subsample=subsample,
-                                    n_estimators=450),
+                                    n_estimators=150),
             param_grid=param_test6, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch6.fit(X, Y, groups)
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
 
-    # scores4, params4, best_score4 = tun_4(X_resampled, Y_resampled, groups, params['max_depth'],
-    #                                       params['min_child_weight'], params2['gamma'], params3['subsample'], params3['colsample_bytree'])
+    scores4, params4, best_score4 = tun_4(X_resampled, Y_resampled, groups, params['max_depth'],
+                                          params['min_child_weight'], params2['gamma'], params3['subsample'], params3['colsample_bytree'])
 
 
     def tun_5(X, Y, groups, max, min, gamma, subsample, colsample, reg_alpha):
@@ -157,14 +158,14 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
                                     n_jobs=-1, objective="binary:hinge",
                                     scale_pos_weight=1, reg_alpha=reg_alpha, reg_lambda=0.05, colsample_bytree=colsample,
                                     subsample=subsample,
-                                    n_estimators=350),
+                                    n_estimators=150),
             param_grid=param_test6, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch6.fit(X, Y, groups)
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
-    # scores5, params5, best_score5 = tun_5(X_resampled, Y_resampled, groups, params['max_depth'],
-    #                                       params['min_child_weight'], params2['gamma'], params3['subsample'],
-    #                                       params3['colsample_bytree'], params4['reg_alpha'])
+    scores5, params5, best_score5 = tun_5(X_resampled, Y_resampled, groups, params['max_depth'],
+                                          params['min_child_weight'], params2['gamma'], params3['subsample'],
+                                          params3['colsample_bytree'], params4['reg_alpha'])
 
     def tun_6(X, Y, groups, max, min, gamma, subsample, colsample, reg_alpha, reg_lambda):
         param_test6 = {
@@ -175,12 +176,12 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
                                     n_jobs=-1, objective="binary:hinge",
                                     scale_pos_weight=1, reg_alpha=reg_alpha, reg_lambda=0.05, colsample_bytree=colsample,
                                     subsample=subsample,
-                                    n_estimators=350),
+                                    n_estimators=150),
             param_grid=param_test6, scoring=my_scorer, n_jobs=-1, iid=False, cv=sgkf)
         gsearch6.fit(X, Y, groups)
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
 
-    # scores6, params6, best_score6 = tun_6(X_resampled, Y_resampled, groups, params['max_depth'],
-    #                                       params['min_child_weight'], params2['gamma'], params3['subsample'],
-    #                                       params3['colsample_bytree'], params4['reg_alpha'], params5['reg_lambda'])
+    scores6, params6, best_score6 = tun_6(X_resampled, Y_resampled, groups, params['max_depth'],
+                                          params['min_child_weight'], params2['gamma'], params3['subsample'],
+                                          params3['colsample_bytree'], params4['reg_alpha'], params5['reg_lambda'])

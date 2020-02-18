@@ -13,9 +13,8 @@ from classifiers.cross_val import StatifiedGroupK_Fold
 work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
 work_dir2 = 'D:/VHD/fishers'
 
+
 def load_data(gauss):
-
-
     # Set data directories
     # file_train = work_dir + '/data/cold/train/fisher-13mf-2del-{}g-train.fish'.format(gauss)
     file_train = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.train.txt'.format(gauss)
@@ -52,7 +51,7 @@ def load_data(gauss):
     Y_test[Y_test == 2] = 0
     Y_combined[Y_combined == 2] = 0
 
-    return X_train, Y_train, X_dev, Y_dev, X_test, Y_test, X_combined, Y_combined
+    return X_test, Y_test, X_combined, Y_combined
 
 
 def load_compare_data():
@@ -86,8 +85,7 @@ def load_compare_data():
     Y_test[Y_test == 2] = 0
     Y_combined[Y_combined == 2] = 0
 
-    return X_train, Y_train, X_dev, Y_dev, X_test, Y_test, X_combined, Y_combined
-
+    return X_test, Y_test, X_combined, Y_combined
 
 
 def powert_data(X, X_dev, X_test):
