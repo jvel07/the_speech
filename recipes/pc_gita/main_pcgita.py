@@ -62,7 +62,7 @@ def do_ivecs_pretrained_mdls():
         print("\nReading dir:", mfccs_dir + folder_name)
         for ubm in list_ubm_files:  # iterating over the pretrained ubms
             n_ubm = util.extract_numbers_from_str(ubm)  # getting the number of ubms of the corresponding file
-            print("\ni-vecs for {} GMMs".format(n_ubm))
+            print("i-vecs for {} GMMs".format(n_ubm))
             list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')  # reading MFCCs to extracting i-vecs from
             extract_ivecs.compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got=20, n_ubm=n_ubm,
                                                    file_ubm=ubm, ivec_dims=256, recipe=recipe, folder_name=folder_name)

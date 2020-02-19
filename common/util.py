@@ -262,7 +262,7 @@ def traverse_dir(path, file_type):
                     lista.append(os.path.join(root, file))
         return lista
     else:
-        print("ERROR: Path '{}' does not exist!".format(path))
+        print("\nERROR: Path '{}' does not exist!".format(path))
         raise FileNotFoundError
 
 
