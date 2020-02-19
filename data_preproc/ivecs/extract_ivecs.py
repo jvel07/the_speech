@@ -43,11 +43,9 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
     # Loading File for UBM
     obs_ivec = ''
     print("File of MFCCs for UBM:", file_ubm)
-    #'/home/egasj/PycharmProjects/the_speech/data/pcgita/UBMs/32/ubm/final.mdl'
     with io.open_or_fd(file_ubm, mode='r') as fd:
-        model_ubm = fd.read()
+        fubm = fd.read()
 
-    print("i-vecs will be extracted using 2, 4, 8 ..., 64 for UBM!")
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         # models for i-vecs
@@ -56,7 +54,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
         print("Training i-vec extractor with " + str(ivec_dims) + " dimensions...")
         feats = [[]]
         feats = list_feat
-        model_ivector = bob.kaldi.ivector_train(feats, model_ubm, file_ivec_extractor_model,
+        model_ivector = bob.kaldi.ivector_train(feats, fubm, file_ivec_extractor_model,
                                               ivector_dim=ivec_dims,
                                               num_iters=num_iters, min_post=min_post,
                                               posterior_scale=post_scale)
@@ -67,7 +65,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
         n_gselect = int(np.log2(n_ubm))
         print(n_gselect)
         for i2 in list_feat:  # extracting i-vecs
-            ivector_array = bob.kaldi.ivector_extract(i2, model_ubm, model_ivector, num_gselect=n_gselect)
+            ivector_array = bob.kaldi.ivector_extract(i2, fubm, model_ivector, num_gselect=n_gselect)
             ivectors_list.append(ivector_array)
         a_ivectors = np.vstack(ivectors_list)
         print("i-vectors shape:", a_ivectors.shape)
@@ -77,6 +75,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
             info_num_feats_got, obs, n_ubm, folder_name)
         np.savetxt(file_ivecs, a_ivectors, fmt='%.7f')
         print("i-vectors saved to:", file_ivecs)
+
 
 
 def compute_ivecs(list_mfcc_files, out_dir, info_num_feats_got, file_ubm_feats, ivec_dims, recipe, folder_name):

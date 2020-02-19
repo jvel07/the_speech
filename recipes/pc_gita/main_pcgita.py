@@ -56,7 +56,7 @@ def do_ivecs_pretrained_mdls():
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
     out_dir = work_dir + 'data/'
     ubm_dir = work_dir + 'data/' + recipe + '/UBMs/'  # where the ubms live
-    list_ubm_files = util.traverse_dir(ubm_dir, '.ubm') # reading all the files with .ubm format
+    list_ubm_files = util.traverse_dir(ubm_dir, '.mdl')  # reading all the files with .mdl format
 
     for folder_name in list_sets:  # iterating over the list of sets (audio sets)
         print("\nReading dir:", mfccs_dir + folder_name)
@@ -69,7 +69,7 @@ def do_ivecs_pretrained_mdls():
 
 
 def do_svm():
-    print("svm")
+    print("to be implemented soon...")
 
 
 def steps(i):
@@ -77,7 +77,7 @@ def steps(i):
         0: do_mfccs,
         1: do_fishers,
         2: do_ivecs,
-        3: do_svm
+        3: do_svm,
         4: do_ivecs_pretrained_mdls,
     }
     func = switcher.get(i)

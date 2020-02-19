@@ -253,13 +253,17 @@ def join_speakers_wavs(list_group_features):
 
 
 # Traverse directories and pull specific type of file (".WAV", etc...)
-def traverse_dir(dir, file_type):
-    lista = []
-    for root, dirs, files in os.walk(dir):
-        for file in files:
-            if file.endswith(file_type):
-                lista.append(os.path.join(root, file))
-    return lista
+def traverse_dir(path, file_type):
+    if os.path.isdir(path):
+        lista = []
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                if file.endswith(file_type):
+                    lista.append(os.path.join(root, file))
+        return lista
+    else:
+        print("ERROR: Path '{}' does not exist!".format(path))
+        raise FileNotFoundError
 
 
 """FOR THE DEMENTIA DATASET PREPROCESSING  ---  END"""
