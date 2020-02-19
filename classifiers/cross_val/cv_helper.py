@@ -132,6 +132,7 @@ def train_model_cv_PCA(_x_train, _y_train, n_splits):
         svc = svm.LinearSVC(C=best_c, verbose=1, max_iter=965000)
         svc.fit(x_train_reduced, np.ravel(_y_train[train]))
 
+
         y_pred = svc.predict(x_test_reduced)
         predicciones.append(y_pred)
         ground_truths.append(_y_train[test])
@@ -143,31 +144,22 @@ def train_model_cv_PCA(_x_train, _y_train, n_splits):
     return predicciones, ground_truths
 
 
-def train_model_cv_LDA(_x_train, _y_train, n_splits):
-    predicciones = []
-    ground_truths = []
-    # svc = svm.LinearSVC(C=_c, verbose=1, max_iter=965000) #class_weight='balanced',
+def train_model_stratkf_LDA(_x_train, _y_train, n_splits, _c):
+    scores = []
     skf = StratifiedKFold(n_splits=n_splits)
-    for train, test in skf.split(_x_train, _y_train):
-        lda = LDA(n_components=8)
-        lda2 = LDA(n_components=8)
-        lda.fit(_x_train[train], _y_train[train])
-        x_train_reduced = lda.transform(_x_train[train])
-        lda2.fit(_x_train[test], _y_train[test])
-        test_x_reduced = lda.transform(_x_train[test])
-        y_encoded = encode_labels_alz(y)
+    for train_index, test_index in skf.split(_x_train, _y_train):
+        x_train, x_test, y_train, y_test = \
+            _x_train[train_index], _x_train[test_index], _y_train[train_index], _y_train[test_index]
 
-        best_c = grid_search(x_train_reduced, _y_train[train])
-        svc = svm.LinearSVC(C=best_c, verbose=0, max_iter=965000)
-        svc.fit(x_train_reduced, np.ravel(y_encoded[train]))
-        # svc.fit(_x_train[train], np.ravel(_y_train[train]))
+        lda = tools.fit_LDA(x_train, y_train, 110)
+        x_train_lda = lda.transform(x_train)
+        x_test_lda = lda.transform(x_test)
 
-        y_pred = svc.predict(test_x_reduced)
-        predicciones.append(y_pred)
-        ground_truths.append(y_encoded[test])
+        svc = svm.LinearSVC(C=_c, verbose=0, max_iter=1000)  # class_weight='balanced',
+        svc.fit(x_train_lda, y_train)
+        # y_pred = svc.predict(x_test)
+        scores.append(svc.score(x_test_lda, y_test))
+        # scores2.append(accuracy_score(y_test, y_pred))
         # pp['final-average'] = predicciones+ground_truths
 
-    predicciones = np.ravel(np.vstack(predicciones))
-    ground_truths = np.ravel(np.vstack(ground_truths))
-
-    return predicciones, ground_truths
+    return scores

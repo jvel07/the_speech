@@ -33,8 +33,8 @@ class SPKID_Dataset(Dataset):
         return len(self.feat_list)
 
     def __getitem__(self, idx):
- #       feat = kaldi_io.read_mat(self.feat_list[idx])
-        feat = kaldi_io.read_vec_flt(self.feat_list[idx])
+        feat = kaldi_io.read_mat(self.feat_list[idx])
+ #       feat = kaldi_io.read_vec_flt(self.feat_list[idx])
         return feat
 
 
@@ -51,12 +51,12 @@ def get_xvecs():
 def get_ivecs():
     num = [1, 2, 3, 4]
     xvecs = []
-    for number in num:
-        dataset = SPKID_Dataset('../kaldi_python/exp/ivectors_train/ivector.{}.scp'.format(number))
-        for i in range(len(dataset)):
-            xvecs.append(dataset.__getitem__(i))
+    # for number in num:
+    dataset = SPKID_Dataset('../kaldi_python/exp/test1/ivector.scp')
+    for i in range(len(dataset)):
+        xvecs.append(dataset.__getitem__(i))
     x = np.vstack(xvecs)
-    np.savetxt('../data/ivecs/alzheimer/ivecs-8-20mf---256i', x)
+    np.savetxt('../data/ivecs/ivecs-32-23mf---300_test', x)
     print(x.shape)
 
-get_xvecs()
+get_ivecs()

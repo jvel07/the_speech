@@ -37,7 +37,7 @@ def do_fishers():
     for folder_name in list_sets:
         print("\nReading dir:", mfccs_dir + folder_name)
         list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')
-        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, num_feats_got_feats=13,
+        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, info_num_feats=13,
                                         file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
 
 
@@ -51,7 +51,7 @@ def do_ivecs():
     for folder_name in list_sets:
         print("\nReading dir:", mfccs_dir + folder_name)
         list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')
-        extract_ivecs.compute_ivecs(list_mfcc_files, out_dir, num_feats_got_feats=13, ivec_dims=256,
+        extract_ivecs.compute_ivecs(list_mfcc_files, out_dir, info_num_feats_got=13, ivec_dims=256,
                                     file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
 
 

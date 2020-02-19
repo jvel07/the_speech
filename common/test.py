@@ -35,3 +35,13 @@ def take_only_colds(wavs_dir, labels):
     return lista
 
 # a = take_only_colds('../audio/train', '../data/labels/labels.num.train.txt')
+
+
+one = '/home/egasj/PycharmProjects/the_speech/data/cold/posteriors/mean_cv_post_compare _1e-05_0g.txt'
+two = '/home/egasj/PycharmProjects/the_speech/data/cold/posteriors/mean_cv_posteriors_0.1_64g.txt'
+def average_post(one, two):
+    p1 = np.loadtxt(one)
+    p2 = np.loadtxt(two)
+    probs = np.mean((p1, p2), axis=0)
+    a = np.argmax(probs, axis=1)
+    return a

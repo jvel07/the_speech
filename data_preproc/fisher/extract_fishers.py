@@ -17,7 +17,7 @@ def do_fishers(features, means, covs, priors):
     return fish
 
 
-def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, num_feats_got_feats, file_ubm_feats, recipe, folder_name):
+def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, info_num_feats, file_ubm_feats, recipe, folder_name):
     # Loading File for UBM
     print("File of MFCCs for UBM:", file_ubm_feats)
     array_mfccs_ubm = np.load(file_ubm_feats, allow_pickle=True)
@@ -37,7 +37,7 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, num_feats_got_fea
                 # Output file (fishers)
             obs = '2del'
             file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fish'.format(
-                num_feats_got_feats,
+                info_num_feats,
                 obs, g, folder_name)
             np.savetxt(file_fishers, list_fishers, fmt='%.7f')
             print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape)

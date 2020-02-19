@@ -112,8 +112,8 @@ if __name__ == '__main__':
 
         #c = grid_search(x_train, y_train)
         scores = []
-        #scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
-        scores.append(train_model_cv(x_train, np.ravel(y_train), 5, 0.0001))  # training model with original
+        scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
+        # scores.append(train_model_cv(x_train, np.ravel(y_train), 5, 0.0001))  # training model with original
         for ii in scores:
             print(np.mean(ii))
 

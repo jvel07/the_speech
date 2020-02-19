@@ -112,6 +112,13 @@ def read_files_from_dir_reg(dir_name, regex):
     return file_list
 
 
+# extracting numbers from strings. E.g. from '/home/egasj/PycharmProjects/the_speech/data/pcgita/UBMs/64/ubm/final.ubm'
+# extract 64
+def extract_numbers_from_str(string):
+    temp1 = re.findall(r'\d+', string)  # through regular expression
+    res2 = list(map(int, temp1))
+    return res2
+
 # for files in os.walk("../wav_audios/."):
 # for filename in files:
 #   print(filename)

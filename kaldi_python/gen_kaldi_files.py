@@ -32,7 +32,7 @@ def create_utt2spk_kaldi():
     return new_list
 
 
-# when no speaker id nor lables are provided. Output e.g.: 130C_szurke.wav 130
+# when no speaker id nor labels are provided. Output e.g.: 130C_szurke.wav 130
 def create_utt2spk_kaldi_2():
     audio_dir = '/home/egasj/kaldi/egs/cold/audio/train/'
     list_audios = util.read_files_from_dir(audio_dir)
@@ -43,7 +43,7 @@ def create_utt2spk_kaldi_2():
     return new_list
 
 
-# for cold database
+# for cold database; given in file e.g.: vp010_02_06_butter_009.wav	train_0001.wav
 def generate_utt2spk():
     df = pd.read_csv("../data/labels/list-map-testlabels.tsv", sep="\t", header=None)
     df.columns = ['id', 'wav', 'nothing']
@@ -76,17 +76,15 @@ def order_wavs():
     new_order_paths = df4.path.values
     new_order_ids = df4.spkid.values
     n = []  # new list of wavs and paths (kaldi's ordering)
-    #for i, j in zip(new_order_wavs, new_order_paths):
-     #   n.append(i + ' ' + j)
-    #np.savetxt('test.txt'.format(_set), n, fmt="%s", delimiter=' ')
+    # for i, j in zip(new_order_wavs, new_order_paths):
+    #   n.append(i + ' ' + j)
+    # np.savetxt('test.txt'.format(_set), n, fmt="%s", delimiter=' ')
     # rename wavs in kaldi's ordering (renaming needed for kaldi's need)
     for wav, id in zip(new_order_wavs, new_order_ids):
         new_name = id + '_' + wav
         os.rename("/home/egasj/kaldi/egs/cold/audio/{}/{}".format(_set, wav),
                   "/home/egasj/kaldi/egs/cold/audio/{}/{}".format(_set, new_name))
 
-
     return n
 
-
-create_scp_kaldi()
+# create_scp_kaldi()

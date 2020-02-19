@@ -76,14 +76,14 @@ if __name__ == '__main__':
 
     work_dir = '/home/egasj/PycharmProjects/the_speech'
     # obs = 'fbanks_40'
-    feat_type = '23mf'
+    feat_type = '20mf'
     n_filters = '512_dem'
     deltas = ''
     vad = ''
-    num_gauss = ''
+    num_gauss = '2'
 
     # Loading data
-    file_x = work_dir + '/data/xvecs/xvecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
+    file_x = work_dir + '/data/ivecs/alzheimer/ivecs-{}-{}-{}-{}-{}'.format(num_gauss, feat_type, deltas, vad, n_filters)
     #file_y = work_dir + '/data/ids_labels_300.txt'
 
     # Load data for 75 spk
@@ -103,22 +103,22 @@ if __name__ == '__main__':
     # Concatenate 3 wavs per/spk into 1 wav per/spk
     x_train = join_speakers_wavs(x_train_grouped)
 
-    scl = PowerTransformer()
+    #scl = PowerTransformer()
     #scl.fit(x_train)
     #x_train = scl.transform(x_train)
     x_train = tools.normalize_data(x_train)
     
-    var_ratio = tools.get_var_ratio_pca(x_train)
-    components = tools.sel_pca_comp(var_ratio, goal_var=0.95)
-    x_train_pca = tools.fit_PCA(x_train, components, 'auto', True)
+    #var_ratio = tools.get_var_ratio_pca(x_train)
+    #components = 110 #tools.sel_pca_comp(var_ratio, goal_var=0.95)
+    #x_train_pca = tools.fit_LDA(x_train, np.ravel(y_train), components)
 
     #c = grid_search(x_train, y_train)
     scores = []
     #scores.append(train_model_stratk_group(x_train, y_train, 5, groups, 0.00001))  # training model with augmented
-    for com in [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]:
-        scores.append(train_model_cv(x_train_pca, np.ravel(y_train), 5, com))  # training model with original
-        for ii in scores:
-            print(np.mean(ii))
+    #for com in [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]:
+    scores.append(train_model_cv(x_train, np.ravel(y_train), 5, 0.01))  # training model with original
+    for ii in scores:
+        print(np.mean(ii))
 
     # acc = metrics(ground, pred)
     # print_conf_matrix(ground, pred)

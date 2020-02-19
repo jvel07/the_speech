@@ -10,7 +10,8 @@ from sklearn.preprocessing import PowerTransformer
 
 from classifiers.cross_val import StatifiedGroupK_Fold
 
-work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'
+# work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' # windows machine
+work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
 work_dir2 = 'D:/VHD/fishers'
 
 
