@@ -4,6 +4,7 @@ from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util
+from recipes.cold.utils_pcgita import save_labels
 
 recipe = 'pcgita'
 
@@ -24,7 +25,7 @@ def do_mfccs():
         print("Reading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
         list_of_wavs.sort()
-        np.savetxt(out_dir + folder_name + '\{}_wav_list.txt'.format(folder_name), list_of_wavs, delimiter=',', fmt='%s')
+        save_labels(list_sets, audio_dir, out_dir + recipe + '/')  # make labels of the wavs
         extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=20, recipe='pcgita', folder_name=folder_name)
 
 
@@ -86,3 +87,4 @@ def steps(i):
 
 
 steps(0)
+steps(4)

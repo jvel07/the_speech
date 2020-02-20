@@ -49,7 +49,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         # models for i-vecs
-        file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_mdl_{}g_dem_{}'.format(g, obs_ivec)
+        file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_mdl_{}g_dem_{}'.format(n_ubm, obs_ivec)
         # Train ivector extractor
         print("Training i-vec extractor with " + str(ivec_dims) + " dimensions...")
         feats = [[]]
