@@ -37,8 +37,8 @@ def take_only_colds(wavs_dir, labels):
 # a = take_only_colds('../audio/train', '../data/labels/labels.num.train.txt')
 
 
-one = '/home/egasj/PycharmProjects/the_speech/data/cold/posteriors/mean_cv_post_compare _1e-05_0g.txt'
-two = '/home/egasj/PycharmProjects/the_speech/data/cold/posteriors/mean_cv_posteriors_0.1_64g.txt'
+one = 'C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_final_comp_post_1e-05_64g.txt'
+two = 'C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_cv_posteriors_0.1_64g.txt'
 def average_post(one, two):
     p1 = np.loadtxt(one)
     p2 = np.loadtxt(two)

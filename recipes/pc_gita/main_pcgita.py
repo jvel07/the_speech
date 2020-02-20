@@ -12,8 +12,8 @@ recipe = 'pcgita'
 list_sets = ['DDK_analysis', 'monologue', 'read_text', 'sentences', 'sentences2']
 
 # Working directories
-# work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
-work_dir = '/home/egasj/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
+work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
+# work_dir = '/home/egasj/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
 
 
 # Compute mfccs from wavs existing in the directories provided by the user
@@ -86,5 +86,4 @@ def steps(i):
     return func()
 
 
-steps(0)
 steps(4)

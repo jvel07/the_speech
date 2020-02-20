@@ -52,9 +52,9 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
         file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_mdl_{}g_dem_{}'.format(n_ubm, obs_ivec)
         # Train ivector extractor
         print("Training i-vec extractor with " + str(ivec_dims) + " dimensions...")
-        feats = [[]]
-        feats = list_feat
-        model_ivector = bob.kaldi.ivector_train(feats, fubm, file_ivec_extractor_model,
+        # feats = [[]]
+        # feats = list_feat
+        model_ivector = bob.kaldi.ivector_train(list_feat, fubm, file_ivec_extractor_model,
                                               ivector_dim=ivec_dims,
                                               num_iters=num_iters, min_post=min_post,
                                               posterior_scale=post_scale)

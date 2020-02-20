@@ -1,5 +1,7 @@
+import numpy as np
 import sklearn as sk
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn import preprocessing
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV
 from xgboost import XGBClassifier
@@ -22,16 +24,13 @@ groups = ch.read_utt_spk_lbl()
 
 for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     # Loading Train, Dev, Test, and Combined (T+D)
-    # X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
-    X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
+    X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
+    # X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
 
     # # Normalize data
-    # scaler = preprocessing.Normalizer().fit(X_combined)
-    # X_train_norm = scaler.transform(X_combined)
-    # X_test_norm = scaler.transform(X_test)
-    #
-    # # PCA
-
+    scaler = preprocessing.PowerTransformer().fit(X_combined)
+    X_train_norm = scaler.transform(X_combined)
+    X_test_norm = scaler.transform(X_test)
 
     undersampler = RandomUnderSampler(random_state=42)
     X_resampled, Y_resampled = undersampler.fit_resample(X_combined, Y_combined)
@@ -41,19 +40,19 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     # gskf = list(StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5).split(X_resampled, Y_resampled, groups))
     sgkf = StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5)
 
-    # xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.3, n_jobs=-1,
-    #                     scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
-    #                     n_estimators=100, objective="binary:hinge")
-    # #{'learning_rate': 0.3, 'max_depth': 3, 'n_estimators': 100} 0.03 350
-    # xgd.fit(X_resampled, Y_resampled)
-    #
-    # probs = xgd.predict_proba(X_test)
-    # y_p = np.argmax(probs, axis=1)
-    # print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_test, y_p))
-    # one = sk.metrics.recall_score(Y_test, y_p, pos_label=0)
-    # two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
-    # uar_ = (one + two) / 2
-    # print(uar_)
+    xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1,
+                     scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
+                     n_estimators=350, objective="binary:hinge")
+    #{'learning_rate': 0.3, 'max_depth': 3, 'n_estimators': 100} 0.03 350
+    xgd.fit(X_resampled, Y_resampled)
+
+    probs = xgd.predict_proba(X_test)
+    y_p = np.argmax(probs, axis=1)
+    print("Confusion matrix:\n", sk.metrics.confusion_matrix(Y_test, y_p))
+    one = sk.metrics.recall_score(Y_test, y_p, pos_label=0)
+    two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
+    uar_ = (one + two) / 2
+    print(uar_)
 
 
     def tun_estimators_maxdep_rate(X, Y, groups):
@@ -70,7 +69,7 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         gsearch1.fit(X, Y, groups=groups)
         return gsearch1.cv_results_, gsearch1.best_params_, gsearch1.best_score_
 
-    scores7, params7, best_score7 = tun_estimators_maxdep_rate(X_resampled, Y_resampled, groups)
+    # scores7, params7, best_score7 = tun_estimators_maxdep_rate(X_resampled, Y_resampled, groups)
 
 
     def tun_1(X, Y, groups):
@@ -86,7 +85,7 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         gsearch1.fit(X, Y, groups=groups)
         return gsearch1.cv_results_, gsearch1.best_params_, gsearch1.best_score_
 
-    scores, params, best_score = tun_1(X_resampled, Y_resampled, groups)
+    # scores, params, best_score = tun_1(X_resampled, Y_resampled, groups)
 
     def tun_2(X, Y, groups, max, min):
         param_test3 = {
@@ -101,8 +100,8 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         return gsearch3.cv_results_, gsearch3.best_params_, gsearch3.best_score_
 
 
-    scores2, params2, best_score2 = tun_2(X_resampled, Y_resampled, groups, params['max_depth'],
-                                          params['min_child_weight'])
+    # scores2, params2, best_score2 = tun_2(X_resampled, Y_resampled, groups, params['max_depth'],
+    #                                       params['min_child_weight'])
 
 
     def tun_3(X, Y, groups, max, min, gamma):
@@ -121,8 +120,8 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         return gsearch4.cv_results_, gsearch4.best_params_, gsearch4.best_score_
 
 
-    scores3, params3, best_score3 = tun_3(X_resampled, Y_resampled, groups, params['max_depth'],
-                                          params['min_child_weight'], params2['gamma'])
+    # scores3, params3, best_score3 = tun_3(X_resampled, Y_resampled, groups, params['max_depth'],
+    #                                       params['min_child_weight'], params2['gamma'])
 
 
     def tun_4(X, Y, groups, max, min, gamma, subsample, colsample):
@@ -140,8 +139,8 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
 
-    scores4, params4, best_score4 = tun_4(X_resampled, Y_resampled, groups, params['max_depth'],
-                                          params['min_child_weight'], params2['gamma'], params3['subsample'], params3['colsample_bytree'])
+    # scores4, params4, best_score4 = tun_4(X_resampled, Y_resampled, groups, params['max_depth'],
+    #                                       params['min_child_weight'], params2['gamma'], params3['subsample'], params3['colsample_bytree'])
 
 
     def tun_5(X, Y, groups, max, min, gamma, subsample, colsample, reg_alpha):
@@ -158,9 +157,9 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         gsearch6.fit(X, Y, groups)
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
-    scores5, params5, best_score5 = tun_5(X_resampled, Y_resampled, groups, params['max_depth'],
-                                          params['min_child_weight'], params2['gamma'], params3['subsample'],
-                                          params3['colsample_bytree'], params4['reg_alpha'])
+    # scores5, params5, best_score5 = tun_5(X_resampled, Y_resampled, groups, params['max_depth'],
+    #                                       params['min_child_weight'], params2['gamma'], params3['subsample'],
+    #                                       params3['colsample_bytree'], params4['reg_alpha'])
 
     def tun_6(X, Y, groups, max, min, gamma, subsample, colsample, reg_alpha, reg_lambda):
         param_test6 = {
@@ -177,6 +176,6 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
         return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
 
-    scores6, params6, best_score6 = tun_6(X_resampled, Y_resampled, groups, params['max_depth'],
-                                          params['min_child_weight'], params2['gamma'], params3['subsample'],
-                                          params3['colsample_bytree'], params4['reg_alpha'], params5['reg_lambda'])
+    # scores6, params6, best_score6 = tun_6(X_resampled, Y_resampled, groups, params['max_depth'],
+    #                                       params['min_child_weight'], params2['gamma'], params3['subsample'],
+    #                                       params3['colsample_bytree'], params4['reg_alpha'], params5['reg_lambda'])

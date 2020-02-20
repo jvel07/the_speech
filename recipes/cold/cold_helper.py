@@ -10,25 +10,25 @@ from sklearn.preprocessing import PowerTransformer
 
 from classifiers.cross_val import StatifiedGroupK_Fold
 
-# work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' # windows machine
-work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
-work_dir2 = 'D:/VHD/fishers'
+work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' # windows machine
+# work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
+work_dir2 = 'D:/VHD'
 
 
 def load_data(gauss):
     # Set data directories
     # file_train = work_dir + '/data/cold/train/fisher-13mf-2del-{}g-train.fish'.format(gauss)
-    file_train = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.train.txt'.format(gauss)
+    file_train = work_dir2 + '/cold/matlab-src/features.fv-mfcc-jose.improved.{}.train.txt'.format(gauss)
     # file_train = work_dir2 + '/features.fv-mfcc.improved.{}.train.txt'.format(gauss)
     lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
     # file_dev = work_dir + '/data/cold/dev/fisher-13mf-2del-{}g-dev.fish'.format(gauss)
-    file_dev = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.dev.txt'.format(gauss)
+    file_dev = work_dir2 + '/cold/matlab-src/features.fv-mfcc-jose.improved.{}.dev.txt'.format(gauss)
     # file_dev = work_dir2 + '/features.fv-mfcc.improved.{}.dev.txt'.format(gauss)
     lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
     # file_test = work_dir + '/data/cold/test/fisher-13mf-2del-{}g-test.fish'.format(gauss)
-    file_test = work_dir + '/data/cold/matlab-src/features.fv-mfcc-jose.improved.{}.test.txt'.format(gauss)
+    file_test = work_dir2 + '/cold/matlab-src/features.fv-mfcc-jose.improved.{}.test.txt'.format(gauss)
     # file_test = work_dir2 + '/features.fv-mfcc.improved.{}.test.txt'.format(gauss)
     lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
@@ -57,13 +57,13 @@ def load_data(gauss):
 
 def load_compare_data():
     # Set data directories
-    file_train = work_dir + '/data/cold/compare/features.train.txt'
+    file_train = work_dir2 + '/cold/compare/features.train.txt'
     lbl_train = work_dir + '/data/labels/labels.num.train.txt'
 
-    file_dev = work_dir + '/data/cold/compare/features.dev.txt'
+    file_dev = work_dir2 + '/cold/compare/features.dev.txt'
     lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
 
-    file_test = work_dir + '/data/cold/compare/features.test.txt'
+    file_test = work_dir2 + '/cold/compare/features.test.txt'
     lbl_test = work_dir + '/data/labels/labels.num.test.txt'
 
     # Load dataste correo realizo cor
@@ -179,7 +179,7 @@ def train_model_stkgroup_cv(X, Y, n_splits, _c, groups, gaussians):
 
 
 def train_model(X, Y, c):
-    seeds = [137, 895642, 15986, 4242, 7117, 1255, 1, 923, 75, 9656]
+    seeds = [137, 895642, 15986, 4242, 7117, 1255, 1564111, 923, 75, 9656]
     svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
     for number in seeds:
         X_resampled, Y_resampled, indi = resample_data(X, Y, r=number)  # resampling

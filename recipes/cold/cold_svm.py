@@ -1,18 +1,19 @@
 import numpy as np
 import sklearn as sk
 from sklearn import preprocessing
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, IncrementalPCA, KernelPCA
 from sklearn.metrics import make_scorer
 
 from recipes.cold import cold_helper as ch
 
-work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
+# work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
+work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'  # windows machine
 
-# com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
-com_values = [0.1]
+com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
+# com_values = [0.1]
 
 # retrieving groups for stratified group k-fold CV
-# groups = ch.read_utt_spk_lbl()
+groups = ch.read_utt_spk_lbl()
 
 # iterating over the gaussians
 for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
@@ -28,12 +29,12 @@ for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
     X_test_pca = scaler.transform(X_test)
 
     # Normalize data
-    normalizer = preprocessing.Normalizer(norm='l2').fit(X_train_pca)
-    X_train_norm = normalizer.transform(X_train_pca)
-    X_test_norm = normalizer.transform(X_test_pca)
+    normalizer = preprocessing.Normalizer().fit(X_combined)
+    X_train_norm = normalizer.transform(X_combined)
+    X_test_norm = normalizer.transform(X_test)
 
     # PCA
-    scaler = PCA(n_components=0.95)
+    scaler = KernelPCA(kernel='sigmoid', n_components=700)#, whiten=True, svd_solver='full')
     X_train_norm = scaler.fit_transform(X_train_norm)
     X_test_norm = scaler.transform(X_test_norm)
 
@@ -41,7 +42,7 @@ for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
         # groups = pre_groups[indi]
         # uar, clf = ch.train_model_stkgroup_cv(X_train_norm, Y_combined, 5, c, groups, g)  # With group-strat
         clf = ch.train_model(X_train_norm, Y_combined, c)
-        # print("With:", c, "->", uar)
+        print("With:", c, "->")
 
         # Evaluating on test
         posteriors = clf._predict_proba_lr(X_test_norm)
@@ -51,8 +52,8 @@ for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
         two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
         uar_ = (one + two) / 2
         print(uar_)
-        np.savetxt(work_dir + "/data/cold/posteriors/mean_final_post_{}_{}g.txt".format(
-            str(c), str(g)), posteriors, fmt='%.7f')
+        # np.savetxt(work_dir + "/data/cold/posteriors/mean_final_comp_post_{}_{}g.txt".format(
+        #     str(c), str(g)), posteriors, fmt='%.7f')
 
 
 def uar_scoring(y_true, y_pred, **kwargs):
@@ -60,6 +61,7 @@ def uar_scoring(y_true, y_pred, **kwargs):
     two = sk.metrics.recall_score(y_true, y_pred, pos_label=1)
     uar_ = (one + two) / 2
     return uar_
+
 
 my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 
