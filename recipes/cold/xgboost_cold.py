@@ -1,17 +1,12 @@
-import numpy as np
 import sklearn as sk
-from imblearn.under_sampling import TomekLinks, RandomUnderSampler
-from sklearn import preprocessing
-from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV
-from sklearn.utils import shuffle
 from xgboost import XGBClassifier
 
 from classifiers.cross_val import StatifiedGroupK_Fold
 
-from classifiers.cold import cold_helper as ch
+from recipes.cold import cold_helper as ch
 
 
 def uar_scoring(y_true, y_pred, **kwargs):

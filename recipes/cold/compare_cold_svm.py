@@ -1,12 +1,7 @@
-import numpy as np
 import sklearn as sk
-from sklearn import preprocessing
-from sklearn.decomposition import PCA
 from sklearn.metrics import make_scorer
-from sklearn.utils import shuffle
-from classifiers.cross_val import StatifiedGroupK_Fold
 
-from classifiers.cold import cold_helper as ch
+from recipes.cold import cold_helper as ch
 
 
 def uar_scoring(y_true, y_pred):

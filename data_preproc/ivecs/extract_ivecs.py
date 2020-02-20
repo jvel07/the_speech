@@ -77,7 +77,6 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
         print("i-vectors saved to:", file_ivecs)
 
 
-
 def compute_ivecs(list_mfcc_files, out_dir, info_num_feats_got, file_ubm_feats, ivec_dims, recipe, folder_name):
     # ---Input Files---
     # Loading File for UBM

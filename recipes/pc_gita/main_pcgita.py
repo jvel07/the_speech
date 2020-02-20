@@ -23,7 +23,8 @@ def do_mfccs():
     for folder_name in list_sets:
         print("Reading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
-        # print(list_of_wavs[0])
+        list_of_wavs.sort()
+        np.savetxt(out_dir + folder_name + '\{}_wav_list.txt'.format(folder_name), list_of_wavs, delimiter=',', fmt='%s')
         extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=20, recipe='pcgita', folder_name=folder_name)
 
 
@@ -62,7 +63,7 @@ def do_ivecs_pretrained_mdls():
         print("\nReading dir:", mfccs_dir + folder_name)
         for ubm in list_ubm_files:  # iterating over the pretrained ubms
             n_ubm = util.extract_numbers_from_str(ubm)  # getting the number of ubms of the corresponding file
-            print("i-vecs for {} GMMs".format(n_ubm))
+            print("\ni-vecs for {} GMMs".format(n_ubm))
             list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')  # reading MFCCs to extracting i-vecs from
             extract_ivecs.compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got=20, n_ubm=n_ubm,
                                                    file_ubm=ubm, ivec_dims=256, recipe=recipe, folder_name=folder_name)
@@ -84,4 +85,4 @@ def steps(i):
     return func()
 
 
-steps(4)
+steps(0)

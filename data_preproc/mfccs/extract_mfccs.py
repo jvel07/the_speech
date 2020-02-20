@@ -9,6 +9,8 @@ import scipy.io.wavfile as wav
 from common import util
 import numpy as np
 from data_preproc.mfccs import psf_deltas_proc
+import recipes.cold.utils_pcgita as utils_gta
+
 
 
 #  Getting MFCCs from wavs
@@ -59,10 +61,7 @@ def compute_mfccs(list_wavs, out_dir, num_mfccs, recipe, folder_name):
     for wav in list_wavs:
         mfcc = mfccs_bkaldi(wav, num_mfccs)
         list_mfccs.append(mfcc)
-    file_mfccs_cold = out_dir + recipe + '/' + folder_name + '/mfccs_{}_{}_{}_{}.mfcc'.format(recipe,
-                                                                                             num_mfccs,
-                                                                                             folder_name,
-                                                                                             observation)
+    file_mfccs_cold = out_dir + recipe + '/' + folder_name + '/mfccs_{}_{}_{}_{}.mfcc'.format(recipe, num_mfccs, folder_name, observation)
     print("Extracted {} mfccs from {} utterances".format(len(list_mfccs), len(list_wavs)))
     util.save_pickle(file_mfccs_cold, list_mfccs)
     #np.savetxt(file_mfccs_cold, list_mfccs, fmt='%.7f')
