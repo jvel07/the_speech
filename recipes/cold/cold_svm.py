@@ -25,18 +25,20 @@ for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
 
     # Power Transformer
     scaler = preprocessing.PowerTransformer().fit(X_combined)
-    X_train_pca = scaler.transform(X_combined)
-    X_test_pca = scaler.transform(X_test)
+    X_train_pow = scaler.transform(X_combined)
+    X_test_pow = scaler.transform(X_test)
+
+    # X_train_pow, X_test_pow = ch.power_n(X_combined, X_test)
 
     # Normalize data
-    normalizer = preprocessing.Normalizer().fit(X_combined)
-    X_train_norm = normalizer.transform(X_combined)
-    X_test_norm = normalizer.transform(X_test)
+    normalizer = preprocessing.Normalizer().fit(X_train_pow)
+    X_train_norm = normalizer.transform(X_train_pow)
+    X_test_norm = normalizer.transform(X_test_pow)
 
     # PCA
-    scaler = KernelPCA(kernel='sigmoid', n_components=700)#, whiten=True, svd_solver='full')
-    X_train_norm = scaler.fit_transform(X_train_norm)
-    X_test_norm = scaler.transform(X_test_norm)
+    pca = KernelPCA(kernel='linear', fit_inverse_transform=True, n_components=3500, gamma=50)#, whiten=True, svd_solver='full')
+    X_train_norm = pca.fit_transform(X_train_norm)
+    X_test_norm = pca.transform(X_test_norm)
 
     for c in com_values:
         # groups = pre_groups[indi]

@@ -1,6 +1,8 @@
 from itertools import repeat
 
 import numpy as np
+import sklearn as sk
+
 from common import util
 import pandas as pd
 import os
@@ -45,3 +47,16 @@ def average_post(one, two):
     probs = np.mean((p1, p2), axis=0)
     a = np.argmax(probs, axis=1)
     return a
+
+
+def uar_metric(y_true, y_pred):
+    one = sk.metrics.recall_score(y_true, y_pred, pos_label=0)
+    two = sk.metrics.recall_score(y_true, y_pred, pos_label=1)
+    uar = (one + two) / 2
+    return uar
+
+def uar(y_true, y_pred):
+    uar_score = uar_metric(y_true, y_pred)
+    return 'uar', uar_score, True
+
+from sklearn.metrics import mean_squared_error

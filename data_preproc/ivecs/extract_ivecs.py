@@ -111,7 +111,7 @@ def compute_ivecs(list_mfcc_files, out_dir, info_num_feats_got, file_ubm_feats, 
             # Save i-vectors to a txt file
             obs = '2del'
             file_ivecs = out_dir + recipe + '/' + folder_name + '/ivecs-{}mf-{}-{}g-{}.ivecs'.format(
-                info_num_feats_got, obs, g, folder_name)
+                info_num_feats_got, obs, str(int(g)), folder_name)
             np.savetxt(file_ivecs, a_ivectors, fmt='%.7f')
             print("i-vectors saved to:", file_ivecs)
 

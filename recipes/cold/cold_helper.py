@@ -112,8 +112,6 @@ def resample_data(X, Y, r):
     return X_resampled, y_resampled, indi
 
 
-# Read utterance, speaker and labels to generating groups for CV
-# e.g. devel_9596.wav vp053 0 (wav spk label)
 def read_utt_spk_lbl():
     df = pd.read_csv("C:/Users/Win10/PycharmProjects/the_speech/data/cold/uttNspkNlbl.txt", sep=" ", header=None)
     df.columns = ['wav', 'spk', 'label']
@@ -121,6 +119,14 @@ def read_utt_spk_lbl():
     spk = df.spk.values
     lbl = df.label.values
     return spk
+
+
+# Read utterance, speaker and labels to generating groups for CV
+# e.g. devel_9596.wav vp053 0 (wav spk label)
+def power_n(x, x_t):
+    x_train = np.sqrt(np.abs(x)) * np.sign(x)
+    x_test = np.sqrt(np.abs(x_t)) * np.sign(x_t)
+    return x_train, x_test
 
 
 # train SVM model with stratified cross-validation
