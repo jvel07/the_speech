@@ -66,7 +66,7 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     # gskf = list(StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5).split(X_resampled, Y_resampled, groups))
     sgkf = StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5)
 
-    params = {'colsample_bytree': 0.952164731370897, 'min_child_samples': 111, 'min_child_weight': 0.01, 'num_leaves': 38, 'reg_alpha': 0, 'reg_lambda': 0.1, 'subsample': 0.3029313662262354}
+    params = {'colsample_bytree': 0.9009933084016689, 'min_child_samples': 123, 'min_child_weight': 0.001, 'num_leaves': 40, 'reg_alpha': 0, 'reg_lambda': 0, 'subsample': 0.8426999443200605}
 
     # GRID
     param_test = {'num_leaves': sp_randint(6, 50),
@@ -84,25 +84,25 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
 
     # n_estimators is set to a "large value". The actual number of trees build will depend on early
     # stopping and 5000 define only the absolute maximum
-    clf = lgb.LGBMClassifier(max_depth=-1, random_state=314, silent=True, metrics='none', n_jobs=-1, n_estimators=5000, class_weight='balanced')
-    gs = RandomizedSearchCV(
-        estimator=clf, param_distributions=param_test,
-        n_iter=n_HP_points_to_test,
-        scoring=my_scorer,
-        cv=5,
-        refit=True,
-        random_state=314,
-        verbose=True)
-
-    gs.fit(X_combined, Y_combined, groups_orig)
-    print('Best score reached: {} with params: {} '.format(gs.best_score_, gs.best_params_))
-
-    # train_data = lgb.Dataset(X_resampled, Y_resampled)
-    # validation_data = lgb.Dataset(X_resampled, reference=train_data)
+    # clf = lgb.LGBMClassifier(max_depth=-1, random_state=314, silent=True, metrics='none', n_jobs=-1, n_estimators=5000, class_weight='balanced')
+    # gs = RandomizedSearchCV(
+    #     estimator=clf, param_distributions=param_test,
+    #     n_iter=n_HP_points_to_test,
+    #     scoring=my_scorer,
+    #     cv=5,
+    #     refit=True,
+    #     random_state=314,
+    #     verbose=True)
     #
-    # model = lgb.train(parameters, train_data, #valid_sets=[validation_data], early_stopping_rounds=5,
-    #                   num_boost_round=70, feval=roc_auc_score)
-    #
+    # gs.fit(X_combined, Y_combined, groups_orig)
+    # print('Best score reached: {} with params: {} '.format(gs.best_score_, gs.best_params_))
+
+    train_data = lgb.Dataset(X_resampled, Y_resampled)
+    validation_data = lgb.Dataset(X_resampled, reference=train_data)
+
+    model = lgb.train(params, train_data, #valid_sets=[validation_data], early_stopping_rounds=5,
+                      num_boost_round=70, feval=roc_auc_score)
+
     def predict(mdl):
         y_pred = mdl.predict(X_test, num_iteration=mdl.best_iteration)
         print("uar:", uar_scoring(Y_test, y_pred.round()))

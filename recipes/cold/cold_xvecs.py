@@ -6,7 +6,9 @@ from sklearn.metrics import make_scorer
 
 from recipes.cold import cold_helper as ch
 
-work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
+# work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
+work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' # windows machine
+
 
 com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
 # com_values = [0.1]

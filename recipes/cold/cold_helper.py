@@ -92,23 +92,23 @@ def load_compare_data():
 
 def load_xvectors():
     # Set data directories
-    file_train = work_dir + '/data/xvecs/xvecs--23mf---512_ctrain'
+    file_train = work_dir + '/data/xvecs/xvecs--23mf---512_ctrain3'
     lbl_train = work_dir + '/data/labels/new_order_trainlbl.csv'
 
-    file_dev = work_dir + 'data/xvecs/xvecs--23mf---512_cdev'
+    file_dev = work_dir + '/data/xvecs/xvecs--23mf---512_cdev3'
     lbl_dev = work_dir + '/data/labels/new_order_devlbl.csv'
 
-    file_test = work_dir + '/data/xvecs/xvecs--23mf---512_ctest'
+    file_test = work_dir + '/data/xvecs/xvecs--23mf---512_ctest3'
     lbl_test = work_dir + '/data/labels/new_order_test1lbl.csv'
 
     # Load dataset (labels are already binarized)
-    X_train = np.loadtxt(file_train, delimiter=',')
+    X_train = np.loadtxt(file_train, delimiter=' ')
     Y_train = np.loadtxt(lbl_train)
 
-    X_dev = np.loadtxt(file_dev, delimiter=',')
+    X_dev = np.loadtxt(file_dev, delimiter=' ')
     Y_dev = np.loadtxt(lbl_dev)
 
-    X_test = np.loadtxt(file_test, delimiter=',')
+    X_test = np.loadtxt(file_test, delimiter=' ')
     Y_test = np.loadtxt(lbl_test)
 
     # Putting train and dev together
