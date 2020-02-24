@@ -14,8 +14,7 @@ com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
 # retrieving groups for stratified group k-fold CV
 # groups = ch.read_utt_spk_lbl()
 
-# iterating over the gaussians
-print("CV Process (gaussians):", g)
+
 # Loading Test, and Combined (Train+Dev)
 X_test, Y_test, X_combined, Y_combined = ch.load_xvectors()
 # X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
@@ -50,8 +49,8 @@ for c in com_values:
     two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
     uar_ = (one + two) / 2
     print(uar_)
-    np.savetxt(work_dir + "/data/cold/posteriors/mean_final_post_{}_{}g.txt".format(
-        str(c), str(g)), posteriors, fmt='%.7f')
+    # np.savetxt(work_dir + "/data/cold/posteriors/mean_final_post_{}_{}g.txt".format(
+    #     str(c), str(g)), posteriors, fmt='%.7f')
 
 
 def uar_scoring(y_true, y_pred, **kwargs):
