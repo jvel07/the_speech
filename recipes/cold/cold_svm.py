@@ -9,8 +9,8 @@ from recipes.cold import cold_helper as ch
 # work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
 work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'  # windows machine
 
-com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
-# com_values = [0.1]
+# com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
+com_values = [0.1]
 
 # retrieving groups for stratified group k-fold CV
 groups = ch.read_utt_spk_lbl()
@@ -36,7 +36,7 @@ for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
     X_test_norm = normalizer.transform(X_test_pow)
 
     # PCA
-    pca = KernelPCA(kernel='linear', fit_inverse_transform=True, n_components=3500, gamma=50)#, whiten=True, svd_solver='full')
+    pca = PCA(n_components=0.95) # KernelPCA(kernel='linear', fit_inverse_transform=True, n_components=3500, eigen_solver='arpack')
     X_train_norm = pca.fit_transform(X_train_norm)
     X_test_norm = pca.transform(X_test_norm)
 
@@ -54,8 +54,8 @@ for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
         two = sk.metrics.recall_score(Y_test, y_p, pos_label=1)
         uar_ = (one + two) / 2
         print(uar_)
-        # np.savetxt(work_dir + "/data/cold/posteriors/mean_final_comp_post_{}_{}g.txt".format(
-        #     str(c), str(g)), posteriors, fmt='%.7f')
+        np.savetxt(work_dir + "/data/cold/posteriors/mean_final_comp_post_{}_{}g.txt".format(
+            str(c), str(g)), posteriors, fmt='%.7f')
 
 
 def uar_scoring(y_true, y_pred, **kwargs):

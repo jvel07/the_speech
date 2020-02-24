@@ -55,4 +55,11 @@ xgd = XGBClassifier(booster='gblinear', gamma=0.0, max_depth=10, min_child_weigh
                       n_estimators=70, objective="binary:hinge")
 
 
+CV
+Best score reached: 0.9324664764583475 with params: {'colsample_bytree': 0.952164731370897, 'min_child_samples': 111, 'min_child_weight': 0.01, 'num_leaves': 38, 'reg_alpha': 0, 'reg_lambda': 0.1, 'subsample': 0.3029313662262354}
+
+Best score reached: 0.8604324097397147 with params: {'colsample_bytree': 0.9009933084016689, 'metric': 'c', 'min_child_samples': 123, 'min_child_weight': 0.001, 'num_leaves': 40, 'reg_alpha': 0, 'reg_lambda': 0, 'subsample': 0.8426999443200605}
+
+
+
 
