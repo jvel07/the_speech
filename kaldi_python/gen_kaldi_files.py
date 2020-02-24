@@ -45,7 +45,7 @@ def create_utt2spk_kaldi_2():
 
 # for cold database; given in file e.g.: vp010_02_06_butter_009.wav	train_0001.wav
 def generate_utt2spk():
-    df = pd.read_csv("../data/labels/list-map-testlabels.tsv", sep="\t", header=None)
+    df = pd.read_csv("../data/labels/list-map-testlabels_bk.tsv", sep="\t", header=None)
     df.columns = ['id', 'wav', 'nothing']
     utt = df.wav.values
     spk = df.id.values
@@ -62,7 +62,7 @@ def order_wavs():
     df2 = pd.read_csv("utt2spk_c{}".format(_set), sep=" ", header=None)
     df.columns = ['wav', 'path']
     df2.columns = ['wav', 'id']
-    ordered_wavs = df.wav.values
+    ordered_wavs = df.wav.values  # (ascending order: 001, 002, etc)
     ordered_paths = df.path.values
     ordered_ids = df2.id.values
     # new = []
@@ -88,3 +88,23 @@ def order_wavs():
     return n
 
 # create_scp_kaldi()
+
+
+# generate labels to match the kaldi's order (cold database)
+def generate_new_order_labels():
+    sets = ['train', 'dev', 'test1']
+    for item in sets:
+        labels = np.loadtxt('/home/egasj/PycharmProjects/the_speech/data/labels/labels.num.{}.txt'.format(item))
+        labels[labels == 2] = 0
+        df = pd.read_csv("wav_c{}.scp".format(item), sep=" ", header=None)
+        df2 = pd.read_csv("utt2spk_c{}".format(item), sep=" ", header=None)
+        df.columns = ['wav', 'path']
+        df2.columns = ['wav', 'id']
+        ordered_wavs = df.wav.values  # (ascending order: 001, 002, etc)
+        ordered_ids = df2.id.values
+        df_asc_order = pd.DataFrame(list(zip(ordered_wavs, ordered_ids, labels)), dtype=int)  # (better than for loop)
+        df_asc_order.columns = ['wav', 'id', 'label']
+        df_new_order= df_asc_order.sort_values(by=['id', 'wav', 'label'])  # sorting wavs by spkid (according to kaldi's order)
+        df_new_order[['label']].to_csv('/home/egasj/PycharmProjects/the_speech/data/labels/new_order_{}lbl.csv'.format(item), index=False,
+                          header=False)
+

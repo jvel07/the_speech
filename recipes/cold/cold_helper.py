@@ -89,6 +89,34 @@ def load_compare_data():
     return X_test, Y_test, X_combined, Y_combined
 
 
+
+def load_xvectors():
+    # Set data directories
+    file_train = work_dir + '/data/xvecs/xvecs--23mf---512_ctrain'
+    lbl_train = work_dir + '/data/labels/new_order_trainlbl.csv'
+
+    file_dev = work_dir + 'data/xvecs/xvecs--23mf---512_cdev'
+    lbl_dev = work_dir + '/data/labels/new_order_devlbl.csv'
+
+    file_test = work_dir + '/data/xvecs/xvecs--23mf---512_ctest'
+    lbl_test = work_dir + '/data/labels/new_order_test1lbl.csv'
+
+    # Load dataset (labels are already binarized)
+    X_train = np.loadtxt(file_train, delimiter=',')
+    Y_train = np.loadtxt(lbl_train)
+
+    X_dev = np.loadtxt(file_dev, delimiter=',')
+    Y_dev = np.loadtxt(lbl_dev)
+
+    X_test = np.loadtxt(file_test, delimiter=',')
+    Y_test = np.loadtxt(lbl_test)
+
+    # Putting train and dev together
+    X_combined = np.concatenate((X_train, X_dev))
+    Y_combined = np.concatenate((Y_train, Y_dev))
+
+    return X_test, Y_test, X_combined, Y_combined
+
 def powert_data(X, X_dev, X_test):
     power = preprocessing.PowerTransformer()
     x_pow = power.fit_transform(X)
