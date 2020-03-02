@@ -100,8 +100,10 @@ for g in [64]:  # [2, 4, 8, 16, 32, 64, 128]:
     train_data = lgb.Dataset(X_resampled, Y_resampled)
     validation_data = lgb.Dataset(X_resampled, reference=train_data)
 
-    model = lgb.train(params, train_data, #valid_sets=[validation_data], early_stopping_rounds=5,
-                      num_boost_round=70, feval=roc_auc_score)
+    lgbc = lgb.LGBMClassifier( colsample_bytree=0.9009933084016689, min_child_samples=123,
+                                min_child_weight=0.001, num_leaves=40, reg_alpha= 0, reg_lambda=0,
+                               subsample= 0.8426999443200605, class_weight='balanced')
+    model = lgbc.fit(X_resampled, Y_resampled, eval_metric=roc_auc_score)
 
     def predict(mdl):
         y_pred = mdl.predict(X_test, num_iteration=mdl.best_iteration)
