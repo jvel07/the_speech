@@ -58,7 +58,6 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
                                               ivector_dim=ivec_dims,
                                               num_iters=num_iters, min_post=min_post,
                                               posterior_scale=post_scale)
-
         # Extract ivectors
         print("Extracting i-vecs...")
         ivectors_list = []
