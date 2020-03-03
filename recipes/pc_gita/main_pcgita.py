@@ -47,7 +47,7 @@ def do_fishers_pretrained_ubm():
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
     out_dir = work_dir + 'data/'
     ubm_dir = work_dir + 'data/' + recipe + '/UBMs/'  # where the diagonal ubms live
-    list_ubm_files = util.traverse_dir(ubm_dir, '.dubm')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
+    list_ubm_files = util.traverse_dir(ubm_dir, '.mdl')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
 
     for folder_name in list_sets:  # iterating over the list of sets where the features live
         print("\nReading dir:", mfccs_dir + folder_name)

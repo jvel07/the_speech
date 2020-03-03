@@ -82,6 +82,6 @@ def get_diag_gmm_params(file_diag, out_dir):
     np.savetxt(out_dir + 'variances_dubm_{}'.format(gmm.num_gauss()), vars)
     np.savetxt(out_dir + 'means_dubm_{}'.format(gmm.num_gauss()), means)
     np.savetxt(out_dir + 'weights_dubm_{}'.format(gmm.num_gauss()), weights)
-    print("Vars, means and weights saved to:", out_dir)
+    print("Vars, means and weights saved to:", out_dir, "\n")
 
     return vars, means, weights, gmm.num_gauss()
