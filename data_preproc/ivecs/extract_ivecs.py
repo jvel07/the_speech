@@ -47,7 +47,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
         fubm = fd.read()
 
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
-        list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
+        list_feat = np.load(file_name, allow_pickle=True)  #  this list should contain all the mfcc-features per FILE
         # models for i-vecs
         file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_mdl_{}g_dem_{}'.format(n_ubm, obs_ivec)
         # Train ivector extractor
@@ -76,18 +76,17 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got, file_
         print("i-vectors saved to:", file_ivecs)
 
 
-def compute_ivecs(list_mfcc_files, out_dir, info_num_feats_got, file_ubm_feats, ivec_dims, recipe, folder_name):
+def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, info_num_feats_got, file_ubm_feats, ivec_dims, recipe, folder_name):
     # ---Input Files---
     # Loading File for UBM
     obs_ivec = ''
     print("File of MFCCs for UBM:", file_ubm_feats)
     array_mfccs_ubm = np.load(file_ubm_feats, allow_pickle=True)
 
-    num_gauss = [2, 4, 8, 16, 32, 64]
     print("i-vecs will be extracted using 2, 4, 8 ..., 64 for UBM!")
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
-        for g in num_gauss:
+        for g in list_n_gauss:
             # models for i-vecs
             file_diag_ubm_model =out_dir + recipe + '/' + folder_name + '/dubm_mdl_{}g_dem_{}'.format(g, obs_ivec)
             file_full_ubm_model = out_dir + recipe + '/' + folder_name + '/fubm_mdl_{}g_dem_{}'.format(g, obs_ivec)

@@ -4,6 +4,10 @@ import re
 import numpy as np
 import h5py
 
+from kaldi.gmm import FullGmm  # pykaldi
+from kaldi.gmm import DiagGmm  # pykaldi
+from kaldi.util import io   #  pykaldi
+
 
 def nnet3read(dnnFilename, outFilename="", write_to_disk=False):
     """ This is a simple, yet fast, routine that reads in Kaldi NNet3 Weight and Bias
@@ -24,12 +28,11 @@ def nnet3read(dnnFilename, outFilename="", write_to_disk=False):
     """
     # nn_elements = ['LinearParams', 'BiasParams']
     with open('/home/egasj/PycharmProjects/the_speech/data/pcgita/UBMs/16/ubm/final.mdl', 'r') as f:
-        pattern = re.compile(rb'<(\bGCONSTS\b|\bWEIGHTS\b|\bMEANS_INVCOVARS\b|\bINV_COVARS\b)>\s+\[\s+([-?\d\.\de?\s]+)\]')
+        pattern = re.compile(rb'<(\bWEIGHTS\b|\bMEANS_INVCOVARS\b|\bINV_COVARS\b)>\s+\[\s+([-?\d\.\de?\s]+)\]')
         with mmap.mmap(f.fileno(), 0,
                        access=mmap.ACCESS_READ) as m:
             b = []
             W = []
-            list_gconst = []
             inv_covs = []
             ix = 0
             for arr in pattern.findall(m):
@@ -39,8 +42,6 @@ def nnet3read(dnnFilename, outFilename="", write_to_disk=False):
                     ix += 1
                 elif arr[0] == b'WEIGHTS':
                     W.append(arr[1].split())
-                elif arr[0] == b'GCONSTS':
-                    list_gconst.append(arr[1].split())
                 elif arr[0] == b'INV_COVARS':
                     inv_covs.append(arr[1].split())
                 else:
@@ -69,6 +70,18 @@ def nnet3read(dnnFilename, outFilename="", write_to_disk=False):
     return weights, means_incovars, inv_covars
 
 
-if __name__ == '__main__':
-    b, W = nnet3read('/home/egasj/PycharmProjects/the_speech/data/pcgita/UBMs/16/ubm/final.mdl', 'finalUBM.h5',
-                     write_to_disk=True)
+def get_diag_gmm_params(file_diag, out_dir):
+    diag_mdl = io.xopen(file_diag)  # reading .mdl or .ubm file
+    gmm = DiagGmm()  # creating DiagGmm object
+    gmm.read(diag_mdl.stream(), diag_mdl.binary)  # reading model
+
+    vars = np.asanyarray(gmm.get_vars())
+    means = np.asanyarray(gmm.get_means())
+    weights = np.asanyarray(gmm.weights())  # priors
+
+    np.savetxt(out_dir + 'variances_dubm_{}'.format(gmm.num_gauss()), vars)
+    np.savetxt(out_dir + 'means_dubm_{}'.format(gmm.num_gauss()), means)
+    np.savetxt(out_dir + 'weights_dubm_{}'.format(gmm.num_gauss()), weights)
+    print("Vars, means and weights saved to:", out_dir)
+
+    return vars, means, weights, gmm.num_gauss()
