@@ -62,7 +62,7 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, info_num_feats, file_ubm
             list_fishers.append(fish)  # Extracting fishers from features
             # Output file (fishers)
         obs = '2del'
-        file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fish'.format(
+        file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fisher'.format(
             info_num_feats,
             obs, g, folder_name)
         np.savetxt(file_fishers, list_fishers, fmt='%.7f')
