@@ -47,13 +47,48 @@ params4
 params5
 {'reg_lambda': 0.01}
 
+
+
+-----------------------------------------------  2 gaussians-----------------
+xgd = XGBClassifier(booster='gbtree', gamma=0, max_depth=3, min_child_weight=5, learning_rate=0.1, n_jobs=6,
+                    scale_pos_weight=1, reg_alpha=1, reg_lambda=10, colsample_bytree=0.7, subsample=0.8,
+                     n_estimators=300, objective="binary:hinge")
+dev : 61.55
+ on test:
+ uar: 67.43
+
+-----------------------------------------------  4 gaussians-----------------
+
+
+
+-----------------------------------------------  8 gaussians-----------------
+
+
+
+
+-----------------------------------------------  16 gaussians-----------------
+
+
+
+
 -----------------------------------------------  32 gaussians-----------------
 best CV params
 xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.03, n_jobs=-1,
                  scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
                  n_estimators=300, objective="binary:hinge")
+   dev: 63.72
  on test:
  uar: 70.43
+
+
+-----------------------------------------------  64 gaussians-----------------
+
+
+
+
+
+-----------------------------------------------  128 gaussians-----------------
+
 
 
 -------------------------------------------------------------------------------------

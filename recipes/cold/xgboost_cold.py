@@ -23,7 +23,7 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 # retrieving groups for stratified group k-fold CV
 groups_orig = ch.read_utt_spk_lbl()
 
-for g in [16]:# [2, 4, 8, 16, 32, 64, 128]:
+for g in [4]:# [2, 4, 8, 16, 32, 64, 128]:
     # Loading Train, Dev, Test, and Combined (T+D)
     X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
     # X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
@@ -85,27 +85,26 @@ for g in [16]:# [2, 4, 8, 16, 32, 64, 128]:
 
     # mdl = start_random_search(X_resampled, Y_resampled, groups)
 
-    def tun_estimators_maxdep_rate(X, Y, groups):
+    def tun_estimators_maxdep_rate(X, Y, groups, min_child, alpha, lamb, col, sub):
         param_test1 = {
-            'max_depth': [3, 4, 5, 6, 7],
+            'max_depth': range(2, 10, 1),
             'n_estimators': [100, 200, 300, 350, 450, 500, 550, 650],
             'learning_rate': [0.001, 0.01, 0.03, 0.1, 0.2, 0.3, 1]
         }
         gsearch1 = GridSearchCV(
-            estimator=XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.03, n_jobs=-1,
-                                    scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
-                                    n_estimators=400, objective="binary:hinge"),
+            estimator=XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=min_child, learning_rate=0.03, n_jobs=6,
+                 scale_pos_weight=1, reg_alpha=alpha, reg_lambda=lamb, colsample_bytree=col, subsample=sub,
+                 n_estimators=300, objective="binary:hinge"),
             param_grid=param_test1, scoring=my_scorer, n_jobs=6, iid=False, cv=sgkf)
         gsearch1.fit(X, Y, groups=groups)
         return gsearch1.cv_results_, gsearch1.best_params_, gsearch1.best_score_
 
-    # scores7, params7, best_score7 = tun_estimators_maxdep_rate(X_resampled, Y_resampled, groups)
 
 
     def tun_1(X, Y, groups):
         param_test1 = {
-            'max_depth': range(3, 10, 2),
-            'min_child_weight': range(1, 6, 2)
+            'max_depth': range(2, 10, 1),
+            'min_child_weight': range(1, 6, 1)
         }
         gsearch1 = GridSearchCV(
             estimator=XGBClassifier(booster='gbtree', gamma=0, max_depth=3, min_child_weight=1, learning_rate=0.03, n_jobs=6,
@@ -191,3 +190,8 @@ for g in [16]:# [2, 4, 8, 16, 32, 64, 128]:
     scores6, params6, best_score6 = tun_6(X_resampled, Y_resampled, groups, params['max_depth'],
                                           params['min_child_weight'], params2['gamma'], params3['subsample'],
                                           params3['colsample_bytree'], params4['reg_alpha'])
+
+
+    scores7, params7, best_score7 = tun_estimators_maxdep_rate(X_resampled, Y_resampled, groups, min_child=params['min_child_weight'],
+                                                               alpha=params4['reg_alpha'], lamb=params6['reg_lambda'],
+                                                               col=params3['colsample_bytree'], sub=params3['subsample'])

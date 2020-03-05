@@ -14,7 +14,8 @@ list_sets = ['monologue', 'read_text']
 
 # Working directories
 # work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
-work_dir = '/home/egasj/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
+work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/'  # for titan x machine (normal)
+# work_dir = '/home/egasj/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
 
 
 # Compute mfccs from wavs existing in the directories provided by the user
