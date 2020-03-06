@@ -21,18 +21,20 @@ def encode_labels(_y):
 # loads the data given the number of gaussians, the name of the task and the type of feature.
 # E.g.: (4, 'monologue', 'fisher') or 'ivecs'
 def load_data(gauss, task, feat_type):
-    # Set data directories
-    file_train = work_dir + '{}/{}-20mf-2del-{}g-{}.fisher'.format(task, feat_type, gauss,task)
-    file_lbl_train = work_dir + 'labels/labels_{}.txt'.format(task)
+    if (feat_type == 'fisher') or (feat_type == 'ivecs'):
+        # Set data directories
+        file_train = work_dir + '{}/{}-20mf-2del-{}g-{}.{}'.format(task, feat_type, gauss, task, feat_type)
+        file_lbl_train = work_dir + 'labels/labels_{}.txt'.format(task)
 
-    # Load data
-    X_train = np.loadtxt(file_train)
-    df_labels = pd.read_csv(file_lbl_train, delimiter=' ', header=None)
-    df_labels.columns = ['wav', 'label']
-    Y_train = encode_labels(df_labels.label.values)
+        # Load data
+        X_train = np.loadtxt(file_train)
+        df_labels = pd.read_csv(file_lbl_train, delimiter=' ', header=None)
+        df_labels.columns = ['wav', 'label']
+        Y_train = encode_labels(df_labels.label.values)
 
-    return X_train, Y_train.ravel()
-
+        return X_train, Y_train.ravel()
+    else:
+        raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type))
 
 def load_data_alternate(gauss, task):
     # Set data directories
