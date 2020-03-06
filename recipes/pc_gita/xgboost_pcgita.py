@@ -11,28 +11,19 @@ X, Y = load_data(16, 'monologue', 'fisher')
 
 # Training data and evaluating (stratified k-fold CV)
 sgkf = StratifiedKFold(n_splits=5, shuffle=True)
-folds_uar = []
-folds_acc = []
-folds_f1 = []
+array_posteriors = np.zeros((len(Y), 2))
 
-# for train_index, test_index in sgkf.split(X, Y):
-#     x_train, x_test = X[train_index], X[test_index]
-#     y_train, y_test = Y[train_index], Y[test_index]
-#     xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.01, n_jobs=-1,
-#                         scale_pos_weight=1, reg_alpha=0.001, reg_lambda=0.1, colsample_bytree=0.8, subsample=0.6,
-#                         n_estimators=400, objective="binary:logistic")
-#     # {'learning_rate': 0.3, 'max_depth': 3, 'n_estimators': 100} 0.03 350
-#     xgd.fit(x_train, y_train)
-#
-#     folds_uar.append(util.evaluate_auc_score(xgd, y_test, x_test))
-#     uar_ = np.mean(folds_uar)
-#     print("uar:", uar_)
-#     folds_f1.append(util.evaluate_f1(xgd, y_test, x_test))
-#     f1 = np.mean(folds_f1)
-#     print("f1:", f1)
-#     folds_acc.append(util.evaluate_accuracy(xgd, y_test, x_test))
-#     acc = np.mean(folds_acc)
-#     print("acc:", acc)
+scores = []
+for train_index, test_index in sgkf.split(X, Y):
+    x_train, x_test = X[train_index], X[test_index]
+    y_train, y_test = Y[train_index], Y[test_index]
+    xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=1, learning_rate=0.1, n_jobs=6,
+                        scale_pos_weight=1, reg_alpha=1, reg_lambda=1, colsample_bytree=0.9, subsample=0.6,
+                        n_estimators=100, objective="binary:logistic")
+    # {'learning_rate': 0.3, 'max_depth': 3, 'n_estimators': 100} 0.03 350
+    xgd.fit(x_train, y_train)
+    scores.append(xgd.score(x_test, y_test))
+print(np.mean(scores))
 
 
 ###### hyperparameter tunning phase #########
@@ -47,10 +38,8 @@ def tun_estimators_maxdep_rate(X, Y):
         'learning_rate': [0.001, 0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5]
     }
     gsearch1 = GridSearchCV(
-        estimator=XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.03,
-                                n_jobs=-1,
-                                scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8,
-                                subsample=0.6,
+        estimator=XGBClassifier(booster='gbtree', gamma=0.0, max_depth=5, min_child_weight=1, learning_rate=0.01, n_jobs=6,
+                                scale_pos_weight=1, reg_alpha=1, reg_lambda=1, colsample_bytree=0.9, subsample=0.6,
                                 n_estimators=400, objective="binary:logistic"),
         param_grid=param_test1, scoring=my_scorer, n_jobs=6, iid=False, cv=sgkf)
     gsearch1.fit(X, Y)

@@ -271,26 +271,6 @@ def traverse_dir(path, file_type):
 """FOR THE DEMENTIA DATASET PREPROCESSING  ---  END"""
 
 
-#### scoring functions ######
-def evaluate_auc_score(model, y_true, x_test):
-    y_pred = model._predict_proba_lr(x_test)
-    y_pred = np.argmax(y_pred, axis=1)
-    print("Confusion Matrix:\n", confusion_matrix(y_true, y_pred))
-    return roc_auc_score(y_true, y_pred.round())
-
-
-def evaluate_accuracy(model, y_true, x_test):
-    y_pred = model._predict_proba_lr(x_test)
-    y_pred = np.argmax(y_pred, axis=1)
-    print("Confusion Matrix:\n", confusion_matrix(y_true, y_pred))
-    return accuracy_score(y_true, y_pred.round())
-
-
-def evaluate_f1(model, y_true, x_test):
-    y_pred = model._predict_proba_lr(x_test)
-    y_pred = np.argmax(y_pred, axis=1)
-    print("Confusion Matrix:\n", confusion_matrix(y_true, y_pred))
-    return f1_score(y_true, y_pred.round())
 
 
 # Open MFCCs from file

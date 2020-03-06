@@ -4,8 +4,8 @@ import pandas as pd
 from sklearn import preprocessing
 
 
-# work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' # windows machine
-work_dir = '/home/egasj/PycharmProjects/the_speech/data/pcgita/'  # ubuntu machine
+work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/data/pcgita/' # windows machine
+# work_dir = '/home/egasj/PycharmProjects/the_speech/data/pcgita/'  # ubuntu machine
 # work_dir2 = 'D:/VHD'
 
 
@@ -27,6 +27,20 @@ def load_data(gauss, task, feat_type):
 
     # Load data
     X_train = np.loadtxt(file_train)
+    df_labels = pd.read_csv(file_lbl_train, delimiter=' ', header=None)
+    df_labels.columns = ['wav', 'label']
+    Y_train = encode_labels(df_labels.label.values)
+
+    return X_train, Y_train.ravel()
+
+
+def load_data_alternate(gauss, task):
+    # Set data directories
+    file_train = work_dir + 'alternate/vlfeats.mfccs.{}.all.{}.cv.txt'.format(task, gauss)
+    file_lbl_train = work_dir + 'labels/labels_{}.txt'.format(task)
+
+    # Load data
+    X_train = np.loadtxt(file_train, delimiter=',')
     df_labels = pd.read_csv(file_lbl_train, delimiter=' ', header=None)
     df_labels.columns = ['wav', 'label']
     Y_train = encode_labels(df_labels.label.values)
