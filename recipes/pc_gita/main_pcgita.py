@@ -4,17 +4,17 @@ from data_preproc.fisher import extract_fishers
 import numpy as np
 import os
 from common import util
-from recipes.cold.utils_pcgita import save_labels
+from recipes.pc_gita.utils_pcgita import save_labels
 
 recipe = 'pcgita'
 
 # List of audio-sets (folders containing audio samples)
 # list_sets = ['DDK_analysis', 'monologue', 'read_text', 'sentences', 'sentences2']
-list_sets = ['monologue', 'read_text']
+
 
 # Working directories
-# work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
-work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/'  # for titan x machine (normal)
+work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
+# work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/'  # for titan x machine (normal)
 # work_dir = '/home/egasj/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
 
 
@@ -22,6 +22,7 @@ work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/'  # for titan x machine (
 def do_mfccs():
     audio_dir = work_dir + 'audio/'
     out_dir = work_dir + 'data/'
+    list_sets = ['read_text']
 
     for folder_name in list_sets:
         print("Reading dir:", folder_name)
@@ -50,6 +51,8 @@ def do_fishers_pretrained_ubm():
     ubm_dir = work_dir + 'data/' + recipe + '/UBMs/'  # where the diagonal ubms live
     list_ubm_files = util.traverse_dir(ubm_dir, '.mdl')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
 
+    list_sets = ['monologue', 'read_text']
+
     for folder_name in list_sets:  # iterating over the list of sets where the features live
         print("\nReading dir:", mfccs_dir + folder_name)
         for ubm in list_ubm_files:  # iterating over the pretrained ubms
@@ -61,13 +64,13 @@ def do_fishers_pretrained_ubm():
 def do_ivecs():
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
     out_dir = work_dir + 'data/'
-    file_ubm = work_dir + 'data/pcgita/monologue/mfccs_pcgita_20_monologue_2del.mfcc'  # Naming format is: "featureType_recipeName_numberOfDeltas.mfcc"
+    file_ubm = work_dir + 'data/pcgita/ubm/.mfcc'  # Naming format is: "featureType_recipeName_numberOfDeltas.mfcc"
 
     for folder_name in list_sets:
         print("\nReading dir:", mfccs_dir + folder_name)
         list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')
-        extract_ivecs.compute_ivecs(list_n_gauss=[2, 4, 8, 16, 32, 64], list_mfcc_files=list_mfcc_files, out_dir=out_dir, info_num_feats_got=20,
-                                    file_ubm_feats=file_ubm, ivec_dims=256, recipe=recipe, folder_name=folder_name)
+        extract_ivecs.compute_ivecs(list_n_gauss=[2, 4, 8, 16, 32, 64], list_mfcc_files=list_mfcc_files, out_dir=out_dir,
+                                    file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
 
 
 # for training the extractor and extracting i-vecs when there exists already pretrained UBMs
@@ -75,7 +78,9 @@ def do_ivecs_pretrained_mdls():
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
     out_dir = work_dir + 'data/'
     ubm_dir = work_dir + 'data/' + recipe + '/UBMs/'  # where the ubms live
-    list_ubm_files = util.traverse_dir(ubm_dir, '.mdl')  # reading all the files with .mdl format
+    list_ubm_files = util.traverse_dir(ubm_dir, '.mdll')  # reading all the files with .mdl format
+
+    list_sets = ['monologue', 'read_text']
 
     for folder_name in list_sets:  # iterating over the list of sets where the features live
         print("\nReading dir:", mfccs_dir + folder_name)
@@ -83,8 +88,8 @@ def do_ivecs_pretrained_mdls():
             n_ubm = util.extract_numbers_from_str(ubm)  # getting the number of ubms of the corresponding file
             print("\ni-vecs for {} GMMs".format(n_ubm))
             list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')  # reading MFCCs to extracting i-vecs from
-            extract_ivecs.compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, info_num_feats_got=20, n_ubm=n_ubm,
-                                                   file_ubm=ubm, ivec_dims=256, recipe=recipe, folder_name=folder_name)
+            extract_ivecs.compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, n_ubm=n_ubm,
+                                                   file_ubm=ubm, recipe=recipe, folder_name=folder_name)
 
 
 def do_svm():
@@ -104,4 +109,6 @@ def steps(i):
     return func()
 
 
+# steps(0)
+# steps(4)
 steps(5)

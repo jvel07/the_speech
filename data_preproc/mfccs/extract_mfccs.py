@@ -8,8 +8,7 @@ import scipy.io.wavfile as wav
 
 from common import util
 import numpy as np
-from data_preproc.mfccs import psf_deltas_proc
-import recipes.cold.utils_pcgita as utils_gta
+
 
 
 
