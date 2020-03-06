@@ -79,71 +79,67 @@ def do_pca(x1, x2, n_comp):
     return x1, x2
 
 
-def evaluate_auc_score(model, y_true, x_test):
-    y_pred = model._predict_proba_lr(x_test)
-    y_pred = np.argmax(y_pred, axis=1)
-    return roc_auc_score(y_true, y_pred.round())
+def evaluate_auc_score(y_true, y_pred):
+    # y_pred = model._predict_proba_lr(x_test)
+    # y_pred = np.argmax(y_pred, axis=1)
+    return roc_auc_score(y_true, y_pred)
 
 
-def evaluate_accuracy(model, y_true, x_test):
-    y_pred = model._predict_proba_lr(x_test)
+def evaluate_accuracy(y_true, y_pred):
+    # y_pred = model._predict_proba_lr(x_test)
     y_pred = np.argmax(y_pred, axis=1)
     return accuracy_score(y_true, y_pred.round())
 
 
-def evaluate_f1(model, y_true, x_test):
-    y_pred = model._predict_proba_lr(x_test)
+def evaluate_f1(y_true, y_pred):
     y_pred = np.argmax(y_pred, axis=1)
     return f1_score(y_true, y_pred.round())
 
 
 # SVM with simple stratified kfold cross validation
-def train_simple_skfcv(X, Y, n_folds, c, metric_type='accuracy'):
+def train_simple_skfcv(X, Y, n_folds, c, seed):
     svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
-    # kf = KFold(n_splits=n_folds, shuffle=True)
-    kf = StratifiedKFold(n_splits=n_folds, shuffle=True)
-    folds_scores = []
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    array_posteriors = np.zeros((len(Y), 2))
+    scores2 = []
+
     for train_index, test_index in kf.split(X, Y):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
+        # print('test_index', test_index)
         svc.fit(x_train, y_train)
-        if metric_type == 'accuracy':
-            folds_scores.append(evaluate_accuracy(model=svc, y_true=y_test, x_test=x_test))
-            acc = np.mean(folds_scores)
-            return acc
-        elif metric_type == 'auc':
-            folds_scores.append(evaluate_auc_score(model=svc, y_true=y_test, x_test=x_test))
-            auc = np.mean(folds_scores)
-            return auc
-        elif metric_type == 'f1':
-            folds_scores.append(evaluate_f1(model=svc, y_true=y_test, x_test=x_test))
-            f1 = np.mean(folds_scores)
-            return f1
+        posteriors = svc._predict_proba_lr(x_test)
+        # scores2.append(svc.score(x_test, y_test))
+        array_posteriors[test_index] = posteriors
+    acc = evaluate_accuracy(Y, array_posteriors)
+    auc = roc_auc_score(Y, array_posteriors[:, 1])
+    f1 = evaluate_f1(Y, array_posteriors)
+    # print("SCORE:", np.mean(scores2))
+
+    scores = {"accuracy": acc, "auc": auc, "f1": f1}
+
+    return scores
 
 
 # SVM with simple stratified kfold cross validation
-def train_simple_skfcv_pca(X, Y, n_folds, c, metric_type='accuracy'):
+def train_simple_skfcv_pca(X, Y, n_folds, c):
     svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
-    # kf = KFold(n_splits=n_folds, shuffle=True)
     kf = StratifiedKFold(n_splits=n_folds, shuffle=True)
-    folds_scores = []
+    array_posteriors = np.zeros((len(Y), 2))
+
     for train_index, test_index in kf.split(X, Y):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
         x_train, x_test = do_pca(x_train, x_test, 0.97)
         svc.fit(x_train, y_train)
-        if metric_type == 'accuracy':
-            folds_scores.append(evaluate_accuracy(model=svc, y_true=y_test, x_test=x_test))
-            acc = np.mean(folds_scores)
-            return acc
-        elif metric_type == 'auc':
-            folds_scores.append(evaluate_auc_score(model=svc, y_true=y_test, x_test=x_test))
-            auc = np.mean(folds_scores)
-            return auc
-        elif metric_type == 'f1':
-            folds_scores.append(evaluate_f1(model=svc, y_true=y_test, x_test=x_test))
-            f1 = np.mean(folds_scores)
-            return f1
+        posteriors = svc._predict_proba_lr(x_test)
+        array_posteriors[test_index] = posteriors
+    acc = evaluate_accuracy(Y, array_posteriors)
+    auc = roc_auc_score(Y, array_posteriors[:, 1])
+    f1 = evaluate_f1(Y, array_posteriors)
+    scores = {"accuracy": acc, "auc": auc, "f1": f1}
+
+    return scores
 
 
 def train_model(X, Y, c):
