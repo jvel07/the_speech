@@ -1,6 +1,6 @@
-# from data_preproc.mfccs import extract_mfccs
-from data_preproc.fisher import extract_fishers
-# from data_preproc.ivecs import extract_ivecs
+from data_preproc.mfccs import extract_mfccs
+# from data_preproc.fisher import extract_fishers
+from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util
@@ -88,7 +88,7 @@ def do_ivecs_pretrained_mdls():
             n_ubm = util.extract_numbers_from_str(ubm)  # getting the number of ubms of the corresponding file
             print("\ni-vecs for {} GMMs".format(n_ubm))
             list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')  # reading MFCCs to extracting i-vecs from
-            extract_ivecs.compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, n_ubm=n_ubm,
+            extract_ivecs.compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, #n_ubm=n_ubm,
                                                    file_ubm=ubm, recipe=recipe, folder_name=folder_name)
 
 
@@ -110,5 +110,5 @@ def steps(i):
 
 
 # steps(0)
-# steps(4)
-steps(5)
+steps(4)
+# steps(5)

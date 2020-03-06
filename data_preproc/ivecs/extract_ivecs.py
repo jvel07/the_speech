@@ -36,7 +36,7 @@ def train_models(mfccs_ubm, list_feats_ivecs, diag, full, ivec_mdl, num_gauss, i
 
 regex = re.compile(r'\d+') # to get the number of gaussians when reading the txt models
 # Use this when there already exists the fubm trained
-def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_name, n_ubm):
+def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_name):
     num_iters = 100
     min_post = 0.025
     post_scale = 1
@@ -53,7 +53,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  #  this list should contain all the mfcc-features per FILE
         # models for i-vecs
-        file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_mdl_{}g_dem_{}'.format(n_ubm, obs_ivec)
+        file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_mdl_{}g_dem_{}'.format(gaussians, obs_ivec)
         ivec_dims = np.log2(gaussians)*(len(list_feat[0][1])) # the ivec dims is given by log2(numgaussians) * mfcc features dim
         # Train ivector extractor
         print("Training i-vec extractor with " + str(ivec_dims) + " dimensions...")
@@ -66,7 +66,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_
         # Extract ivectors
         print("Extracting i-vecs...")
         ivectors_list = []
-        n_gselect = int(np.log2(n_ubm))
+        n_gselect = int(np.log2(gaussians))
         print(n_gselect)
         for i2 in list_feat:  # extracting i-vecs
             ivector_array = bob.kaldi.ivector_extract(i2, fubm, model_ivector)#, num_gselect=5)
@@ -76,7 +76,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_
         # Save i-vectors to a txt file
         obs = '2del'
         file_ivecs = out_dir + recipe + '/' + folder_name + '/ivecs-{}mf-{}-{}g-{}.ivecs'.format(
-            len(list_feat[0][1]), obs, n_ubm, folder_name)
+            len(list_feat[0][1]), obs, gaussians, folder_name)
         np.savetxt(file_ivecs, a_ivectors, fmt='%.7f')
         print("i-vectors saved to:", file_ivecs)
 
