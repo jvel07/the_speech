@@ -3,7 +3,8 @@ import sklearn as sk
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn import svm
 from sklearn.decomposition import PCA
-from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.model_selection import StratifiedKFold, KFold, LeaveOneOut
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 
 from classifiers.cross_val import StatifiedGroupK_Fold
@@ -79,6 +80,13 @@ def do_pca(x1, x2, n_comp):
     return x1, x2
 
 
+def do_lda(x1, x2, Y):
+    pca = LinearDiscriminantAnalysis(shrinkage='auto', solver='eigen')
+    x1 = pca.fit_transform(x1, Y)
+    x2 = pca.transform(x2)
+    return x1, x2
+
+
 def evaluate_auc_score(y_true, y_pred):
     # y_pred = model._predict_proba_lr(x_test)
     # y_pred = np.argmax(y_pred, axis=1)
@@ -98,7 +106,8 @@ def evaluate_f1(y_true, y_pred):
 
 # SVM with simple stratified kfold cross validation
 def train_simple_skfcv(X, Y, n_folds, c, seed):
-    svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=100000)  # class_weight='balanced',
+    # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     array_posteriors = np.zeros((len(Y), 2))
     scores2 = []
@@ -114,7 +123,6 @@ def train_simple_skfcv(X, Y, n_folds, c, seed):
     acc = evaluate_accuracy(Y, array_posteriors)
     auc = roc_auc_score(Y, array_posteriors[:, 1])
     f1 = evaluate_f1(Y, array_posteriors)
-    # print("SCORE:", np.mean(scores2))
 
     scores = {"accuracy": acc, "auc": auc, "f1": f1}
 
@@ -122,15 +130,16 @@ def train_simple_skfcv(X, Y, n_folds, c, seed):
 
 
 # SVM with simple stratified kfold cross validation
-def train_simple_skfcv_pca(X, Y, n_folds, c):
-    svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
-    kf = StratifiedKFold(n_splits=n_folds, shuffle=True)
+def train_simple_skfcv_pca(X, Y, n_folds, c, seed):
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=100000)  # class_weight='balanced',
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     array_posteriors = np.zeros((len(Y), 2))
 
     for train_index, test_index in kf.split(X, Y):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
-        x_train, x_test = do_pca(x_train, x_test, 0.97)
+        # x_train, x_test = do_pca(x_train, x_test, 0.97)
+        x_train, x_test = do_lda(x_train, x_test, y_train)
         svc.fit(x_train, y_train)
         posteriors = svc._predict_proba_lr(x_test)
         array_posteriors[test_index] = posteriors
