@@ -19,12 +19,18 @@ def do_fishers(features, means, covs, priors):
     return fish
 
 
-def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, info_num_feats, file_ubm_feats, recipe, folder_name):
-    # Loading File for UBM
-    print("File of MFCCs for UBM:", file_ubm_feats)
-    array_mfccs_ubm = np.load(file_ubm_feats, allow_pickle=True)
-    # convert list to array
-    array_mfccs_ubm = np.vstack(array_mfccs_ubm)
+def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, info_num_feats, list_files_ubm, recipe, folder_name):
+    # Loading Files for UBM
+    list_feats = []
+    for file_ubm in list_files_ubm:
+        print("File of MFCCs for UBM:", file_ubm)
+        array_feats = np.load(file_ubm, allow_pickle=True)
+        # convert list to array
+        array_feats = np.vstack(array_feats)
+        list_feats.append(array_feats)
+    array_mfccs_ubm = np.vstack(list_feats)
+    print("Shape of the UBM:", array_mfccs_ubm.shape)
+    del list_feats, array_feats
 
     # print(list_feats[0])
     print("Fisher-vecs will be extracted using {} number of Gaussians!".format(list_n_clusters))
@@ -32,13 +38,14 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, info_num_feats, f
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         for g in list_n_clusters:
             list_fishers = []
-            means, covs, priors = do_gmm(array_mfccs_ubm[:2000], g)  # training GMM
-            for feat in list_feat:  # iterating over the wavs (mfccs)
-                fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), covs.transpose(), priors, improved=True)
-                list_fishers.append(fish)  # Extracting fishers from features
+            means, covs, priors = do_gmm(array_mfccs_ubm, g)  # training GMM
+            for feat in list_feat:  # iterating over the mfccs
+                fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), covs.transpose(), priors, square_root=True,
+                                         normalized=True, improved=True)  # Extracting fishers from features
+                list_fishers.append(fish)
                 # Output file (fishers)
             obs = '2del'
-            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fish'.format(
+            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fisher'.format(
                 info_num_feats,
                 obs, g, folder_name)
             np.savetxt(file_fishers, list_fishers, fmt='%.7f')

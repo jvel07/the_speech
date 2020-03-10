@@ -60,7 +60,7 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_
         # feats = [[]]
         # feats = list_feat
         model_ivector = bob.kaldi.ivector_train(list_feat, fubm, file_ivec_extractor_model,
-                                              ivector_dim=int(ivec_dims),
+                                              ivector_dim=256,#int(ivec_dims),
                                               num_iters=num_iters, min_post=min_post,
                                               posterior_scale=post_scale)
         # Extract ivectors
