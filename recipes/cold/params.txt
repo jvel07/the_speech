@@ -59,17 +59,31 @@ dev : 61.55
 
 -----------------------------------------------  4 gaussians-----------------
 
-
-
+xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.02, n_jobs=6,
+                     scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
+                     n_estimators=300, objective="binary:hinge")
+dev : 62.87
+ on test:
+ uar: 67.09
 -----------------------------------------------  8 gaussians-----------------
 
 
+xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.05, n_jobs=-1,
+             scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
+             n_estimators=300, objective="binary:hinge")
+
+dev: 63.18
+test: 69.04
 
 
 -----------------------------------------------  16 gaussians-----------------
 
+xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.02, n_jobs=-1,
+                    scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
+                     n_estimators=310, objective="binary:hinge")
 
-
+dev: 62.66
+test: 69.16
 
 -----------------------------------------------  32 gaussians-----------------
 best CV params
@@ -84,12 +98,21 @@ xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3
 -----------------------------------------------  64 gaussians-----------------
 
 
-
-
+xgd = XGBClassifier(booster='gbtree', gamma=0.4, max_depth=3, min_child_weight=5, learning_rate=0.03, n_jobs=-1,
+                     scale_pos_weight=1, reg_alpha=100, reg_lambda=0.01, colsample_bytree=0.6, subsample=0.9,
+                     n_estimators=350, objective="binary:hinge")
+dev : 63.21
+test:
+uar = 0.7031
 
 -----------------------------------------------  128 gaussians-----------------
 
+xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.03, n_jobs=-1,
+...                     scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
+...                     n_estimators=300, objective="binary:hinge")
 
+dev: 61.68
+test: 68.46
 
 -------------------------------------------------------------------------------------
 

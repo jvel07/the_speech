@@ -23,7 +23,7 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 # retrieving groups for stratified group k-fold CV
 groups_orig = ch.read_utt_spk_lbl()
 
-for g in [4]:# [2, 4, 8, 16, 32, 64, 128]:
+for g in [4]: #[2, 4, 8, 16, 32, 64, 128]:
     # Loading Train, Dev, Test, and Combined (T+D)
     X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
     # X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
@@ -41,9 +41,9 @@ for g in [4]:# [2, 4, 8, 16, 32, 64, 128]:
     # gskf = list(StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5).split(X_resampled, Y_resampled, groups))
     sgkf = StatifiedGroupK_Fold.StratifiedGroupKfold(n_splits=5)
 
-    xgd =  XGBClassifier(booster='gbtree', gamma=0, max_depth=3, min_child_weight=5, learning_rate=0.1, n_jobs=6,
-                    scale_pos_weight=1, reg_alpha=1, reg_lambda=10, colsample_bytree=0.7, subsample=0.8,
-                     n_estimators=350, objective="binary:hinge")
+    xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.05, n_jobs=-1,
+                 scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
+                 n_estimators=300, objective="binary:hinge")
     #{'learning_rate': 0.3, 'max_depth': 3, 'n_estimators': 100} 0.03 350
     xgd.fit(X_resampled, Y_resampled)
 
