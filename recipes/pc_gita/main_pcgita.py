@@ -1,4 +1,4 @@
-from data_preproc.mfccs import extract_mfccs
+# from data_preproc.mfccs import extract_mfccs
 # from data_preproc.fisher import extract_fishers
 from data_preproc.ivecs import extract_ivecs
 import numpy as np
@@ -9,27 +9,28 @@ from recipes.pc_gita.utils_pcgita import save_labels
 recipe = 'pcgita'
 
 # List of audio-sets (folders containing audio samples)
-# list_sets = ['DDK_analysis', 'monologue', 'read_text', 'sentences', 'sentences2']
+list_sets = ['monologue', 'read_text']
 
 
 # Working directories
-work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
+# work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
 # work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/'  # for titan x machine (normal)
-# work_dir = '/home/egasj/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
+work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
 
 
 # Compute mfccs from wavs existing in the directories provided by the user
 def do_mfccs():
     audio_dir = work_dir + 'audio/'
     out_dir = work_dir + 'data/'
-    list_sets = ['read_text']
+    list_sets = ['read_text', 'monologue']
 
     for folder_name in list_sets:
         print("Reading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
         list_of_wavs.sort()
         save_labels(list_sets, audio_dir, out_dir + recipe + '/')  # make labels of the wavs
-        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=20, recipe='pcgita', folder_name=folder_name)
+        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=20, recipe='pcgita', folder_name=folder_name,
+                                    num_deltas=2)
 
 
 def do_fishers():
@@ -80,7 +81,7 @@ def do_ivecs_pretrained_mdls():
     ubm_dir = work_dir + 'data/' + recipe + '/UBMs/'  # where the ubms live
     list_ubm_files = util.traverse_dir(ubm_dir, '.mdll')  # reading all the files with .mdl format
 
-    list_sets = ['monologue', 'read_text']
+    list_sets = ['read_text']
 
     for folder_name in list_sets:  # iterating over the list of sets where the features live
         print("\nReading dir:", mfccs_dir + folder_name)

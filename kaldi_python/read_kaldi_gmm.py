@@ -2,7 +2,7 @@ import os
 import mmap
 import re
 import numpy as np
-import h5py
+# import h5py
 
 from kaldi.gmm import FullGmm  # pykaldi
 from kaldi.gmm import DiagGmm  # pykaldi

@@ -1,4 +1,5 @@
 import os
+import re
 
 import cyvlfeat as vlf
 
@@ -18,8 +19,8 @@ def do_fishers(features, means, covs, priors):
     fish = vlf.fisher.fisher(features.transpose(), means.transpose(), covs.transpose(), priors, improved=True)
     return fish
 
-
-def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, info_num_feats, list_files_ubm, recipe, folder_name):
+regex = re.compile(r'\d+')
+def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, recipe, folder_name):
     # Loading Files for UBM
     list_feats = []
     for file_ubm in list_files_ubm:
@@ -43,16 +44,16 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, info_num_feats, l
                 fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), covs.transpose(), priors, square_root=True,
                                          normalized=True, improved=True)  # Extracting fishers from features
                 list_fishers.append(fish)
-                # Output file (fishers)
-            obs = '2del'
+            # Output file (fishers)
+            info_num_feats = regex.findall(file_name)
+            obs = '{}del'.format(int(info_num_feats[1]))  # getting number of deltas info
             file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fisher'.format(
-                info_num_feats,
-                obs, g, folder_name)
+                int(info_num_feats[0]), obs, g, folder_name)
             np.savetxt(file_fishers, list_fishers, fmt='%.7f')
             print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape)
 
 
-def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, info_num_feats, file_ubm, recipe, folder_name):
+def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder_name):
     # Loading File for UBM
     print("File for UBM:", file_ubm)
     vars, means, weights, g = get_diag_gmm_params(file_ubm, out_dir)
@@ -67,10 +68,10 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, info_num_feats, file_ubm
         for feat in list_feat:  # iterating over the wavs (mfccs)
             fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), vars.transpose(), weights, improved=True)
             list_fishers.append(fish)  # Extracting fishers from features
-            # Output file (fishers)
-        obs = '2del'
+        # Output file (fishers)
+        info_num_feats = regex.findall(file_name)
+        obs = '{}del'.format(int(info_num_feats[1]))  # getting number of deltas info
         file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fisher'.format(
-            info_num_feats,
-            obs, g, folder_name)
+            int(info_num_feats[0]), obs, g, folder_name)
         np.savetxt(file_fishers, list_fishers, fmt='%.7f')
-        print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape)
+        print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape, "/n")

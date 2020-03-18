@@ -8,7 +8,7 @@ from sklearn import preprocessing
 
 
 # work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/data/pcgita/' # windows machine
-work_dir = '/home/egasj/PycharmProjects/the_speech/data/pcgita/'  # ubuntu machine
+work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/pcgita/'  # ubuntu machine
 # work_dir2 = 'D:/VHD'
 
 
