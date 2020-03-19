@@ -106,7 +106,7 @@ def evaluate_f1(y_true, y_pred):
 
 # SVM with simple stratified kfold cross validation
 def train_simple_skfcv(X, Y, n_folds, c, seed):
-    svc = svm.LinearSVC(C=c, verbose=0, max_iter=100000)  # class_weight='balanced',
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=100000,  class_weight='balanced')
     # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     array_posteriors = np.zeros((len(Y), 2))
@@ -129,7 +129,7 @@ def train_simple_skfcv(X, Y, n_folds, c, seed):
     return scores
 
 
-# SVM with simple stratified kfold cross validation
+# SVM with stratified kfold cross validation and pca
 def train_simple_skfcv_pca(X, Y, n_folds, c, seed):
     svc = svm.LinearSVC(C=c, verbose=0, max_iter=100000)  # class_weight='balanced',
     kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
