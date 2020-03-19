@@ -60,7 +60,7 @@ def frequency_masking(mel_spectrogram, v, frequency_masking_para=27, frequency_m
 
     # Arguments:
       mel_spectrogram(numpy array): audio file path of you want to warping and masking.
-      frequency_masking_para(float): Augmentation parameter, "frequency mask parameter F"
+      frequency_masking_para(float): Augmentation parameter, "frequency compare_2020 parameter F"
         If none, default = 100 for LibriSpeech.
       frequency_mask_num(float): number of frequency masking lines, "m_F".
         If none, default = 1 for LibriSpeech.
@@ -95,7 +95,7 @@ def time_masking(mel_spectrogram, tau, time_masking_para=100, time_mask_num=2):
 
     # Arguments:
       mel_spectrogram(numpy array): audio file path of you want to warping and masking.
-      time_masking_para(float): Augmentation parameter, "time mask parameter T"
+      time_masking_para(float): Augmentation parameter, "time compare_2020 parameter T"
         If none, default = 27 for LibriSpeech.
       time_mask_num(float): number of time masking lines, "m_T".
         If none, default = 1 for LibriSpeech.

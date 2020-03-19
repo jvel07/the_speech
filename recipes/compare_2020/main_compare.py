@@ -6,7 +6,7 @@ import os
 from common import util
 
 # Name of the task/recipe/dataset/etc.
-recipe = 'mask'
+recipe = 'breathing'
 
 # Working directories
 # work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
@@ -20,8 +20,8 @@ out_dir = work_dir + 'data/'
 list_sets = ['train', 'dev', 'test']
 
 # List of number of clusters wanted to use
-list_n_clusters = [ 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
-
+list_n_clusters = [512, 1024]
+#list_n_clusters = [4, 16, 64, 256, 2048]
 
 # Computes mfccs from wavs existing in the directories provided by the user
 def do_mfccs():
@@ -32,15 +32,15 @@ def do_mfccs():
         print("\nReading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
         list_of_wavs.sort()
-        print(list_of_wavs)
+        #print(list_of_wavs)
         extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=23, recipe=recipe, folder_name=folder_name, num_deltas=0)
 
 
 def do_fishers():
     print("=======fisher-vector extraction phase========")
     mfccs_dir = work_dir + '/data/{}/'.format(recipe)
-    list_files_ubm = [work_dir + '/data/mask/train/mfccs_mask_23_train_0del.mfcc',
-                      work_dir + '/data/mask/dev/mfccs_mask_23_dev_0del.mfcc'] # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
+    list_files_ubm = [work_dir + '/data/{}/train/mfccs_{}_23_train_0del.mfcc'.format(recipe, recipe),
+                      work_dir + '/data/{}/dev/mfccs_{}_23_dev_0del.mfcc'.format(recipe, recipe)] # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
 
     for folder_name in list_sets:
         print("\nReading dir:", mfccs_dir + folder_name)
@@ -52,7 +52,7 @@ def do_fishers():
 def do_ivecs():
     print("=======i-vector extraction phase========")
     mfccs_dir = work_dir + '/data/{}/'.format(recipe)
-    file_ubm = work_dir + '/data/mask/train/mfccs_mask_23_train_1del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
+    file_ubm = work_dir + '/data/compare_2020/train/mfccs_mask_23_train_1del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
 
     for folder_name in list_sets:
         print("\nReading dir:", mfccs_dir + folder_name)

@@ -52,6 +52,8 @@ def compute_mfccs(list_wavs, out_dir, num_mfccs, num_deltas, recipe, folder_name
     observation = '{}del'.format(num_deltas)
 
     # parent_dir = os.path.basename(os.path.dirname(list_wavs[0]))
+    if not os.path.isdir(out_dir + recipe):
+        os.mkdir(out_dir + recipe)
     if not os.path.isdir(out_dir + recipe + '/' + folder_name):
         os.mkdir(out_dir + recipe + '/' + folder_name)
 
