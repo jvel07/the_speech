@@ -6,21 +6,21 @@ from sklearn.metrics import make_scorer
 
 from recipes.cold import cold_helper as ch
 
-# work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
-work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'  # windows machine
+work_dir = '/media/hk-data/PycharmProjects/the_speech'  # ubuntu machine
+#work_dir = 'C:/Users/Win10/PycharmProjects/the_speech'  # windows machine
 
-# com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
-com_values = [1e-5]
+com_values = [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1, 10]
+#com_values = [1e-5]
 
 # retrieving groups for stratified group k-fold CV
 groups = ch.read_utt_spk_lbl()
 
 # iterating over the gaussians
-for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
+for g in [16]: #[2, 4, 8, 16, 32, 64, 128]:
     print("CV Process (gaussians):", g)
     # Loading Test, and Combined (Train+Dev)
-    # X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
-    X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
+    X_test, Y_test, X_combined, Y_combined = ch.load_data(g)
+    #X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
     # X, Y = shuffle(X_train, Y_train, random_state=0)
 
     # Power Transformer
@@ -36,14 +36,14 @@ for g in [64]: #[2, 4, 8, 16, 32, 64, 128]:
     X_test_norm = normalizer.transform(X_test)
 
     # PCA
-    pca = PCA(n_components=0.99) # KernelPCA(kernel='linear', fit_inverse_transform=True, n_components=3500, eigen_solver='arpack')
-    X_train_norm = pca.fit_transform(X_train_norm)
-    X_test_norm = pca.transform(X_test_norm)
+    #pca = PCA(n_components=0.99) # KernelPCA(kernel='linear', fit_inverse_transform=True, n_components=3500, eigen_solver='arpack')
+    #X_train_norm = pca.fit_transform(X_train_norm)
+    #X_test_norm = pca.transform(X_test_norm)
 
     for c in com_values:
         # groups = pre_groups[indi]
-        # uar, clf = ch.train_model_stkgroup_cv(X_train_norm, Y_combined, 5, c, groups, g)  # With group-strat
-        clf = ch.train_model(X_train_norm, Y_combined, c)
+        uar, clf = ch.train_model_stkgroup_cv(X_train_norm, Y_combined, 5, c, groups, g)  # With group-strat
+        #clf = ch.train_model(X_train_norm, Y_combined, c)
         print("With:", c, "->")
 
         # Evaluating on test

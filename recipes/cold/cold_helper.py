@@ -10,27 +10,27 @@ from sklearn.preprocessing import PowerTransformer
 
 from classifiers.cross_val import StatifiedGroupK_Fold
 
-work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' # windows machine
-# work_dir = '/home/egasj/PycharmProjects/the_speech'  # ubuntu machine
-work_dir2 = 'D:/VHD'
-
+#work_dir = 'C:/Users/Win10/PycharmProjects/the_speech' # windows machine
+work_dir = '/media/jose/hk-data/PycharmProjects/the_speech'  # ubuntu machine
+#work_dir2 = 'D:/VHD'
+work_dir2 = '/media/jose/hk-data/PycharmProjects/the_speech/data'
 
 def load_data(gauss):
     # Set data directories
     # file_train = work_dir + '/data/cold/train/fisher-13mf-2del-{}g-train.fish'.format(gauss)
-    file_train = work_dir2 + '/cold/matlab-src/features.fv-mfcc-jose.improved.{}.train.txt'.format(gauss)
+    file_train = work_dir2 + '/cold/features.fv-mfcc-jose.improved.{}.train.txt'.format(gauss)
     # file_train = work_dir2 + '/features.fv-mfcc.improved.{}.train.txt'.format(gauss)
-    lbl_train = work_dir + '/data/labels/labels.num.train.txt'
+    lbl_train = work_dir + '/data/cold/labels/labels.num.train.txt'
 
     # file_dev = work_dir + '/data/cold/dev/fisher-13mf-2del-{}g-dev.fish'.format(gauss)
-    file_dev = work_dir2 + '/cold/matlab-src/features.fv-mfcc-jose.improved.{}.dev.txt'.format(gauss)
+    file_dev = work_dir2 + '/cold/features.fv-mfcc-jose.improved.{}.dev.txt'.format(gauss)
     # file_dev = work_dir2 + '/features.fv-mfcc.improved.{}.dev.txt'.format(gauss)
-    lbl_dev = work_dir + '/data/labels/labels.num.dev.txt'
+    lbl_dev = work_dir + '/data/cold/labels/labels.num.dev.txt'
 
     # file_test = work_dir + '/data/cold/test/fisher-13mf-2del-{}g-test.fish'.format(gauss)
-    file_test = work_dir2 + '/cold/matlab-src/features.fv-mfcc-jose.improved.{}.test.txt'.format(gauss)
+    file_test = work_dir2 + '/cold/features.fv-mfcc-jose.improved.{}.test.txt'.format(gauss)
     # file_test = work_dir2 + '/features.fv-mfcc.improved.{}.test.txt'.format(gauss)
-    lbl_test = work_dir + '/data/labels/labels.num.test.txt'
+    lbl_test = work_dir + '/data/cold/labels/labels.num.test.txt'
 
     # Load dataste correo realizo cor
     X_train = np.loadtxt(file_train, delimiter=',')
@@ -141,7 +141,7 @@ def resample_data(X, Y, r):
 
 
 def read_utt_spk_lbl():
-    df = pd.read_csv("C:/Users/Win10/PycharmProjects/the_speech/data/cold/uttNspkNlbl.txt", sep=" ", header=None)
+    df = pd.read_csv("/media/jose/hk-data/PycharmProjects/the_speech/data/cold/uttNspkNlbl.txt", sep=" ", header=None)
     df.columns = ['wav', 'spk', 'label']
     utt = df.wav.values
     spk = df.spk.values
@@ -203,8 +203,8 @@ def train_model_stkgroup_cv(X, Y, n_splits, _c, groups, gaussians):
             # print("index:", test_index)
             # print("post:", array_posteriors[test_index])
             # print("shape:", array_posteriors[test_index].shape)
-        np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_cv_post_compare _{}_{}g.txt".format(str(_c), str(gaussians)),
-            array_posteriors, fmt='%.7f')
+        #np.savetxt("C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_cv_post_compare _{}_{}g.txt".format(str(_c), str(gaussians)),
+         #   array_posteriors, fmt='%.7f')
         y_p = np.argmax(array_posteriors, axis=1)
         one = sk.metrics.recall_score(Y, y_p, pos_label=0)
         two = sk.metrics.recall_score(Y, y_p, pos_label=1)

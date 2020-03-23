@@ -268,6 +268,21 @@ def traverse_dir(path, file_type):
         raise FileNotFoundError
 
 
+# Traverse directories and pull specific type of file (".WAV", etc...) same as 1 but using fnmatch which allows specifiying
+# more details of the filename
+def traverse_dir_2(path, file_type):
+    if os.path.isdir(path):
+        lista = []
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                if fnmatch.fnmatch(file, file_type):
+                    lista.append(os.path.join(root, file))
+        return lista
+    else:
+        print("\nERROR: Path '{}' does not exist!".format(path))
+        raise FileNotFoundError
+
+
 """FOR THE DEMENTIA DATASET PREPROCESSING  ---  END"""
 
 

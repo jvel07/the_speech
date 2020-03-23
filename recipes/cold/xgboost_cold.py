@@ -43,7 +43,7 @@ for g in [4]: #[2, 4, 8, 16, 32, 64, 128]:
 
     xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=3, min_child_weight=3, learning_rate=0.05, n_jobs=-1,
                  scale_pos_weight=1, reg_alpha=1e-5, reg_lambda=0.01, colsample_bytree=0.8, subsample=0.6,
-                 n_estimators=300, objective="binary:hinge")
+                 n_estimators=300, objective="binary:hinge", tree_method='gpu_hist')
     #{'learning_rate': 0.3, 'max_depth': 3, 'n_estimators': 100} 0.03 350
     xgd.fit(X_resampled, Y_resampled)
 
