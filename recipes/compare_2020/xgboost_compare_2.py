@@ -7,7 +7,7 @@ from sklearn import preprocessing
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, StratifiedKFold
 from xgboost import XGBClassifier
-import xgboost
+import xgboost as xgb
 
 
 import recipes.utils_recipes.utils_recipe as rutils
@@ -19,62 +19,63 @@ def uar_scoring(y_true, y_pred, **kwargs):
 
 my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 
+def eval_error(preds, dtrain):
+    labels = dtrain.get_label()
+    return 'uar', recall_score(labels, preds, labels=[1, 0], average='macro')
+
 task = 'mask'
 feat_type = 'fisher'
 
-for g in [8]:#, 4, 8, 16, 32, 64, 128]:
+for g in [32]:#, 4, 8, 16, 32, 64, 128]:
     # Loading Train, Dev, Test and labels
-    X_train, X_dev, X_test, Y_train, Y_dev, le = rutils.load_data_full(gauss=g, task=task, feat_type=feat_type, n_feats=23,
+    x_train, x_dev, x_test, y_train, y_dev = rutils.load_data_full(gauss=g, task=task, feat_type=feat_type, n_feats=23,
                                                                n_deltas=1, label_1='mask', label_0='clear')
     # X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
 
-    x_combined = np.concatenate((X_train, X_dev))
-    y_combined = np.concatenate((Y_train, Y_dev)).ravel()
+    x_combined = np.concatenate((x_train, x_dev))
+    y_combined = np.concatenate((y_train, y_dev)).ravel()
 
-    # del x_train, x_dev
+    params = {'booster':'gbtree', 'gamma':0.0, 'max_depth':8, 'min_child_weight': 3, 'learning_rate': 0.03,
+               'n_jobs' : 6, 'scale_pos_weight' : 1, 'reg_alpha': 0.1, 'reg_lambda': 1, 'colsample_bytree': 0.9,
+                'subsample' : 0.8, 'objective':'binary:logitraw', 'eval_metric': 'auc'}
 
     sgkf = StratifiedKFold(n_splits=10, shuffle=True, random_state=0)
 
-    fold_scoring = np.zeros((len(y_combined), 2))
-    for number in [39878]:#, 578, 2154, 4242, 54]:
+    total_probs = np.zeros((len(y_combined),))
+    for number in [0]:#, 578, 2154, 4242, 54]:
         for train_index, test_index in sgkf.split(x_combined, y_combined):
 
             x_train, x_test, y_train, y_test = \
                 x_combined[train_index], x_combined[test_index], y_combined[train_index], y_combined[test_index]
 
-            xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=8, min_child_weight=3, learning_rate=0.03, n_jobs=-1,
-                        scale_pos_weight=1, reg_alpha=0.1, reg_lambda=1, colsample_bytree=0.9, subsample=0.8,
-                        n_estimators=300, objective="binary:hinge", tree_method='gpu_hist', gpu_id=0, random_state=number)
-            xgd.fit(x_train, y_train)
+            dtrain = xgb.DMatrix(x_train, label=y_train)
+            dtest = xgb.DMatrix(x_test, label=y_test)
 
-            probs = xgd.predict_proba(x_test)
-            fold_scoring[test_index] = probs
+            model = xgb.train(params, dtrain, num_boost_round=20, evals=[(dtest, "Test")], #feval=eval_error,
+                              early_stopping_rounds=8)
+
+            probs = model.predict(dtest)
+            total_probs[test_index] = probs
         y_pred = np.argmax(fold_scoring, axis=1)
-        print("With {}: \nConfusion matrix:\n".format(g), sk.metrics.confusion_matrix(y_combined, y_pred))
-        uar_ = uar_scoring(y_combined, y_pred)
+        print("With {}: \nConfusion matrix:\n".format(g), sk.metrics.confusion_matrix(y_combined, total_probs))
+        uar_ = uar_scoring(y_combined, total_probs)
         print(uar_)
 
 # submission
-def pred():
-    xgb = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=8, min_child_weight=3, learning_rate=0.03, n_jobs=-1,
-                        scale_pos_weight=1, reg_alpha=0.1, reg_lambda=1, colsample_bytree=0.9, subsample=0.8,
-                        n_estimators=370, objective="binary:hinge", tree_method='gpu_hist', gpu_id=0,
-                        random_state=number)
-    xgb.fit(x_combined, y_combined)
-    y_pred = xgb.predict(X_test)
-    team_name = 'TeamFOSAI'
-    submission_index = 1
-    label_file = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/labels/labels.csv'
-    df_labels = pd.read_csv(label_file)
-    # Write out predictions to csv file (official submission format)
-    pred_file_name = task + '.' + feat_type +'.test.' + team_name + '_' + str(submission_index) + '.csv'
-    print('Writing file ' + pred_file_name + '\n')
-    df = pd.DataFrame(data={'file_name': df_labels['file_name'][df_labels['file_name'].str.startswith('test')].values,
-                            'prediction': le.inverse_transform(y_pred).flatten()},
-                      columns=['file_name','prediction'])
-    df.to_csv(pred_file_name, index=False)
+team_name = 'TeamFOSAI'
+submission_index = 1
+label_file = '../data/mask/labels/labels.csv'
+df_labels = pd.read_csv(label_file)
+# Write out predictions to csv file (official submission format)
+pred_file_name = task + '.' + feat_type +'.test.' + team_name + '_' + str(submission_index) + '.csv'
+print('Writing file ' + pred_file_name + '\n')
+df = pd.DataFrame(data={'file_name': df_labels['file_name'][df_labels['file_name'].str.startswith('test')].values,
+                        'prediction': total_probs.flatten()},
+                  columns=['file_name','prediction'])
+df.to_csv(pred_file_name, index=False)
 
-    print('Done.\n')
+print('Done.\n')
+
 
 
 n_jobs = 1

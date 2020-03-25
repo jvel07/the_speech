@@ -66,7 +66,7 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder
         list_fishers = []
         # means, covs, priors = do_gmm(array_mfccs_ubm[:2000], g)  # training GMM
         for feat in list_feat:  # iterating over the wavs (mfccs)
-            fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), vars.transpose(), weights, improved=True)
+            fish = vlf.fisher.fisher(feat.transpose(), means[:,:40].transpose(), vars[:,:40].transpose(), weights, improved=True)
             list_fishers.append(fish)  # Extracting fishers from features
         # Output file (fishers)
         info_num_feats = regex.findall(file_name)
