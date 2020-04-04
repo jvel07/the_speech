@@ -204,7 +204,7 @@ def train_thunder_svm_skf(X, Y, n_folds, c, seed):
     return scores
 
 
-def train_thunder_svm_simple(X, Y, X_eval, Y_eval, c):
+def train_thunder_svm_normal(X, Y, X_eval, Y_eval, c):
     svc = thunder(kernel='linear', C=c, probability=True, class_weight='balanced', max_iter=10000, gpu_id=0)
     svc.fit(X, Y)
     y_prob = svc.predict_proba(X_eval)

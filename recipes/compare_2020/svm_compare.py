@@ -12,7 +12,7 @@ task = 'mask'
 feat_type = 'fisher'
 
 # Loading data: 'fisher' or 'ivecs's
-x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(gauss=128, task=task, feat_type=feat_type, n_feats=23, n_deltas=2, list_labels=['mask','clear'])
+x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(gauss=256, task=task, feat_type=feat_type, n_feats=23, n_deltas=2, list_labels=['mask','clear'])
 # x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_compare()
 
 # x_train, y_train = rutils.load_data_alternate(64, 'monologue')
@@ -45,9 +45,9 @@ for c in [1e-7]:# [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]:
     # print("with c", c, "-->", np.mean(scores["test_accuracy"]), np.mean(scores["test_roc_auc"]), np.mean(scores["test_f1"]))
     list_scores = []
     for seed in [44654]:  # [1367, 684531, 8754, 3215, 54, 3551, 63839845, 11538, 148111, 4310]:
-        # score, posteriors = svm_fits.train_thunder_svm_simple(x_train, y_train.ravel(), c=c, X_eval=x_dev, Y_eval=y_dev)
+        score, posteriors = svm_fits.train_thunder_svm_normal(x_train, y_train.ravel(), c=c, X_eval=x_dev, Y_eval=y_dev)
         # score, posteriors = svm_fits.train_simple_skfcv(x_combined, y_combined.ravel(), n_folds=10, c=c, seed=seed)
-        score, posteriors = svm_fits.train_model_normal(x_train, y_train.ravel(), c=c, X_t=x_dev, Y_t=y_dev)
+        # score, posteriors = svm_fits.train_model_normal(x_train, y_train.ravel(), c=c, X_t=x_dev, Y_t=y_dev)
         # list_scores.append(score)
     # print("with c", c, "-->", score["uar"])
     np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_{}_fisher.txt'.format(c), posteriors)
