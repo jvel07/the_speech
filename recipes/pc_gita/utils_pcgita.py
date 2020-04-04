@@ -90,3 +90,5 @@ def save_labels(list_sets, audio_dir, out_dir):
             labels_task.append(w + ' ' + label)
             # labels_task.sort()
         np.savetxt(out_dir + "labels_{}.txt".format(task), labels_task, delimiter=',', fmt='%s')
+
+

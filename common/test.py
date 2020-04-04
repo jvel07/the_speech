@@ -7,6 +7,7 @@ from common import util
 import pandas as pd
 import os
 import csv
+from shutil import copyfile
 
 
 # y_labels of dem speaker to pandas Dataframe
@@ -28,19 +29,13 @@ def save_mfccs_txt(in_file, out_file):
             writer.wrterow(','.join(str(v).lstrip('[').rstrip(']') for v in row))
 
 
-def take_only_colds(wavs_dir, labels):
-    all_wavs = util.read_files_from_dir(wavs_dir)
-    labels = np.loadtxt(labels)
-    lista = []
-    for wav, label in zip(all_wavs, labels):
-        if label == 1: lista.append(wav)
-    return lista
+
 
 # a = take_only_colds('../audio/train', '../data/labels/labels.num.train.txt')
 
 
-one = 'C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_fish_final_post_0.1_64g.txt'
-two = 'C:/Users/Win10/PycharmProjects/the_speech/data/cold/posteriors/mean_final_comp_post_1e-05_64g.txt'
+one = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_1e-07_fisher.txt'
+two = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_1_resnet.txt'
 def average_post(one, two):
     p1 = np.loadtxt(one)
     p2 = np.loadtxt(two)

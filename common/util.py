@@ -6,7 +6,9 @@ import re
 import csv
 from itertools import zip_longest
 import pickle
+from shutil import copy
 
+from sklearn import preprocessing
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, confusion_matrix
 
 
@@ -177,6 +179,31 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
     return list_processed
 """
 
+
+def encode_labels(_y, label_1, label_0):
+     le = preprocessing.LabelEncoder()
+     le.fit([label_1, label_0])
+     y = le.transform(_y)
+     y = y.reshape(-1, 1)
+     return y, le
+
+# from a list of files and labels, take only the set of files that have a specified label value.
+# e.g. from the dataset parkinson's, take the file-names with PD label only.
+def take_only_specfic_label(wavs_dir, list_labels, lbl_value):
+    all_wavs = read_files_from_dir(wavs_dir)
+    # list_labels = np.loadtxt(list_labels)
+    lista = []
+    for wav, label in zip(all_wavs, list_labels):
+        if label == lbl_value: lista.append(wav)
+    return lista
+
+
+# copies specific files contained within a python list to a path (directory)
+def copy_from_list_to_dir(list_of_files, orig_path, dest_path):
+    for file in list_of_files:
+        copy(orig_path+file, dest_path)
+
+
 """FOR THE DEMENTIA DATASET PREPROCESSING --- START"""
 
 # Read just original 75 speakers
@@ -299,18 +326,3 @@ def read_mfcc(file_name):
 def put_commas_to(_string):
     return re.sub("\s+", ",", _string.strip())
 
-
-"""
-# Save bob machines
-def save_bob_machine(hdf5_file_name, machine):
-    hdf5_file = bob.io.base.HDF5File(hdf5_file_name, 'w')
-    machine.save(hdf5_file)
-    del hdf5_file
-    print("Machine saved to:", hdf5_file_name)
-
-
-# Load bob machines
-def load_bob_machine(hdf5_file_name):
-    hdf5_file = bob.io.base.HDF5File(hdf5_file_name)
-    return hdf5_file
-"""

@@ -5,9 +5,11 @@ from sklearn import svm
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import StratifiedKFold, KFold, LeaveOneOut
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, recall_score
+# from thundersvm import SVC as thunder
 
 from classifiers.cross_val import StatifiedGroupK_Fold
+
 
 
 def resample_data(X, Y, r):
@@ -104,13 +106,17 @@ def evaluate_f1(y_true, y_pred):
     return f1_score(y_true, y_pred.round())
 
 
+def evaluate_uar_score(y_true, y_pred):
+    y_pred = np.argmax(y_pred, axis=1)
+    return recall_score(y_true, y_pred, labels=[1, 0], average='macro')
+
+
 # SVM with stratified kfold cross validation
 def train_simple_skfcv(X, Y, n_folds, c, seed):
-    svc = svm.LinearSVC(C=c, verbose=0, max_iter=10000,  class_weight='balanced')
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=100000)#, class_weight='balanced')
     # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     array_posteriors = np.zeros((len(Y), 2))
-    scores2 = []
 
     for train_index, test_index in kf.split(X, Y):
         x_train, x_test = X[train_index], X[test_index]
@@ -120,26 +126,29 @@ def train_simple_skfcv(X, Y, n_folds, c, seed):
         posteriors = svc._predict_proba_lr(x_test)
         # scores2.append(svc.score(x_test, y_test))
         array_posteriors[test_index] = posteriors
-    acc = evaluate_accuracy(Y, array_posteriors)
-    auc = roc_auc_score(Y, array_posteriors[:, 1])
-    f1 = evaluate_f1(Y, array_posteriors)
+    # acc = evaluate_accuracy(Y, array_posteriors)
+    print(array_posteriors)
+    uar = evaluate_uar_score(Y, array_posteriors)#[:, 1])
+    # f1 = evaluate_f1(Y, array_posteriors)
+    # np.savetxt('probs_mask_cv_{}_fisher'.format(c), array_posteriors)
 
-    scores = {"accuracy": acc, "auc": auc, "f1": f1, "posteriors": array_posteriors}
+    # scores = {"accuracy": acc, "uar": uar, "f1": f1, "posteriors": array_posteriors}
+    scores = {"uar": uar, "posteriors": array_posteriors}
 
-    return scores
+    return scores, array_posteriors
 
 
 # SVM with stratified kfold cross validation and pca
 def train_simple_skfcv_pca(X, Y, n_folds, c, seed):
-    svc = svm.LinearSVC(C=c, verbose=0, max_iter=100000)  # class_weight='balanced',
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=10000)  # class_weight='balanced',
     kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     array_posteriors = np.zeros((len(Y), 2))
 
     for train_index, test_index in kf.split(X, Y):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
-        # x_train, x_test = do_pca(x_train, x_test, 0.97)
-        x_train, x_test = do_lda(x_train, x_test, y_train)
+        x_train, x_test = do_pca(x_train, x_test, 0.97)
+        # x_train, x_test = do_lda(x_train, x_test, y_train)
         svc.fit(x_train, y_train)
         posteriors = svc._predict_proba_lr(x_test)
         array_posteriors[test_index] = posteriors
@@ -147,15 +156,59 @@ def train_simple_skfcv_pca(X, Y, n_folds, c, seed):
     auc = roc_auc_score(Y, array_posteriors[:, 1])
     f1 = evaluate_f1(Y, array_posteriors)
     scores = {"accuracy": acc, "auc": auc, "f1": f1}
+    return scores, array_posteriors
+
+
+def train_model_resample(X, Y, c, seed):
+    # seeds = [137, 895642, 15986, 4242, 7117, 1255, 1564111, 923, 75, 9656]
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
+    # for number in seeds:
+    X_resampled, Y_resampled, indi = resample_data(X, Y, r=seed)  # resampling
+    svc.fit(X_resampled, Y_resampled)  # Training the SVM
+
+    return svc
+
+# train and evaluate normally
+def train_model_normal(X, Y, X_t, Y_t, c):
+    svc = svm.LinearSVC(C=c, verbose=0, max_iter=20000)#, class_weight='balanced')
+    # X, Y, idx= resample_data(X, Y, r=545412)  # resampling
+    svc.fit(X, Y)
+    y_prob = svc._predict_proba_lr(X_t)
+    y_pred = np.argmax(y_prob, axis=1)
+    uar = recall_score(Y_t, y_pred, labels=[1, 0], average='macro')
+
+    return uar, y_prob
+
+
+# Train SVM with the thunder library (GPU usage)
+def train_thunder_svm_skf(X, Y, n_folds, c, seed):
+    svc = thunder(kernel='linear', C=c, probability=True, class_weight='balanced', max_iter=7000, gpu_id=0)
+    # kf = LeaveOneOut()
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    array_posteriors = np.zeros((len(Y), 2))
+
+    for train_index, test_index in kf.split(X, Y):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        posteriors = svc.predict_proba(x_test)
+        # scores2.append(svc.score(x_test, y_test))
+        array_posteriors[test_index] = posteriors
+    print(array_posteriors)
+    acc = evaluate_accuracy(Y, array_posteriors)
+    auc = evaluate_uar_score(Y, array_posteriors)
+    f1 = evaluate_f1(Y, array_posteriors)
+
+    scores = {"accuracy": acc, "auc": auc, "f1": f1, "posteriors": array_posteriors}
 
     return scores
 
 
-def train_model(X, Y, c):
-    seeds = [137, 895642, 15986, 4242, 7117, 1255, 1564111, 923, 75, 9656]
-    svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
-    for number in seeds:
-        X_resampled, Y_resampled, indi = resample_data(X, Y, r=number)  # resampling
-        svc.fit(X_resampled, Y_resampled)  # Training the SVM
-
-    return svc
+def train_thunder_svm_simple(X, Y, X_eval, Y_eval, c):
+    svc = thunder(kernel='linear', C=c, probability=True, class_weight='balanced', max_iter=10000, gpu_id=0)
+    svc.fit(X, Y)
+    y_prob = svc.predict_proba(X_eval)
+    y_pred = np.argmax(y_prob, axis=1)
+    uar = recall_score(Y_eval, y_pred, labels=[1, 0], average='macro')
+    print(y_prob)
+    return uar, y_prob

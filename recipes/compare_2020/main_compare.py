@@ -1,4 +1,4 @@
-#from data_preproc.mfccs import extract_mfccs
+# from data_preproc.mfccs import extract_mfccs
 from data_preproc.fisher import extract_fishers
 # from data_preproc.ivecs import extract_ivecs
 import numpy as np
@@ -20,7 +20,7 @@ out_dir = work_dir + 'data/'
 list_sets = ['train', 'dev', 'test']
 
 # List of number of clusters wanted to use
-#list_n_clusters = [2, 8, 32, 128]
+# list_n_clusters = [2, 8, 32, 128]
 list_n_clusters = [4, 16, 64, 256]
 
 
@@ -35,15 +35,15 @@ def do_mfccs():
         list_of_wavs.sort()
         #print(list_of_wavs)
         extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=23, recipe=recipe, folder_name=folder_name,
-                                    num_deltas=1)
+                                    num_deltas=2)
 
 
 def do_fishers():
     print("=======fisher-vector extraction phase========")
+    mfcc_n_deltas = 2
     mfccs_dir = work_dir + '/data/{}/'.format(recipe)
-    list_files_ubm = [work_dir + '/data/{}/train/mfccs_{}_23_train_1del.mfcc'.format(recipe, recipe),
-                      work_dir + '/data/{}/dev/mfccs_{}_23_dev_1del.mfcc'.format(recipe, recipe)] # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
-    mfcc_n_deltas = '1'
+    list_files_ubm = [work_dir + '/data/{}/train/mfccs_{}_23_train_{}del.mfcc'.format(recipe, recipe, mfcc_n_deltas),
+                      work_dir + '/data/{}/dev/mfccs_{}_23_dev_{}del.mfcc'.format(recipe, recipe, mfcc_n_deltas)] # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
 
     for folder_name in list_sets:
         print("\nReading dir:", mfccs_dir + folder_name)
