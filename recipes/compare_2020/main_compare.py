@@ -1,5 +1,5 @@
-# from data_preproc.mfccs import extract_mfccs
-from data_preproc.fisher import extract_fishers
+from data_preproc.mfccs import extract_mfccs
+# from data_preproc.fisher import extract_fishers
 # from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
@@ -25,31 +25,41 @@ list_n_clusters = [4, 16, 64, 256]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
-def do_mfccs():
-    print("=======MFCC extraction phase========")
+def do_frame_level():
+    print("=======Frame-level extraction phase========")
 
-
+    cepstral_type = "mfcc"  # choose between "mfcc" or "plp"
     for folder_name in list_sets:
         print("\nReading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
         list_of_wavs.sort()
-        #print(list_of_wavs)
-        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=23, recipe=recipe, folder_name=folder_name,
-                                    num_deltas=2)
+        # print(list_of_wavs)
+        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, cepstral_type=cepstral_type, num_feats=40, recipe=recipe,
+                                    folder_name=folder_name, num_deltas=1, raw_energy=False, num_mel_bins=40,
+                                    low_freq=20, high_freq=-400, obs='hires')
 
 
 def do_fishers():
     print("=======fisher-vector extraction phase========")
-    mfcc_n_deltas = 2
-    mfccs_dir = work_dir + '/data/{}/'.format(recipe)
-    list_files_ubm = [work_dir + '/data/{}/train/mfccs_{}_23_train_{}del.mfcc'.format(recipe, recipe, mfcc_n_deltas),
-                      work_dir + '/data/{}/dev/mfccs_{}_23_dev_{}del.mfcc'.format(recipe, recipe, mfcc_n_deltas)] # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
+    # info-purpose parameters #
+    cepstral_type = "mfcc"  # choose between mfcc or plp
+    feats_info = [40, 0]  # info of the features (n_features/dimension, deltas)
+    obs = '_hires'  # observations of the features
+
+    feature_dir = work_dir + '/data/{}/'.format(recipe)
+    list_files_ubm = [work_dir + '/data/{}/train/{}_{}_{}_train_{}del{}.{}'.format(recipe, cepstral_type,
+                                                                                 recipe,  feats_info[0], feats_info[1],
+                                                                                 obs, cepstral_type),
+                      work_dir + '/data/{}/train/{}_{}_{}_train_{}del{}.{}'.format(recipe, cepstral_type,
+                                                                                 recipe,  feats_info[0], feats_info[1],
+                                                                                 obs, cepstral_type)]  # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
 
     for folder_name in list_sets:
-        print("\nReading dir:", mfccs_dir + folder_name)
-        list_mfcc_files = util.traverse_dir_2(mfccs_dir + folder_name, '*{}del.mfcc'.format(mfcc_n_deltas))
+        print("\nReading dir:", feature_dir + folder_name)
+        list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name, '*{}del{}.{}'.format(feats_info[1], obs,
+                                                                                             cepstral_type))
         print(list_mfcc_files)
-        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir,
+        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, feats_info=feats_info,
                                         list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
 
 
@@ -71,7 +81,7 @@ def do_svm():
 
 def steps(i):
     switcher = {
-        0: do_mfccs,
+        0: do_frame_level,
         1: do_fishers,
         2: do_ivecs,
         3: do_svm
@@ -80,6 +90,6 @@ def steps(i):
     return func()
 
 
-steps(1)
-#steps(1)
+steps(0)
+# steps(1)
 # steps(2)

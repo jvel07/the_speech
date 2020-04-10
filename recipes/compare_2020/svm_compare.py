@@ -11,47 +11,65 @@ import numpy as np
 task = 'mask'
 feat_type = 'fisher'
 
-# Loading data: 'fisher' or 'ivecs's
-x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(gauss=256, task=task, feat_type=feat_type, n_feats=23, n_deltas=2, list_labels=['mask','clear'])
-# x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_compare()
+# Loading data: 'fisher' or 'xvecs'
+gaussians = [2, 4, 8, 16, 32, 64, 128, 256]
+for gauss in gaussians:
+    x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(gauss='{}g'.format(gauss), task=task,
+                                                                             feat_type=feat_type, n_feats=23,
+                                                                             n_deltas=1, list_labels=['mask','clear'])
+    # x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_compare()
 
-# x_train, y_train = rutils.load_data_alternate(64, 'monologue')
-# x_combined = np.concatenate((x_train, x_dev))
-# y_combined = np.concatenate((y_train, y_dev))
+    # x_combined = np.concatenate((x_train, x_dev))
+    # y_combined = np.concatenate((y_train, y_dev))
 
 
-# Scale data
-std_scaler = preprocessing.StandardScaler()
-# pow_scaler = preprocessing.PowerTransformer()
-# norm_scaler = preprocessing.PowerTransformer()
+    # Scale data
+    std_scaler = preprocessing.StandardScaler()
+    # pow_scaler = preprocessing.PowerTransformer()
+    # norm_scaler = preprocessing.PowerTransformer()
 
-x_train = std_scaler.fit_transform(x_train)
-x_dev = std_scaler.transform(x_dev)
-# x_combined = std_scaler.fit_transform(x_combined)
-# x_test = std_scaler.transform(x_test)
+    x_train = std_scaler.fit_transform(x_train)
+    x_dev = std_scaler.transform(x_dev)
+    # x_combined = std_scaler.fit_transform(x_combined)
+    # x_test = std_scaler.transform(x_test)
 
-# pca = PCA(n_components=0.98)
-# x_train = pca.fit_transform(x_train)
-# x_dev = pca.transform(x_dev)
-# x_combined = pca.fit_transform(x_combined)
-# x_test = pca.transform(x_test)
-#
-del x_test
+    # pca = PCA(n_components=0.98)
+    # x_train = pca.fit_transform(x_train)
+    # x_dev = pca.transform(x_dev)
+    # x_combined = pca.fit_transform(x_combined)
+    # x_test = pca.transform(x_test)
+    #
+    del x_test
 
-# Training data and evaluating (stratified k-fold CV)
-for c in [1e-7]:# [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]:
-    # svc = svm.LinearSVC(C=c, verbose=0, max_iter=3000)  # class_weight='balanced',
-    # scores = cross_validate(svc, x_train, y_train, cv=5, scoring=('roc_auc', 'accuracy', 'f1'))
-    # print("with c", c, "-->", np.mean(scores["test_accuracy"]), np.mean(scores["test_roc_auc"]), np.mean(scores["test_f1"]))
-    list_scores = []
-    for seed in [44654]:  # [1367, 684531, 8754, 3215, 54, 3551, 63839845, 11538, 148111, 4310]:
-        score, posteriors = svm_fits.train_thunder_svm_normal(x_train, y_train.ravel(), c=c, X_eval=x_dev, Y_eval=y_dev)
-        # score, posteriors = svm_fits.train_simple_skfcv(x_combined, y_combined.ravel(), n_folds=10, c=c, seed=seed)
-        # score, posteriors = svm_fits.train_model_normal(x_train, y_train.ravel(), c=c, X_t=x_dev, Y_t=y_dev)
-        # list_scores.append(score)
-    # print("with c", c, "-->", score["uar"])
-    np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_{}_fisher.txt'.format(c), posteriors)
-    print("with c", c, score)
+    # list_gamma = [0.1, 1e-2, 1e-3, 1e-4, 1e-5]
+    list_gamma = [0.1]
+
+    list_c2 = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
+    list_c = [1e-5, 1e-4, 1e-3, 1e-2, 0.1]
+    # list_c = [1e-7]
+
+    # params for rbf
+    tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-2, 1e-3, 1e-4, 1e-5],
+                         'C': list_c2},
+                        # {'kernel': ['linear'], 'C': list_c2}
+                        ]
+
+    # Training data and evaluating (stratified k-fold CV)
+    print("with --> ", feat_type, gauss)
+    for c in list_c2:
+        for g in list_gamma:  # [1367, 684531, 8754, 3215, 54, 3551, 63839845, 11538, 148111, 4310]:
+            # posteriors, svc = svm_fits.grid_skfcv_gpu(x_combined, y_combined.ravel(), params=tuned_parameters, metrics=['accuracy'])
+            # posteriors, clf = svm_fits.train_skfcv_SVM_gpu(x_train, y_train.ravel(), c=c, kernel='linear', gamma=0.001, n_folds=5)
+            # posteriors, clf = svm_fits.train_skfcv_SVM_cpu(x_train, y_train.ravel(), c=c, n_folds=5)
+            # posteriors = svm_fits.train_svm_gpu(x_train, y_train.ravel(), c=c, X_eval=x_dev, kernel='linear', gamma=g)
+            posteriors = svm_fits.train_linearsvm_cpu(x_train, y_train.ravel(), c=c, X_eval=x_dev)
+            # list_scores.append(score)
+        # print("with c", c, "-->", score["uar"])
+        # np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_{}_fisher.txt'.format(c), posteriors)
+        # print("with c", c, score)
+        # Metrics
+            y_pred = np.argmax(posteriors, axis=1)
+            print("with", c, "-", g, recall_score(y_dev, y_pred, labels=[1,0], average='macro'))
 
 
 # submission
@@ -74,3 +92,4 @@ def predict(best_c):
     df.to_csv(pred_file_name, index=False)
 
     print('Done.\n')
+

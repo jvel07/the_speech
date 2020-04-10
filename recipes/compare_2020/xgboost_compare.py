@@ -22,10 +22,10 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 task = 'mask'
 feat_type = 'fisher'
 
-for g in [8]:#, 4, 8, 16, 32, 64, 128]:
+for g in [64]:#, 4, 8, 16, 32, 64, 128]:
     # Loading Train, Dev, Test and labels
-    X_train, X_dev, X_test, Y_train, Y_dev, le = rutils.load_data_full(gauss=g, task=task, feat_type=feat_type, n_feats=23,
-                                                               n_deltas=1, label_1='mask', label_0='clear')
+    X_train, X_dev, X_test, Y_train, Y_dev, le = rutils.load_data_full(gauss='{}g'.format(g), task=task, feat_type=feat_type, n_feats=23,
+                                                               n_deltas=2, list_labels= ['mask', 'clear'])
     # X_test, Y_test, X_combined, Y_combined = ch.load_compare_data()
 
     x_combined = np.concatenate((X_train, X_dev))
@@ -35,24 +35,24 @@ for g in [8]:#, 4, 8, 16, 32, 64, 128]:
 
     sgkf = StratifiedKFold(n_splits=10, shuffle=True, random_state=0)
 
-    fold_scoring = np.zeros((len(y_combined), 2))
-    for number in [39878]:#, 578, 2154, 4242, 54]:
-        for train_index, test_index in sgkf.split(x_combined, y_combined):
-
-            x_train, x_test, y_train, y_test = \
-                x_combined[train_index], x_combined[test_index], y_combined[train_index], y_combined[test_index]
-
-            xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=8, min_child_weight=3, learning_rate=0.03, n_jobs=-1,
-                        scale_pos_weight=1, reg_alpha=0.1, reg_lambda=1, colsample_bytree=0.9, subsample=0.8,
-                        n_estimators=300, objective="binary:hinge", tree_method='gpu_hist', gpu_id=0, random_state=number)
-            xgd.fit(x_train, y_train)
-
-            probs = xgd.predict_proba(x_test)
-            fold_scoring[test_index] = probs
-        y_pred = np.argmax(fold_scoring, axis=1)
-        print("With {}: \nConfusion matrix:\n".format(g), sk.metrics.confusion_matrix(y_combined, y_pred))
-        uar_ = uar_scoring(y_combined, y_pred)
-        print(uar_)
+    # fold_scoring = np.zeros((len(y_combined), 2))
+    # for number in [39878]:#, 578, 2154, 4242, 54]:
+    #     for train_index, test_index in sgkf.split(x_combined, y_combined):
+    #
+    #         x_train, x_test, y_train, y_test = \
+    #             x_combined[train_index], x_combined[test_index], y_combined[train_index], y_combined[test_index]
+    #
+    #         xgd = XGBClassifier(booster='gbtree', gamma=0.0, max_depth=8, min_child_weight=3, learning_rate=0.03, n_jobs=-1,
+    #                     scale_pos_weight=1, reg_alpha=0.1, reg_lambda=1, colsample_bytree=0.9, subsample=0.8,
+    #                     n_estimators=300, objective="binary:hinge", tree_method='gpu_hist', gpu_id=0, random_state=number)
+    #         xgd.fit(x_train, y_train)
+    #
+    #         probs = xgd.predict_proba(x_test)
+    #         fold_scoring[test_index] = probs
+    #     y_pred = np.argmax(fold_scoring, axis=1)
+    #     print("With {}: \nConfusion matrix:\n".format(g), sk.metrics.confusion_matrix(y_combined, y_pred))
+    #     uar_ = uar_scoring(y_combined, y_pred)
+    #     print(uar_)
 
 # submission
 def pred():
@@ -116,8 +116,8 @@ def tun_1(X, Y):
     return gsearch1.cv_results_, gsearch1.best_params_, gsearch1.best_score_
 
 
-# scores, params, best_score = tun_1(x_combined, y_combined)
-# print(best_score, params)
+scores, params, best_score = tun_1(x_combined, y_combined)
+print(best_score, params)
 
 def tun_2(X, Y, max, min):
     param_test3 = {
@@ -134,10 +134,10 @@ def tun_2(X, Y, max, min):
     return gsearch3.cv_results_, gsearch3.best_params_, gsearch3.best_score_
 
 
-# scores2, params2, best_score2 = tun_2(x_combined, y_combined, params['max_depth'],
-#                                       params['min_child_weight'])
-#
-# print(best_score2, params2)
+scores2, params2, best_score2 = tun_2(x_combined, y_combined, params['max_depth'],
+                                      params['min_child_weight'])
+
+print(best_score2, params2)
 
 
 def tun_3(X, Y, max, min, gamma):
@@ -156,10 +156,10 @@ def tun_3(X, Y, max, min, gamma):
     return gsearch4.cv_results_, gsearch4.best_params_, gsearch4.best_score_
 
 
-# scores3, params3, best_score3 = tun_3(x_combined, y_combined, params['max_depth'],
-#                                       params['min_child_weight'], params2['gamma'])
-#
-# print(best_score3, params3)
+scores3, params3, best_score3 = tun_3(x_combined, y_combined, params['max_depth'],
+                                      params['min_child_weight'], params2['gamma'])
+
+print(best_score3, params3)
 
 
 def tun_4(X, Y, max, min, gamma, subsample, colsample):
@@ -177,11 +177,11 @@ def tun_4(X, Y, max, min, gamma, subsample, colsample):
     return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
 
-# scores4, params4, best_score4 = tun_4(x_combined, y_combined, params['max_depth'],
-#                                       params['min_child_weight'], params2['gamma'], params3['subsample'],
-#                                       params3['colsample_bytree'])
-#
-# print(best_score4, params4)
+scores4, params4, best_score4 = tun_4(x_combined, y_combined, params['max_depth'],
+                                      params['min_child_weight'], params2['gamma'], params3['subsample'],
+                                      params3['colsample_bytree'])
+
+print(best_score4, params4)
 
 
 
@@ -200,14 +200,14 @@ def tun_6(X, Y, max, min, gamma, subsample, colsample, reg_alpha):
     return gsearch6.cv_results_, gsearch6.best_params_, gsearch6.best_score_
 
 
-# scores6, params6, best_score6 = tun_6(x_combined, y_combined, params['max_depth'],
-#                                       params['min_child_weight'], params2['gamma'], params3['subsample'],
-#                                       params3['colsample_bytree'], params4['reg_alpha'])
-#
-# scores7, params7, best_score7 = tun_estimators_maxdep_rate(x_combined, y_combined,
-#                                                            min_child=params['min_child_weight'],
-#                                                            alpha=params4['reg_alpha'], lamb=params6['reg_lambda'],
-#                                                            col=params3['colsample_bytree'], sub=params3['subsample'])
+scores6, params6, best_score6 = tun_6(x_combined, y_combined, params['max_depth'],
+                                      params['min_child_weight'], params2['gamma'], params3['subsample'],
+                                      params3['colsample_bytree'], params4['reg_alpha'])
+
+scores7, params7, best_score7 = tun_estimators_maxdep_rate(x_combined, y_combined,
+                                                           min_child=params['min_child_weight'],
+                                                           alpha=params4['reg_alpha'], lamb=params6['reg_lambda'],
+                                                           col=params3['colsample_bytree'], sub=params3['subsample'])
 
 
 # scores6, params6, best_score6 = tun_6(x_combined, y_combined, max=8,
@@ -217,5 +217,5 @@ def tun_6(X, Y, max, min, gamma, subsample, colsample, reg_alpha):
 #                                                            min_child=3, alpha=0.1, lamb=params6['reg_lambda'],
 #                                                            col=0.9, sub=0.8
 #                                                            )
-# print(best_score6, params6)
-# print(best_score7, params7)
+print(best_score6, params6)
+print(best_score7, params7)

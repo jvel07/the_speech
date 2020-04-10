@@ -20,7 +20,7 @@ def do_fishers(features, means, covs, priors):
     return fish
 
 regex = re.compile(r'\d+')
-def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, recipe, folder_name, mfcc_info):
+def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, recipe, folder_name, feats_info):
     # Loading Files for UBM
     list_feats = []
     for file_ubm in list_files_ubm:
@@ -45,9 +45,9 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, r
                                          normalized=True, improved=True)  # Extracting fishers from features
                 list_fishers.append(fish)
             # Output file (fishers)
-            obs = '{}del'.format(int(mfcc_info[1]))  # getting number of deltas info
+            obs = '{}del'.format(int(feats_info[1]))  # getting number of deltas info
             file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}mf-{}-{}g-{}.fisher'.format(
-                str(mfcc_info[0]), obs, g, folder_name)
+                str(feats_info[0]), obs, g, folder_name)
             np.savetxt(file_fishers, list_fishers, fmt='%.7f')
             print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape)
 

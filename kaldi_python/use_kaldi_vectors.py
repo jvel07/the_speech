@@ -33,20 +33,22 @@ class SPKID_Dataset(Dataset):
         return len(self.feat_list)
 
     def __getitem__(self, idx):
-        feat = kaldi_io.read_mat(self.feat_list[idx])
- #       feat = kaldi_io.read_vec_flt(self.feat_list[idx])
-        return feat
+       # feat = kaldi_io.read_mat(self.feat_list[idx])
+       feat = kaldi_io.read_vec_flt(self.feat_list[idx])
+       return feat
 
 
-def get_xvecs():
-    dataset = SPKID_Dataset('../kaldi_python/exp/xvectors_train/xvector.scp')
-    xvecs = []
-    for i in range(len(dataset)):
-        xvecs.append(dataset.__getitem__(i))
-    x = np.vstack(xvecs)
-    np.savetxt('../data/xvecs/xvecs--23mf---512_dem', x)
-    print(x.shape)
+def get_xvecs(list_sets, task):
+    for i in list_sets:
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp/xvectors_{}_512/xvector.scp'.format(i))
+        xvecs = []
+        for j in range(len(dataset)):
+            xvecs.append(dataset.__getitem__(j))
+        x = np.vstack(xvecs)
+        np.savetxt('../data/{}/{}/xvecs-23mf-0del-{}dim2L7-{}.xvecs'.format(task, i, x.shape[1], i), x)
+        print(x.shape)
 
+get_xvecs(['train', 'dev', 'test'], 'mask')
 
 def get_ivecs():
     num = [1, 2, 3, 4]
@@ -59,4 +61,3 @@ def get_ivecs():
     np.savetxt('../data/ivecs/ivecs-32-23mf---300_test', x)
     print(x.shape)
 
-get_ivecs()

@@ -6,7 +6,7 @@ import os
 from common import util
 
 # Name of the task/recipe/dataset/etc.
-import recipes.alzheimer.alzheimer_helper as ah
+import recipes.demencia94B.alzheimer_helper as ah
 
 recipe = 'alzheimer'
 folder_audios = 'demencia94B'
@@ -57,7 +57,7 @@ def do_fishers():
         print("\nReading dir:", mfccs_dir + folder_name)
         list_mfcc_files = util.traverse_dir_2(mfccs_dir + folder_name, '*{}del.mfcc'.format(mfcc_info[1]))
         print(list_mfcc_files)
-        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, mfcc_info=mfcc_info,
+        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, feats_info=mfcc_info,
                                         list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
 
 

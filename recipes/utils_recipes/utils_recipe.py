@@ -22,14 +22,14 @@ def encode_labels(_y, list_labels):
 
 
 # loads the data given the number of gaussians, the name of the task and the type of feature.
-# Used for small datasets; loads single file containing training and test features.
+# Used for small datasets; loads single file containing training features.
 # E.g.: (4, 'monologue', 'fisher') or 'ivecs'
 # example: train/fisher-23mf-0del-2g-train.fisher
 def load_data_single(gauss, task, feat_type, n_feats, n_deltas, list_labels):
-    if (feat_type == 'fisher') or (feat_type == 'ivecs'):
+    if (feat_type == 'fisher') or (feat_type == 'ivecs') or (feat_type == 'xvecs'):
         # Set data directories
-        file_train = work_dir + '{}/{}-{}mf-{}del-{}g-{}.{}'.format(task, feat_type, n_feats, n_deltas, gauss, task, feat_type)
-        file_lbl_train = work_dir + 'labels/labels_{}.txt'.format(task)
+        file_train = work_dir + '{}/{}/{}-{}mf-{}del-{}-{}.{}'.format(task, task, feat_type, n_feats, n_deltas, gauss, task, feat_type)
+        file_lbl_train = work_dir + '{}/labels/labels.csv'.format(task)
 
         # Load data
         X_train = np.loadtxt(file_train)
@@ -51,11 +51,11 @@ def load_data_full(gauss, task, feat_type, n_feats, n_deltas, list_labels):
     list_datasets = ['train', 'dev', 'test']  # names for the datasets
     # list_labels = ['y_train', 'y_dev']  # names for the labels
     dict_data = {}
-    if (feat_type == 'fisher') or (feat_type == 'ivecs'):
+    if (feat_type == 'fisher') or (feat_type == 'ivecs') or (feat_type == 'xvecs'):
         # Load train, dev, test
         for item in list_datasets:
             # Set data directories
-            file_dataset = work_dir + '{}/{}/{}-{}mf-{}del-{}g-{}.{}'.format(task, item, feat_type, n_feats, n_deltas, gauss, item, feat_type)
+            file_dataset = work_dir + '{}/{}/{}-{}mf-{}del-{}-{}.{}'.format(task, item, feat_type, n_feats, n_deltas, str(gauss), item, feat_type)
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
             # Load labels
