@@ -23,7 +23,7 @@ def do_mfccs():
         print("\nReading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
         # print(list_of_wavs[0])
-        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=13, recipe=recipe, folder_name=folder_name)
+        extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, num_mfccs=13, recipe=recipe, folder_name=folder_name)
 
 
 def do_fishers():

@@ -45,7 +45,7 @@ def get_xvecs(list_sets, task):
         for j in range(len(dataset)):
             xvecs.append(dataset.__getitem__(j))
         x = np.vstack(xvecs)
-        np.savetxt('../data/{}/{}/xvecs-23mf-0del-{}dim2L7-{}.xvecs'.format(task, i, x.shape[1], i), x)
+        np.savetxt('../data/{}/{}/xvecs-23mf-0del-{}dimHrsL6-{}.xvecs'.format(task, i, x.shape[1], i), x)
         print(x.shape)
 
 get_xvecs(['train', 'dev', 'test'], 'mask')

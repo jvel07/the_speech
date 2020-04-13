@@ -51,11 +51,12 @@ def load_data_full(gauss, task, feat_type, n_feats, n_deltas, list_labels):
     list_datasets = ['train', 'dev', 'test']  # names for the datasets
     # list_labels = ['y_train', 'y_dev']  # names for the labels
     dict_data = {}
-    if (feat_type == 'fisher') or (feat_type == 'ivecs') or (feat_type == 'xvecs'):
+    if (feat_type[0] == 'fisher') or (feat_type[0] == 'ivecs') or (feat_type[0] == 'xvecs'):
         # Load train, dev, test
         for item in list_datasets:
             # Set data directories
-            file_dataset = work_dir + '{}/{}/{}-{}mf-{}del-{}-{}.{}'.format(task, item, feat_type, n_feats, n_deltas, str(gauss), item, feat_type)
+            file_dataset = work_dir + '{}/{}/{}-{}{}-{}del-{}-{}.{}'.format(task, item, feat_type[0], n_feats, feat_type[1],
+                                                                            n_deltas, str(gauss), item, feat_type[0])
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
             # Load labels
@@ -63,10 +64,10 @@ def load_data_full(gauss, task, feat_type, n_feats, n_deltas, list_labels):
             df = pd.read_csv(file_lbl_train)
             df_labels = df[df['file_name'].str.match(item)]
             df_labels = df_labels.label.replace('?', list_labels[0])
-            dict_data['y_'+item], le = encode_labels(df_labels.values, list_labels) #  binarizing labels
-        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], le
+            dict_data['y_'+item], enc = encode_labels(df_labels.values, list_labels) #  binarizing labels
+        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], enc
     else:
-        raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type))
+        raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type[0]))
 
 def load_data_alternate(gauss, task):
     # Set data directories

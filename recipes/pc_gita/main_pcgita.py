@@ -29,8 +29,8 @@ def do_mfccs():
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
         list_of_wavs.sort()
         save_labels(list_sets, audio_dir, out_dir + recipe + '/')  # make labels of the wavs
-        extract_mfccs.compute_mfccs(list_of_wavs, out_dir, num_mfccs=20, recipe='pcgita', folder_name=folder_name,
-                                    num_deltas=0)
+        extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, num_mfccs=20, recipe='pcgita', folder_name=folder_name,
+                                           num_deltas=0)
 
 
 def do_fishers():

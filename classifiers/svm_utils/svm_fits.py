@@ -278,3 +278,10 @@ def train_linearsvm_cpu(X, Y, X_eval, c):
     svc.fit(X, Y)
     y_prob = svc._predict_proba_lr(X_eval)
     return y_prob
+
+
+def train_rbfsvm_cpu(X, Y, X_eval, c, gamma):
+    svc = svm.SVC(kernel='rbf', gamma=gamma, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
+    svc.fit(X, Y)
+    y_prob = svc.predict_proba(X_eval)
+    return y_prob

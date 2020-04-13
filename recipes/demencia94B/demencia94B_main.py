@@ -42,8 +42,8 @@ def do_mfccs():
 
         for num_deltas in [0, 1, 2]:
             print("Extracting with {} deltas".format(num_deltas))
-            extract_mfccs.compute_mfccs(list_wavs=list_specific_wavs, out_dir=out_dir, num_mfccs=23, recipe=recipe,
-                                        folder_name=folder_name, num_deltas=num_deltas)
+            extract_mfccs.compute_flevel_feats(list_wavs=list_specific_wavs, out_dir=out_dir, num_mfccs=23, recipe=recipe,
+                                               folder_name=folder_name, num_deltas=num_deltas)
 
 
 def do_fishers():
