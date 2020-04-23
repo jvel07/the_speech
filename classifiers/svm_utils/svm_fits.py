@@ -192,7 +192,7 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 def grid_skfcv_gpu(X, Y, params, metrics):
     from thundersvm import SVC as thunder
     for metric in metrics:
-        kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=25647)
+        kf = StratifiedKFold(n_splits=10)
         svc = GridSearchCV(
             thunder(gpu_id=0, probability=False, class_weight='balanced'),
             params, scoring=metric,
@@ -200,9 +200,9 @@ def grid_skfcv_gpu(X, Y, params, metrics):
         svc.fit(X, Y)
         print("Best parameters set found on development set:")
         print()
-        print(svc.best_params_)
+        print(svc.best_params_, "\n Best Estimator:")
+        print(svc.best_estimator_)
         print("Grid scores on development set:")
-        print()
         means = svc.cv_results_['mean_test_score']
         stds = svc.cv_results_['std_test_score']
         for mean, std, params in zip(means, stds, svc.cv_results_['params']):
@@ -250,6 +250,7 @@ def train_skfcv_SVM_gpu(X, Y, n_folds, c, kernel, gamma):
 
 
 def train_skfcv_SVM_cpu(X, Y, n_folds, c):
+    print("doing train_skfcv_SVM_cpu")
     svc = svm.LinearSVC(C=c, max_iter=100000, class_weight='balanced')
     # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
@@ -260,6 +261,21 @@ def train_skfcv_SVM_cpu(X, Y, n_folds, c):
         y_train, y_test = Y[train_index], Y[test_index]
         svc.fit(x_train, y_train)
         posteriors = svc._predict_proba_lr(x_test)
+        array_posteriors[test_index] = posteriors
+
+    return array_posteriors, svc
+
+def train_skfcv_RBF_cpu(X, Y, n_folds, c, gamma):
+    svc = svm.SVC(kernel='rbf', gamma=gamma, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
+    # kf = LeaveOneOut()
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
+    array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
+
+    for train_index, test_index in kf.split(X, Y):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        posteriors = svc.predict_proba(x_test)
         array_posteriors[test_index] = posteriors
 
     return array_posteriors, svc

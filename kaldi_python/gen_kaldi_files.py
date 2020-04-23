@@ -8,7 +8,7 @@ import numpy as np
 
 # generate kaldi scp file
 def create_scp_kaldi(list_sets):
-    task = 'mask'
+    task = 'demencia94B'
     for i in list_sets:
         path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i)  # path to the kaldi folder
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
@@ -46,7 +46,7 @@ def create_utt2spk_kaldi(list_sets):
 
 # when no speaker id nor labels are provided. Output e.g.: 130C_szurke.wav 130
 def create_utt2spk_kaldi_2(list_sets):
-    task = 'mask'
+    task = 'demencia94B'
     for i in list_sets:
         path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i)
         list_audios = util.read_files_from_dir(path)
