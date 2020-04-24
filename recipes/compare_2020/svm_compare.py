@@ -21,9 +21,9 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 
 task = 'mask'
 feat_type = ['fisher', 'plp']  # provide the types of features and frame-level features to use e.g.: 'fisher', 'mf'
-deli = 0
+deli = 2
 # Loading data: 'fisher' or 'xvecs'
-gaussians = [2, 4, 8, 16, 32, 64, 128, 256]
+gaussians = [32, 64, 128]
 # gaussians = [32]
 for gauss in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(gauss='{}g'.format(gauss),
@@ -67,7 +67,7 @@ for gauss in gaussians:
     list_gamma = [0.1]
 
     # list_c2 = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1]
-    list_c = [1e-4, 1e-3, 1e-2, 0.1, 1]
+    list_c = [1e-4, 1e-3, 1e-2, 0.1]
     # list_c = [1]
 
     # params for rbf (gridsearch)
@@ -83,8 +83,8 @@ for gauss in gaussians:
     for c in list_c:
         for g in list_gamma:  # [1367, 684531, 8754, 3215, 54, 3551, 63839845, 11538, 148111, 4310]:
             # svc = svm_fits.grid_skfcv_gpu(x_combined, y_combined.ravel(), params=tuned_parameters, metrics=[my_scorer])
-            # posteriors, clf = svm_fits.train_skfcv_SVM_gpu(x_combined, y_combined.ravel(), c=c, kernel=kernel, gamma=g, n_folds=folds)
-            posteriors, clf = svm_fits.train_skfcv_SVM_cpu(x_combined, y_combined.ravel(), c=c, n_folds=10)
+            posteriors, clf = svm_fits.train_skfcv_SVM_gpu(x_combined, y_combined.ravel(), c=c, kernel=kernel, gamma=g, n_folds=folds)
+            # posteriors, clf = svm_fits.train_skfcv_SVM_cpu(x_combined, y_combined.ravel(), c=c, n_folds=10)
             # posteriors, clf = svm_fits.train_skfcv_RBF_cpu(x_combined, y_combined.ravel(), c=c, n_folds=5, gamma=g)
             # posteriors = svm_fits.train_svm_gpu(x_train, y_train.ravel(), c=c, X_eval=x_dev, kernel=kernel, gamma=g)
             # posteriors = svm_fits.train_linearsvm_cpu(x_combined, y_combined.ravel(), c=c, X_eval=alternate_x_test)

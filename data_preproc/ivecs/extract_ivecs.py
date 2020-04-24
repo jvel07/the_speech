@@ -3,6 +3,7 @@ import pickle
 import bob.kaldi
 from bob.kaldi import io
 import re
+import os
 
 from common import util
 
@@ -94,7 +95,7 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
     print("Shape of the UBM:", array_mfccs_ubm.shape)
     del list_feats, array_feats
 
-    print("i-vecs will be extracted using 2, 4, 8 ..., 64 for UBM!")
+    print("i-vecs will be extracted using {} Gauss".format(list_n_gauss))
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         for g in list_n_gauss:
@@ -102,6 +103,8 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
             file_diag_ubm_model =out_dir + recipe + '/' + folder_name + '/ivec_models/dubm_mdl_{}g_dem_{}'.format(g, recipe)
             file_full_ubm_model = out_dir + recipe + '/' + folder_name + '/ivec_models/fubm_mdl_{}g_dem_{}'.format(g, recipe)
             file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_models/ivec_mdl_{}g_dem_{}'.format(g, recipe)
+            if not os.path.isdir(out_dir + recipe + '/' + folder_name + '/ivec_models/'):
+                os.mkdir(out_dir + recipe + '/' + folder_name + '/ivec_models/')
             # Train models
             ivec_dims = np.log2(g) * (len(list_feat[0][1]))
             model_dubm, model_fubm, model_ivector = train_models(np.vstack(array_mfccs_ubm), list_feat, file_diag_ubm_model,
@@ -121,10 +124,10 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
             # Output file (i-vectors)
             # info_num_feats = regex.findall(file_name)
             obs = '{}del'.format(mfcc_info[1])  # getting number of deltas info
-            file_fishers = out_dir + recipe + '/' + folder_name + '/ivecs-{}mf-{}-{}g-{}.ivecs'.format(
-                str(mfcc_info[0]), obs, g, folder_name)
+            file_fishers = out_dir + recipe + '/' + folder_name + '/ivecs-{}{}-{}-{}g-{}.ivecs'.format(
+                str(mfcc_info[0]), mfcc_info[2], obs, g, folder_name)
             np.savetxt(file_fishers, a_ivectors, fmt='%.7f')
-            print("{} fishers saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape)
+            print("{} fishers saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
 
 
 # Save models

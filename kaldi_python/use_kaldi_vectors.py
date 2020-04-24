@@ -48,7 +48,7 @@ def get_xvecs(list_sets, task):
         np.savetxt('../data/{}/{}/xvecs-23mf-0del-{}dim-{}.xvecs'.format(task, 'demencia94ABC', x.shape[1], i), x)
         print(x.shape)
 
-get_xvecs(['train'], 'demencia94ABC')
+get_xvecs(['demencia'], 'demencia94ABC')
 
 def get_ivecs():
     num = [1, 2, 3, 4]

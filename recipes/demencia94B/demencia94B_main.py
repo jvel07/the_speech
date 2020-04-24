@@ -1,5 +1,5 @@
-from data_preproc.mfccs import extract_mfccs
-# from data_preproc.fisher import extract_fishers
+# from data_preproc.mfccs import extract_mfccs
+from data_preproc.fisher import extract_fishers
 # from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
@@ -19,11 +19,11 @@ audio_dir = work_dir + 'audio/'
 out_dir = work_dir + 'data/'
 
 # List of audio-sets (folder(s) containing audio samples)
-list_sets = ['beadiktafon']
+list_sets = ['demencia94ABC']
 
 # List of number of clusters wanted to use
-# list_n_clusters = [2, 8, 16, 32, 64, 128]
-list_n_clusters = [4, 256]
+list_n_clusters = [2, 8, 16, 32, 64, 128]
+# list_n_clusters = [4, 256]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
@@ -42,44 +42,45 @@ def do_mfccs():
 
         for deltas in [0, 1, 2]:
             print("Extracting with {} deltas".format(deltas))
-            extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, cepstral_type=cepstral_type, num_feats=23,
+            extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, cepstral_type=cepstral_type, num_feats=13,
                                                recipe=recipe, folder_name=folder_name, num_deltas=deltas, obs='')
 
 
 def do_fishers():
     print("=======fisher-vector extraction phase========")
-    # info-purpose parameters from the frame-level extracted features #
-    feats_info = [13, 0, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
-    obs = ''
-
     feature_dir = work_dir + '/data/{}/'.format(recipe)
-    # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
-    list_files_ubm = [work_dir + '/data/{}/beadiktafon/{}_{}_{}_demencia94ABC_{}del{}.{}'.format(recipe, feats_info[2],
-                                                                                   recipe, feats_info[0], feats_info[1],
-                                                                                   obs, feats_info[2]),
-                                                                                        ]
-    for folder_name in list_sets:
-            print("\nReading dir:", feature_dir + folder_name)
-            list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name, '*{}del{}.{}'.format(feats_info[1], obs,
-                                                                                                  feats_info[2]))
+
+    for deltas in [0, 1, 2]:
+        # info-purpose parameters from the frame-level extracted features #
+        feats_info = [13, deltas, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+        obs = ''
+        # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
+        list_files_ubm = [work_dir + 'data/demencia94ABC/beadiktafon/mfcc_demencia94ABC_13_beadiktafon_{}del.mfcc'.format(deltas)]
+        for folder_name in list_sets:
+            list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name, '*{}_{}_{}del.{}'.format(feats_info[0],
+                                                                                                    folder_name,
+                                                                                                    feats_info[1],
+                                                                                                    feats_info[2]))
             print(list_mfcc_files)
             extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, feats_info=feats_info,
-                                            list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
+                                                list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
 
 
 def do_ivecs():
     print("=======i-vector extraction phase========")
-    mfcc_info = [23, 2]  # info of the mfccs (n_features, deltas)
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
-    list_files_ubm = [work_dir + 'data/{}/{}/mfccs_{}_23_{}_{}del.mfcc'.format(recipe, folder_audios, recipe,
-                                                                               folder_audios, mfcc_info[1])] # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
 
-    for folder_name in list_sets:
-        print("\nReading dir:", mfccs_dir + folder_name)
-        list_mfcc_files = util.traverse_dir_2(mfccs_dir + folder_name, '*{}del.mfcc'.format(mfcc_info[1]))
-        extract_ivecs.compute_ivecs(list_n_gauss=list_n_clusters, list_mfcc_files=list_mfcc_files, out_dir=out_dir,
-                                    list_files_ubm=list_files_ubm, recipe=recipe, mfcc_info=mfcc_info,
-                                    folder_name=folder_name)
+    for deltas in [2]:
+        feats_info = [23, deltas, 'mfcc']  # info of the mfccs (n_features, deltas)
+        list_files_ubm = [work_dir + 'data/demencia94ABC/beadiktafon/mfcc_demencia94ABC_23_beadiktafon_{}del.mfcc'.format(deltas)]
+        for folder_name in list_sets:
+            print("\nReading dir:", mfccs_dir + folder_name)
+            list_mfcc_files = util.traverse_dir_2(mfccs_dir + folder_name, '*{}_{}_{}del.{}'.format(feats_info[0],
+                                                                                                   folder_name,
+                                                                                                   feats_info[1], feats_info[2]))
+            extract_ivecs.compute_ivecs(list_n_gauss=list_n_clusters, list_mfcc_files=list_mfcc_files, out_dir=out_dir,
+                                        list_files_ubm=list_files_ubm, recipe=recipe, mfcc_info=feats_info,
+                                        folder_name=folder_name)
 
 
 def do_svm():
@@ -97,6 +98,6 @@ def steps(i):
     return func()
 
 
-steps(0)
-# steps(1)
+# steps(0)
+steps(1)
 # steps(2)
