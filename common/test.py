@@ -54,4 +54,17 @@ def uar(y_true, y_pred):
     uar_score = uar_metric(y_true, y_pred)
     return 'uar', uar_score, True
 
-from sklearn.metrics import mean_squared_error
+
+one = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_0.1_fisher32plp_linear.txt'
+two = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_0.01_resnet.txt'
+three = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_0.01_xvecsplp_linear.txt'
+def average_post(one, two, three):
+    p1 = np.loadtxt(one)
+    p2 = np.loadtxt(two)
+    p3 = np.loadtxt(three)
+    probs = np.mean((p1, p2, p3), axis=0)
+    a = np.argmax(probs, axis=1)
+    return a
+a = average_post(one, two, three)
+s = recall_score(y_dev, a, labels=[1, 0], average='macro')
+print(s)

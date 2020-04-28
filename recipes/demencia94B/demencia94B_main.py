@@ -1,6 +1,6 @@
-# from data_preproc.mfccs import extract_mfccs
-from data_preproc.fisher import extract_fishers
-# from data_preproc.ivecs import extract_ivecs
+from data_preproc.mfccs import extract_mfccs
+# from data_preproc.fisher import extract_fishers
+from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util
@@ -42,7 +42,7 @@ def do_mfccs():
 
         for deltas in [0, 1, 2]:
             print("Extracting with {} deltas".format(deltas))
-            extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, cepstral_type=cepstral_type, num_feats=13,
+            extract_mfccs.compute_flevel_feats(list_specific_wavs, out_dir, cepstral_type=cepstral_type, num_feats=13,
                                                recipe=recipe, folder_name=folder_name, num_deltas=deltas, obs='')
 
 
@@ -70,7 +70,7 @@ def do_ivecs():
     print("=======i-vector extraction phase========")
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
 
-    for deltas in [2]:
+    for deltas in [0,1,2]:
         feats_info = [23, deltas, 'mfcc']  # info of the mfccs (n_features, deltas)
         list_files_ubm = [work_dir + 'data/demencia94ABC/beadiktafon/mfcc_demencia94ABC_23_beadiktafon_{}del.mfcc'.format(deltas)]
         for folder_name in list_sets:
@@ -98,6 +98,6 @@ def steps(i):
     return func()
 
 
-# steps(0)
-steps(1)
+steps(0)
+# steps(1)
 # steps(2)

@@ -234,7 +234,7 @@ def grid_cv_cpu(X, Y, params):
 # Train SVM with the thunder library (GPU usage)
 def train_skfcv_SVM_gpu(X, Y, n_folds, c, kernel, gamma):
     from thundersvm import SVC as thunder
-    svc = thunder(kernel=kernel, C=c, gamma=gamma, probability=True, max_iter=500000, gpu_id=0)
+    svc = thunder(kernel=kernel, C=c, gamma=gamma,  class_weight='balanced', probability=True, max_iter=500000, gpu_id=0)
     # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
@@ -250,7 +250,6 @@ def train_skfcv_SVM_gpu(X, Y, n_folds, c, kernel, gamma):
 
 
 def train_skfcv_SVM_cpu(X, Y, n_folds, c):
-    print("doing train_skfcv_SVM_cpu")
     svc = svm.LinearSVC(C=c, max_iter=100000, class_weight='balanced')
     # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)

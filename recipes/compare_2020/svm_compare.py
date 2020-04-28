@@ -20,13 +20,15 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 
 
 task = 'mask'
-feat_type = ['fisher', 'plp']  # provide the types of features and frame-level features to use e.g.: 'fisher', 'mf'
+feat_type = ['fisher', 'mf']  # provide the types of features and frame-level features to use e.g.: 'fisher', 'mfcc'
 deli = 2
 # Loading data: 'fisher' or 'xvecs'
-gaussians = [32, 64, 128]
-# gaussians = [32]
+gaussians = [2, 4, 8, 16, 32, 64, 128]
+# gaussians = [2]
 for gauss in gaussians:
-    x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(gauss='{}g'.format(gauss),
+    x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(
+                                                                             # gauss='512dimL6',
+                                                                             gauss='{}g'.format(gauss),
                                                                              task=task,
                                                                              feat_type=feat_type, n_feats=23,
                                                                              n_deltas=deli, list_labels=['mask','clear'])
@@ -36,10 +38,10 @@ for gauss in gaussians:
     y_combined = np.concatenate((y_train, y_dev))
 
     # Generate small test set
-    # x_combined = x_combined[:20000,:]
-    # y_combined = y_combined[:20000,:]
-    # alternate_x_test = x_combined[-5342:,:]
-    # alternate_y_test = y_combined[-5342:,:]
+    # x_combined = x_combined[:20000, :]
+    # y_combined = y_combined[:20000, :]
+    # alternate_x_test = x_combined[-5342:, :]
+    # alternate_y_test = y_combined[-5342:, :]
 
     # Scale data
     std_scaler = preprocessing.StandardScaler()
@@ -64,11 +66,11 @@ for gauss in gaussians:
     print(x_train.shape)
 
     # list_gamma = [0.1, 1e-2, 1e-3, 1e-4, 1e-5]
-    list_gamma = [0.1]
+    list_gamma = [0.01]
 
-    # list_c2 = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1]
-    list_c = [1e-4, 1e-3, 1e-2, 0.1]
-    # list_c = [1]
+    # list_c2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1]
+    # list_c2 = [1e-4, 1e-3, 1e-2, 0.1, 1]
+    list_c2 = [1]
 
     # params for rbf (gridsearch)
     tuned_parameters = [
@@ -80,19 +82,22 @@ for gauss in gaussians:
     folds = 10
     kernel='linear'
     print("with --> ", feat_type, deli, gauss, "gauss", kernel)
-    for c in list_c:
+    for c in list_c2:
         for g in list_gamma:  # [1367, 684531, 8754, 3215, 54, 3551, 63839845, 11538, 148111, 4310]:
             # svc = svm_fits.grid_skfcv_gpu(x_combined, y_combined.ravel(), params=tuned_parameters, metrics=[my_scorer])
-            posteriors, clf = svm_fits.train_skfcv_SVM_gpu(x_combined, y_combined.ravel(), c=c, kernel=kernel, gamma=g, n_folds=folds)
-            # posteriors, clf = svm_fits.train_skfcv_SVM_cpu(x_combined, y_combined.ravel(), c=c, n_folds=10)
+
+            # posteriors, clf = svm_fits.train_skfcv_SVM_gpu(x_combined, y_combined.ravel(), c=c, kernel=kernel, gamma=g, n_folds=folds)
+            posteriors, clf = svm_fits.train_skfcv_SVM_cpu(x_combined, y_combined.ravel(), c=c, n_folds=10)
             # posteriors, clf = svm_fits.train_skfcv_RBF_cpu(x_combined, y_combined.ravel(), c=c, n_folds=5, gamma=g)
-            # posteriors = svm_fits.train_svm_gpu(x_train, y_train.ravel(), c=c, X_eval=x_dev, kernel=kernel, gamma=g)
-            # posteriors = svm_fits.train_linearsvm_cpu(x_combined, y_combined.ravel(), c=c, X_eval=alternate_x_test)
+
+            # posteriors = svm_fits.train_svm_gpu(x_combined, y_combined.ravel(), c=c, X_eval=alternate_x_test, kernel=kernel, gamma=g)
+            # posteriors = svm_fits.train_linearsvm_cpu(x_train, y_train.ravel(), c=c, X_eval=x_dev)
             # posteriors = svm_fits.train_rbfsvm_cpu(x_train, y_train.ravel(), c=c, X_eval=x_dev, gamma=g)
+
             # np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_k{}_{}_fisher_{}.txt'.format(folds, c, kernel), posteriors)
-            # np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_test_{}_fisher_{}.txt'.format(c, kernel), posteriors)
             y_pred = np.argmax(posteriors, axis=1)
-            print("with", c, "-", g, recall_score(y_combined, y_pred, labels=[1,0], average='macro'))
+            print("with", c, "-", g, recall_score(y_combined, y_pred, labels=[1, 0], average='macro'))
+            # np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_{}_fisher32plp_{}.txt'.format(c, kernel), posteriors)
 
 
 # submission
@@ -102,7 +107,7 @@ def predict(best_c):
     svc = svm.LinearSVC(C=best_c, verbose=0, max_iter=100000, class_weight='balanced')
     # svc = svm.SVC(kernel='rbf', gamma=0.01, probability=True, C=best_c, verbose=0, max_iter=20000, class_weight='balanced')
     svc.fit(x_combined, y_combined.ravel())
-    y_prob = svc.predict_proba(x_test)
+    y_prob = svc._predict_proba_lr(x_test)
     y_pred = np.argmax(y_prob, axis=1)
 
     team_name = 'TeamFOSAI'
