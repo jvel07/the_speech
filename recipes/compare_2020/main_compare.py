@@ -1,5 +1,6 @@
-from data_preproc.mfccs import extract_mfccs
-# from data_preproc.fisher import extract_fishers
+# from data_preproc.mfccs import extract_mfccs
+from data_preproc.dim_reduction.reduce_dims import pca_trainer, pca_transformer
+from data_preproc.fisher import extract_fishers
 # from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
@@ -28,7 +29,7 @@ list_n_clusters = [4, 256]
 def do_frame_level():
     print("=======Frame-level extraction phase========")
 
-    cepstral_type = "mfcc"  # choose between "mfcc" or "plp"
+    cepstral_type = "plp"  # choose between "mfcc" or "plp"
     for folder_name in list_sets:
         print("\nReading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
@@ -43,37 +44,53 @@ def do_frame_level():
 
 def do_fishers():
     print("=======fisher-vector extraction phase========")
-    # info-purpose parameters from the frame-level extracted features #
-    feats_info = [40, 2, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
-    obs = '_hires'  # observations of the features' config e.g. '_hires' (when the mfccs were extracted using 'hires' params)
-
     feature_dir = work_dir + '/data/{}/'.format(recipe)
-    list_files_ubm = [work_dir + '/data/{}/train/{}_{}_{}_train_{}del{}.{}'.format(recipe, feats_info[2],
-                                                                                 recipe,  feats_info[0], feats_info[1],
-                                                                                 obs, feats_info[2]),
-                      work_dir + '/data/{}/train/{}_{}_{}_train_{}del{}.{}'.format(recipe, feats_info[2],
-                                                                                 recipe,  feats_info[0], feats_info[1],
-                                                                                 obs, feats_info[2])]  # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
 
-    for folder_name in list_sets:
-        print("\nReading dir:", feature_dir + folder_name)
-        list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name, '*{}del{}.{}'.format(feats_info[1], obs,
-                                                                                             feats_info[2]))
-        print(list_mfcc_files)
-        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, feats_info=feats_info,
-                                        list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
+    for delta in [0, 1, 2]:
+        # info-purpose parameters from the frame-level extracted features #
+        feats_info = [13, delta, 'plp']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+        obs = ''  # observations of the features' config e.g. '_hires' (when the mfccs were extracted using 'hires' params)
+
+        list_files_ubm = [work_dir + '/data/mask/train/{}_mask_{}_train_{}del.{}'.format(feats_info[2],
+                                                                                         feats_info[0], delta,
+                                                                                         feats_info[2])]
+                            # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
+
+        for folder_name in list_sets:
+            print("\nReading dir:", feature_dir + folder_name)
+            list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name, '*{}_{}_{}del.{}'.format(feats_info[0],
+                                                                                                   folder_name,
+                                                                                                   feats_info[1], feats_info[2]))
+            print(list_mfcc_files)
+            extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, feats_info=feats_info,
+                                            list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
 
 
-def do_ivecs():
-    print("=======i-vector extraction phase========")
-    mfccs_dir = work_dir + '/data/{}/'.format(recipe)
-    file_ubm = work_dir + '/data/compare_2020/train/mfccs_mask_23_train_1del.mfcc'  # Format is: "featureType_recipeName_numberOfDeltas.mfcc"
 
-    for folder_name in list_sets:
-        print("\nReading dir:", mfccs_dir + folder_name)
-        list_mfcc_files = util.traverse_dir(mfccs_dir + folder_name, '.mfcc')
-        extract_ivecs.compute_ivecs(list_mfcc_files, out_dir, info_num_feats_got=13, ivec_dims=256,
-                                    file_ubm_feats=file_ubm, recipe=recipe, folder_name=folder_name)
+def do_dimension_reduction():
+    print("=======dimension reduction phase========")
+    feature_dir = work_dir + '/data/{}/'.format(recipe)
+
+    for delta in [0, 1, 2]:
+        # info-purpose parameters from the frame-level extracted features #
+        feats_info = [13, delta, 'plp']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+        obs = '_hires'  # observations of the features' config (if there is such) e.g. '_hires' (when the mfccs were extracted using 'hires' params)
+
+        list_files_ubm = [work_dir + '/data/mask/train/{}_mask_{}_train_{}del{}.{}'.format(feats_info[2],
+                                                                                         feats_info[0], delta, obs,
+                                                                                         feats_info[2])]
+        pca = pca_trainer(list_files_ubm[0], n_components=0.97)  # train PCA using training set
+
+        for folder_name in list_sets:
+            print("\nReading dir:", feature_dir + folder_name)
+            list_mfcc_file = util.traverse_dir_2(feature_dir + folder_name, '*{}_{}_{}del.{}'.format(feats_info[0],
+                                                                                                      folder_name,
+                                                                                        feats_info[1], feats_info[2]))
+            for item in list_mfcc_file:  # transform each dataset
+                reduced_data = pca_transformer(pca, item)
+                util.save_pickle(feature_dir + folder_name + '*{}_{}_{}del{}_pca.{}'.format(feats_info[0], folder_name,
+                                                                                      feats_info[1], obs, feats_info[2]),
+                                 reduced_data)
 
 
 def do_svm():
@@ -84,13 +101,15 @@ def steps(i):
     switcher = {
         0: do_frame_level,
         1: do_fishers,
-        2: do_ivecs,
-        3: do_svm
+        # 2: do_ivecs,
+        3: do_svm,
+        4: do_dimension_reduction
     }
     func = switcher.get(i)
     return func()
 
 
-steps(0)
+# steps(0)
 # steps(1)
 # steps(2)
+steps(4)

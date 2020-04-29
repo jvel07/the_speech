@@ -20,8 +20,8 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 
 
 task = 'mask'
-feat_type = ['fisher', 'mf']  # provide the types of features and frame-level features to use e.g.: 'fisher', 'mfcc'
-deli = 2
+feat_type = ['fisher', 'plp']  # provide the types of features and frame-level features to use e.g.: 'fisher', 'mfcc'
+deli = 0
 # Loading data: 'fisher' or 'xvecs'
 gaussians = [2, 4, 8, 16, 32, 64, 128]
 # gaussians = [2]
@@ -30,7 +30,7 @@ for gauss in gaussians:
                                                                              # gauss='512dimL6',
                                                                              gauss='{}g'.format(gauss),
                                                                              task=task,
-                                                                             feat_type=feat_type, n_feats=23,
+                                                                             feat_type=feat_type, n_feats=13,
                                                                              n_deltas=deli, list_labels=['mask','clear'])
     # x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_compare()
 
@@ -68,9 +68,9 @@ for gauss in gaussians:
     # list_gamma = [0.1, 1e-2, 1e-3, 1e-4, 1e-5]
     list_gamma = [0.01]
 
-    # list_c2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1]
+    list_c2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1]
     # list_c2 = [1e-4, 1e-3, 1e-2, 0.1, 1]
-    list_c2 = [1]
+    # list_c2 = [1]
 
     # params for rbf (gridsearch)
     tuned_parameters = [
