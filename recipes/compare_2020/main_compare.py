@@ -73,7 +73,7 @@ def do_dimension_reduction():
 
     for delta in [0, 1, 2]:
         # info-purpose parameters from the frame-level extracted features #
-        feats_info = [13, delta, 'plp']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+        feats_info = [40, delta, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
         obs = '_hires'  # observations of the features' config (if there is such) e.g. '_hires' (when the mfccs were extracted using 'hires' params)
 
         list_files_ubm = [work_dir + '/data/mask/train/{}_mask_{}_train_{}del{}.{}'.format(feats_info[2],

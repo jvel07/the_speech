@@ -14,6 +14,7 @@ def pca_trainer_transformer(data_to_fit, data_to_transform, n_components):
 
 def pca_trainer(file, n_components):
     data = np.load(file, allow_pickle=True)
+    print(np.vstack(data).shape)
     pca = PCA(n_components=n_components)
     pca.fit(data)
     print("PCA trained using:", file, "\nWith variance/components:", n_components)
