@@ -34,15 +34,16 @@ def save_mfccs_txt(in_file, out_file):
 # a = take_only_colds('../audio/train', '../data/labels/labels.num.train.txt')
 
 
-one = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_1e-07_fisher.txt'
-two = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_1_resnet.txt'
+# one = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_1e-07_fisher.txt'
+# two = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_1_resnet.txt'
 def average_post(one, two):
     p1 = np.loadtxt(one)
     p2 = np.loadtxt(two)
     probs = np.mean((p1, p2), axis=0)
     a = np.argmax(probs, axis=1)
-    return a
+    return probs, a
 
+from sklearn.ensemble import VotingClassifier
 
 def uar_metric(y_true, y_pred):
     one = sk.metrics.recall_score(y_true, y_pred, pos_label=0)
@@ -55,16 +56,31 @@ def uar(y_true, y_pred):
     return 'uar', uar_score, True
 
 
-one = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_0.1_fisher32plp_linear.txt'
-two = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_0.01_resnet.txt'
-three = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_dev_0.01_xvecsplp_linear.txt'
-def average_post(one, two, three):
+
+def average_post_3(one, two, three):
     p1 = np.loadtxt(one)
     p2 = np.loadtxt(two)
     p3 = np.loadtxt(three)
     probs = np.mean((p1, p2, p3), axis=0)
     a = np.argmax(probs, axis=1)
     return a
-a = average_post(one, two, three)
-s = recall_score(y_dev, a, labels=[1, 0], average='macro')
-print(s)
+
+
+one = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/baseline/probs_mask_test_0.1_auDeep-fused'
+two = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/baseline/probs_mask_test_0.01_ComParE'
+three = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/baseline/probs_mask_test_0.01_resnet'
+four = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/baseline/probs_mask_test_0.001_BoAW-2000'
+def average_post_4(one, two, three, four):
+    p1 = np.loadtxt(one)
+    p2 = np.loadtxt(two)
+    p3 = np.loadtxt(three)
+    p4 = np.loadtxt(four)
+    probs = np.mean((p1, p2, p3, p4), axis=0)
+    a = np.argmax(probs, axis=1)
+    return probs, a
+
+probs, a = average_post_4(one, two, three, four)
+np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_test_fusionOfBest.txt', probs)
+
+# s = recall_score(y_dev, a, labels=[1, 0], average='macro')
+# print(s)

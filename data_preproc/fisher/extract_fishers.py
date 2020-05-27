@@ -19,7 +19,6 @@ def do_fishers(features, means, covs, priors):
     fish = vlf.fisher.fisher(features.transpose(), means.transpose(), covs.transpose(), priors, improved=True)
     return fish
 
-regex = re.compile(r'\d+')
 def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, recipe, folder_name, feats_info):
     # Loading Files for UBM
     list_feats = []
@@ -53,6 +52,8 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, r
             print()
 
 
+# When the GMM-diagonals and -variances are already provided.
+regex = re.compile(r'\d+')  # to find the specific format file of the provided model (usually '.mdl'; per Kaldi's format)
 def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder_name):
     # Loading File for UBM
     print("File for UBM:", file_ubm)
@@ -64,9 +65,9 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder
         list_feat = np.load(file_name, allow_pickle=True)  #  this list should contain all the mfccs per FILE
         # for g in list_n_clusters:
         list_fishers = []
-        # means, covs, priors = do_gmm(array_mfccs_ubm[:2000], g)  # training GMM
+        # means, covs, priors = do_gmm(array_mfccs_ubm[:2000], g)  # training GMM (here not neccesary since we already have it)
         for feat in list_feat:  # iterating over the wavs (mfccs)
-            fish = vlf.fisher.fisher(feat.transpose(), means[:,:40].transpose(), vars[:,:40].transpose(), weights, improved=True)
+            fish = vlf.fisher.fisher(feat.transpose(), means[:,:20].transpose(), vars[:,:20].transpose(), weights, improved=True)
             list_fishers.append(fish)  # Extracting fishers from features
         # Output file (fishers)
         info_num_feats = regex.findall(file_name)

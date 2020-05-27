@@ -25,11 +25,19 @@ def average_post(one, two):
     a = np.argmax(probs, axis=1)
     return a
 
+def average_post_3(one, two, three):
+    p1 = np.loadtxt(one)
+    p2 = np.loadtxt(two)
+    p3 = np.loadtxt(three)
+    probs = np.mean((p1, p2, p3), axis=0)
+    a = np.argmax(probs, axis=1)
+    return a
+
 task = 'mask'
 feat_type = ['fisher', 'mfcc']  # provide the types of features and frame-level features to use e.g.: 'fisher', 'mfcc', 'xvecs'
 deli = 0
 # Loading data: 'fisher' or 'xvecs'
-gaussians = [128]
+gaussians = [2]
 for gauss in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(
                                                                              # gauss='512dim',
@@ -61,9 +69,9 @@ for gauss in gaussians:
     np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_test_{}_128fisher13mfcc_{}.txt'.format(c, kernel), y_prob)
 
     self_probs = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_test_{}_128fisher13mfcc_{}.txt'.format(c, kernel)
-    resnet_probs = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/baseline/probs_mask_test_0.01_resnet'
+    external_probs = '/media/jose/hk-data/PycharmProjects/the_speech/data/mask/baseline/probs_mask_test_0.01_resnet'
 
-    fused_probs = average_post(self_probs, resnet_probs)
+    fused_probs = average_post(self_probs, external_probs)
 
     team_name = 'TeamFOSAI'
     submission_index = 3
