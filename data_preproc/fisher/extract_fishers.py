@@ -53,7 +53,7 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, r
 
 
 # When the GMM-diagonals and -variances are already provided.
-regex = re.compile(r'\d+')  # to find the specific format file of the provided model (usually '.mdl'; per Kaldi's format)
+regex = re.compile(r'\d+')  #  to find the specific format file of the provided model (usually '.mdl'; per Kaldi's format)
 def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder_name):
     # Loading File for UBM
     print("File for UBM:", file_ubm)
