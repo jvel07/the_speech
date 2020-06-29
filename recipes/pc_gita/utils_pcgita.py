@@ -58,8 +58,7 @@ def load_data_alternate(gauss, task):
 
 # gets the 'subtask' folder name of the task
 # e.g.: /home/egasj/PycharmProjects/the_speech/audio/sentences2/1_viste/non-normalized/hc/AVPEPUDEAC0001_viste.wav
-# gets "1_viste", so that features can be saved separately from each 'subtask'
-
+# gets the path name "1_viste", so that features can be saved separately from each 'subtask'
 def get_parent_level_2(path_file):
     dir_of_file = os.path.dirname(path_file)
     parent_dir_of_file = os.path.dirname(dir_of_file)
@@ -88,7 +87,7 @@ def save_labels(list_sets, audio_dir, out_dir):
         for wav in list_of_wavs:
             w, label, task_name = make_labels(wav)
             labels_task.append(w + ' ' + label)
-            # labels_task.sort()
+            labels_task.sort()
         np.savetxt(out_dir + "labels_{}.txt".format(task), labels_task, delimiter=',', fmt='%s')
 
 

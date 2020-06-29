@@ -1,13 +1,13 @@
-# from data_preproc.mfccs import extract_mfccs
-from data_preproc.dim_reduction.reduce_dims import pca_trainer, pca_transformer
-from data_preproc.fisher import extract_fishers
+from data_preproc.mfccs import extract_mfccs
+# from data_preproc.dim_reduction.reduce_dims import pca_trainer, pca_transformer
+# from data_preproc.fisher import extract_fishers
 # from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util
 
 # Name of the task/recipe/dataset/etc.
-recipe = 'mask'
+recipe = 'mask_gen'
 
 # Working directories
 # work_dir = '/opt/project/'  # for titan x machine (docker bob kaldi)
@@ -18,25 +18,26 @@ audio_dir = work_dir + 'audio/' + recipe + '/'
 out_dir = work_dir + 'data/'
 
 # List of audio-sets (folders containing audio samples)
-list_sets = ['train', 'dev', 'test']
+list_sets = ['train']
 
 # List of number of clusters wanted to use
 # list_n_clusters = [2, 8, 16, 32, 64, 128]
 list_n_clusters = [4, 256]
+# list_n_clusters = [512]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
 def do_frame_level():
     print("=======Frame-level extraction phase========")
 
-    cepstral_type = "plp"  # choose between "mfcc" or "plp"
+    cepstral_type = "mfcc"  # choose between "mfcc" or "plp"
     for folder_name in list_sets:
         print("\nReading dir:", folder_name)
         list_of_wavs = util.traverse_dir(audio_dir + folder_name, '.wav')
         list_of_wavs.sort()
         # print(list_of_wavs)
         for deltas in [0, 1, 2]:
-            extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, cepstral_type=cepstral_type, num_feats=13, recipe=recipe,
+            extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, cepstral_type=cepstral_type, num_feats=23, recipe=recipe,
                                                folder_name=folder_name, num_deltas=deltas, obs='')
                                                # raw_energy=None, num_mel_bins=None,
                                                #low_freq=None, high_freq=None)
@@ -46,12 +47,12 @@ def do_fishers():
     print("=======fisher-vector extraction phase========")
     feature_dir = work_dir + '/data/{}/'.format(recipe)
 
-    for delta in [0, 1, 2]:
+    for delta in [0]:
         # info-purpose parameters from the frame-level extracted features #
-        feats_info = [13, delta, 'plp']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+        feats_info = [23, delta, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
         obs = ''  # observations of the features' config e.g. '_hires' (when the mfccs were extracted using 'hires' params)
 
-        list_files_ubm = [work_dir + '/data/mask/train/{}_mask_{}_train_{}del.{}'.format(feats_info[2],
+        list_files_ubm = [work_dir + '/data/{}/train/{}_{}_{}_train_{}del.{}'.format(recipe, feats_info[2], recipe,
                                                                                          feats_info[0], delta,
                                                                                          feats_info[2])]
                             # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
@@ -112,4 +113,4 @@ def steps(i):
 # steps(0)
 # steps(1)
 # steps(2)
-steps(4)
+steps(0)

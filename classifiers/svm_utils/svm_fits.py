@@ -252,7 +252,7 @@ def train_skfcv_SVM_gpu(X, Y, n_folds, c, kernel, gamma):
 def train_skfcv_SVM_cpu(X, Y, n_folds, c):
     svc = svm.LinearSVC(C=c, max_iter=100000, class_weight='balanced')
     # kf = LeaveOneOut()
-    kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
 
     for train_index, test_index in kf.split(X, Y):

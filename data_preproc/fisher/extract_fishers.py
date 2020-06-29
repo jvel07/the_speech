@@ -5,6 +5,7 @@ import cyvlfeat as vlf
 
 import numpy as np
 
+from common import util
 from kaldi_python.read_kaldi_gmm import get_diag_gmm_params
 
 
@@ -47,7 +48,8 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, r
             obs = '{}del'.format(int(feats_info[1]))  # getting number of deltas info
             file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}{}-{}-{}g-{}.fisher'.format(
                 str(feats_info[0]), feats_info[2], obs, g, folder_name)
-            np.savetxt(file_fishers, list_fishers, fmt='%.7f')
+            # util.save_pickle(file_fishers, list_fishers)  # save as pickle
+            np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
             print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape)
             print()
 
@@ -74,5 +76,6 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder
         obs = '{}del'.format(int(info_num_feats[1]))  # getting number of deltas info
         file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}-{}-{}g-{}.fisher'.format(
             int(info_num_feats[0]), obs, g, folder_name)
-        np.savetxt(file_fishers, list_fishers, fmt='%.7f')
-        print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape, "/n")
+        util.save_pickle(file_fishers, list_fishers)  # save as pickle
+        # np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
+        print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape, "\n")

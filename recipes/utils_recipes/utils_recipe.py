@@ -59,6 +59,7 @@ def load_data_full(gauss, task, feat_type, n_feats, n_deltas, list_labels):
                                                                             n_deltas, str(gauss), item, feat_type[0])
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
+            # dict_data['x_'+item] = np.load(file_dataset, allow_pickle=True)
             # Load labels
             file_lbl_train = work_dir + '{}/labels/labels.csv'.format(task) # set data dir
             df = pd.read_csv(file_lbl_train)

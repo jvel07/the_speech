@@ -25,13 +25,13 @@ def mfccs_librosa(path, audio_list, num_feats):
     return list_mfccs
 
 
-def cepstral_bkaldi(signal, num_feats, num_deltas, cepstral_type="mfcc", raw_energy=True, num_mel_bins=23, low_freq=20,
+def cepstral_bkaldi(signal, num_feats, num_deltas, cepstral_type="mfcc", raw_energy=False, num_mel_bins=23, low_freq=20,
                     high_freq=0):
     # print('Computing MFCCs on:', path, '\nNumber of files to process:', len(audio_list))
     data = bob.io.audio.reader(signal)
     # mfcc = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=True, num_ceps=num_feats, snip_edges=True)
     mfcc = bob.kaldi.cepstral(data.load()[0], cepstral_type=cepstral_type, delta_order=num_deltas, rate=data.rate, normalization=True,
-                              num_ceps=num_feats, snip_edges=False, raw_energy=raw_energy, num_mel_bins=num_mel_bins,
+                              num_ceps=num_feats, snip_edges=True, raw_energy=False, num_mel_bins=num_mel_bins,
                               low_freq=low_freq, high_freq=high_freq)
     return mfcc
 
