@@ -127,7 +127,7 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
             file_fishers = out_dir + recipe + '/' + folder_name + '/ivecs-{}{}-{}-{}g-{}.ivecs'.format(
                 str(mfcc_info[0]), mfcc_info[2], obs, g, folder_name)
             np.savetxt(file_fishers, a_ivectors, fmt='%.7f')
-            print("{} fishers saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
+            print("{} ivecs saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
 
 
 # Save models

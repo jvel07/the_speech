@@ -22,8 +22,8 @@ out_dir = work_dir + 'data/'
 list_sets = ['demencia94ABC']
 
 # List of number of clusters wanted to use
-list_n_clusters = [2, 8, 16, 32, 64, 128]
-# list_n_clusters = [4, 256]
+# list_n_clusters = [2, 8, 16, 32, 64, 128]
+list_n_clusters = [4, 256]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
@@ -41,10 +41,31 @@ def do_mfccs():
         list_specific_wavs.sort()  # best 75 of 94 wavs
 
         for deltas in [0, 1, 2]:
-            print("Extracting with {} deltas".format(deltas))
-            extract_mfccs.compute_flevel_feats(list_specific_wavs, out_dir, cepstral_type=cepstral_type, num_feats=13,
+            print("\n Extracting with {} deltas".format(deltas))
+            extract_mfccs.compute_flevel_feats(list_specific_wavs, out_dir, cepstral_type=cepstral_type, num_feats=20,
                                                recipe=recipe, folder_name=folder_name, num_deltas=deltas, obs='')
 
+def do_mfccs_ubm():
+    print("=======MFCC extraction phase for UBM========")
+    out_dir = work_dir + 'data/'
+    list_sets = ['wav16k_split_long']
+
+    for folder_name in list_sets:
+        cepstral_type = "mfcc"  # choose between "mfcc" or "plp"
+
+        # Loading filtered id-wavs
+        arr_filtered_wavs_id = np.genfromtxt(
+            '/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
+            delimiter='\n')
+        list_specific_wavs = []
+        for i in arr_filtered_wavs_id:
+            list_specific_wavs.append('/media/jose/hk-data/PycharmProjects/the_speech/audio/wav16k_split_long/' + i)
+
+        print("\nReading dir:", folder_name)
+        for deltas in [0, 1, 2]:
+            print("Extracting with {} deltas".format(deltas))
+            extract_mfccs.compute_flevel_feats(list_specific_wavs, out_dir, cepstral_type=cepstral_type, num_feats=20,
+                                               recipe=recipe, folder_name=folder_name, num_deltas=deltas, obs='')
 
 def do_fishers():
     print("=======fisher-vector extraction phase========")
@@ -70,9 +91,9 @@ def do_ivecs():
     print("=======i-vector extraction phase========")
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
 
-    for deltas in [0,1,2]:
-        feats_info = [23, deltas, 'mfcc']  # info of the mfccs (n_features, deltas)
-        list_files_ubm = [work_dir + 'data/demencia94ABC/beadiktafon/mfcc_demencia94ABC_23_beadiktafon_{}del.mfcc'.format(deltas)]
+    for deltas in [0, 1, 2]:
+        feats_info = [20, deltas, 'mfcc']  # info of the mfccs (n_features, deltas)
+        list_files_ubm = [work_dir + 'data/demencia94ABC/wav16k_split_long/mfcc_demencia94ABC_20_wav16k_split_long_{}del.mfcc'.format(deltas)]
         for folder_name in list_sets:
             print("\nReading dir:", mfccs_dir + folder_name)
             list_mfcc_files = util.traverse_dir_2(mfccs_dir + folder_name, '*{}_{}_{}del.{}'.format(feats_info[0],
@@ -92,12 +113,13 @@ def steps(i):
         0: do_mfccs,
         1: do_fishers,
         2: do_ivecs,
-        3: do_svm
+        3: do_svm,
+        4: do_mfccs_ubm
     }
     func = switcher.get(i)
     return func()
 
 
-steps(0)
-# steps(1)
+steps(2)
+# steps(4)
 # steps(2)

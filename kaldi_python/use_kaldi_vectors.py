@@ -38,17 +38,17 @@ class SPKID_Dataset(Dataset):
        return feat
 
 
-def get_xvecs(list_sets, task):
+def get_xvecs(list_sets, dest_task):
     for i in list_sets:
-        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp/xvectors_{}_512/xvector.scp'.format(i))
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mf/xvectors_{}_512/xvector.scp'.format(i))
         xvecs = []
         for j in range(len(dataset)):
             xvecs.append(dataset.__getitem__(j))
         x = np.vstack(xvecs)
-        np.savetxt('../data/{}/{}/xvecs-13mf-0del-{}dim3-{}.xvecs'.format(task, i, x.shape[1], i), x)
+        np.savetxt('../data/{}/{}/xvecs-20mf-0del-{}dim-{}.xvecs'.format(dest_task, dest_task, x.shape[1], i), x)
         print(x.shape)
 
-get_xvecs(['train', 'dev', 'test'], 'mask')
+get_xvecs(['demencia94B'], 'demencia94ABC')
 
 def get_ivecs():
     num = [1, 2, 3, 4]

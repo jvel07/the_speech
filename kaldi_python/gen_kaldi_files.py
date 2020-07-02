@@ -8,9 +8,10 @@ import numpy as np
 
 # generate kaldi scp file
 def create_scp_kaldi(list_sets):
-    task = 'beadiktafon'
+    task = 'bea_corpus'
     for i in list_sets:
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i)  # path to the kaldi folder
+        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i)  # path to the audio
+        path = '/media/jose/hk-data/audio/wav16k_split_long/'
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
         print(path)
 

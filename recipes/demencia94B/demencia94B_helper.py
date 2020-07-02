@@ -11,7 +11,9 @@ from sklearn.svm import SVC
 
 from recipes.utils_recipes.utils_recipe import encode_labels
 
-
+# load the list of wavs (names) from the file that contains their labels
+# e.g. for the label "006,3" (file_name,label) in 'source_file' which belongs to the spk 006, get its corresponding
+# wav names, i.e., 006A_feher.wav 006B_feher.wav 006C_feher.wav
 def load_specific(source_file, list_original_audios):
     array = np.squeeze(np.vstack(list_original_audios))
     for idx, ele in enumerate(array):
