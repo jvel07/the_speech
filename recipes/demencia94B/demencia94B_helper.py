@@ -36,10 +36,10 @@ work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu mach
 # loads the data given the number of gaussians, the name of the task and the type of feature.
 # Used for small datasets; loads single file containing training features.
 # example: train/fisher-23mf-0del-2g-train.fisher
-def load_data_demecia94b(gauss, task, feat_type, n_feats, n_deltas, list_labels):
+def load_data_demecia94b(gauss, task, feat_type, frame_lev_type, n_feats, n_deltas, list_labels):
     if (feat_type == 'fisher') or (feat_type == 'ivecs') or (feat_type == 'xvecs'):
         # Set data directories
-        file_train = work_dir + '{}/{}/{}-{}mf-{}del-{}-{}.{}'.format(task, task, feat_type, n_feats, n_deltas, gauss, task, feat_type)
+        file_train = work_dir + '{}/{}/{}-{}{}-{}del-{}-{}.{}'.format(task, task, feat_type, n_feats, frame_lev_type, n_deltas, gauss, task, feat_type)
         file_lbl_train = work_dir + '{}/labels/labels.csv'.format(task)
 
         # Load data

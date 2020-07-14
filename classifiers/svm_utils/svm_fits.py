@@ -1,11 +1,13 @@
 import numpy as np
 import sklearn as sk
 from imblearn.under_sampling import RandomUnderSampler
+from nested_cv import NestedCV
 from sklearn import svm
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.model_selection import StratifiedKFold, KFold, LeaveOneOut, GridSearchCV
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, recall_score, make_scorer
+from sklearn.model_selection import StratifiedKFold, KFold, LeaveOneOut, GridSearchCV, cross_val_score, cross_validate, \
+    RepeatedStratifiedKFold
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, recall_score, make_scorer, precision_score
 from sklearn.svm import SVC
 
 from classifiers.cross_val import StatifiedGroupK_Fold
@@ -263,6 +265,30 @@ def train_skfcv_SVM_cpu(X, Y, n_folds, c):
         array_posteriors[test_index] = posteriors
 
     return array_posteriors, svc
+
+
+def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds):
+    svc = svm.LinearSVC(max_iter=100000, class_weight='balanced')
+    p_grid = {'C': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]}
+
+    # CV generator inner (n_splits), outter (n_repeats)
+    # cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_folds)
+    # clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=cv, scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
+    # clf.fit(X, Y)
+
+    # Define parameters for function
+    nested_CV_search = NestedCV(model=svc, params_grid=p_grid, outer_kfolds=outer_folds, inner_kfolds=inner_folds, n_jobs=-1,
+                                cv_options={'metric': recall_score, 'sqrt_of_score': True, 'randomized_search_iter': 30,
+                                            'metric_score_indicator_lower'
+                                            : 'False',
+                                            })
+    nested_CV_search.fit(X=X, y=Y)
+    print('\nOuter scores:\n{0} \ninner scores:\n{1} \nbest params:\n{2} \nmodel variance:\n{3}'.format(nested_CV_search.outer_scores,
+                                                                                 nested_CV_search.best_inner_score_list,
+                                                                                 nested_CV_search.best_params,
+                                                                                 nested_CV_search.variance))
+
+
 
 def train_skfcv_RBF_cpu(X, Y, n_folds, c, gamma):
     svc = svm.SVC(kernel='rbf', gamma=gamma, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
