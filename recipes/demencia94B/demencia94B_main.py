@@ -1,4 +1,4 @@
-from data_preproc.mfccs import extract_mfccs
+# from data_preproc.mfccs import extract_mfccs
 # from data_preproc.fisher import extract_fishers
 from data_preproc.ivecs import extract_ivecs
 import numpy as np
@@ -22,8 +22,8 @@ out_dir = work_dir + 'data/'
 list_sets = ['demencia94ABC']
 
 # List of number of clusters wanted to use
-# list_n_clusters = [2, 8, 16, 32, 64, 128]
-list_n_clusters = [4, 256]
+# list_n_clusters = [2, 4, 8, 16, 32, 64]
+list_n_clusters = [128]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
@@ -73,10 +73,10 @@ def do_fishers():
 
     for deltas in [0, 1, 2]:
         # info-purpose parameters from the frame-level extracted features #
-        feats_info = [13, deltas, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+        feats_info = [20, deltas, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
         obs = ''
         # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
-        list_files_ubm = [work_dir + 'data/demencia94ABC/beadiktafon/mfcc_demencia94ABC_13_beadiktafon_{}del.mfcc'.format(deltas)]
+        list_files_ubm = [work_dir + 'data/demencia94ABC/wav16k_split_long/mfcc_demencia94ABC_20_wav16k_split_long_{}del.mfcc'.format(deltas)]
         for folder_name in list_sets:
             list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name, '*{}_{}_{}del.{}'.format(feats_info[0],
                                                                                                     folder_name,
@@ -91,7 +91,7 @@ def do_ivecs():
     print("=======i-vector extraction phase========")
     mfccs_dir = work_dir + 'data/{}/'.format(recipe)
 
-    for deltas in [0, 1, 2]:
+    for deltas in [2]:
         feats_info = [20, deltas, 'mfcc']  # info of the mfccs (n_features, deltas)
         list_files_ubm = [work_dir + 'data/demencia94ABC/wav16k_split_long/mfcc_demencia94ABC_20_wav16k_split_long_{}del.mfcc'.format(deltas)]
         for folder_name in list_sets:
