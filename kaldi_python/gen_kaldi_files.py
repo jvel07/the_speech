@@ -8,10 +8,10 @@ import numpy as np
 
 # generate kaldi scp file
 def create_scp_kaldi(list_sets):
-    task = 'bea_corpus'
+    task = 'fluencia'
     for i in list_sets:
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i)  # path to the audio
-        path = '/media/jose/hk-data/audio/wav16k_split_long/'
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/fluencia/'
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
         print(path)
 
@@ -19,13 +19,15 @@ def create_scp_kaldi(list_sets):
         new_list = []
         for item2 in list_audios:
             new_list.append(item2 + ' ' + path + item2)
-        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
+        # np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
+        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/wav.scp'.format(task), new_list, fmt="%s", delimiter=' ')
     return new_list
 
+# create_scp_kaldi('l')
 
 # when the labels are present with the speaker id
 def create_utt2spk_kaldi(list_sets):
-    task = 'mask'
+    task = 'fluencia'
     for name in list_sets:
         path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, name)  # path to the kaldi folder
         print(path)
@@ -47,14 +49,15 @@ def create_utt2spk_kaldi(list_sets):
 
 # when no speaker id nor labels are provided. Output e.g.: 130C_szurke.wav 130
 def create_utt2spk_kaldi_2(list_sets):
-    task = 'demencia94B'
-    for i in list_sets:
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i)
+    task = 'fluencia'
+    for i1 in list_sets:
+        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i1)  # when there's train, dev, test folders
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(task) # when ther's just one folder
         list_audios = util.read_files_from_dir(path)
         new_list = []
         for i in list_audios:
             ii = os.path.splitext(i)[0]
-            new_list.append(i + ' ' + ii[0:4])
+            new_list.append(i + ' ' + ii[0:3])
         np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/train/utt2spk'.format(task, task), new_list, fmt="%s", delimiter=' ')
         return new_list
 

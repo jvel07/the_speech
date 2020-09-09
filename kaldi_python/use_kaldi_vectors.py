@@ -27,7 +27,7 @@ class SPKID_Dataset(Dataset):
         feat_list = []
         for utt in utt2scp:
             feat_list.append(utt2scp[utt])
-        return feat_list
+        return feat_list#, list(utt2scp.keys())
 
     def __len__(self):
         return len(self.feat_list)
@@ -36,6 +36,28 @@ class SPKID_Dataset(Dataset):
        # feat = kaldi_io.read_mat(self.feat_list[idx])
        feat = kaldi_io.read_vec_flt(self.feat_list[idx])
        return feat
+
+    def __getutt__(self, idx):
+        utt = self.utt_list[idx]
+        return utt
+
+
+
+def get_frame_level_to_txt(list_features, batch_number):
+    for c, feat in enumerate(list_features, 1):
+        file_name = 'fluencia/vads/vad_train.{}_{}.vad'.format(batch_number, c)
+        np.savetxt(file_name, feat)
+        print('Saved', file_name)
+
+
+def get_frame_level(list_sets):
+    for i in list_sets:
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/mfcc/vad_train.{}.scp'.format(i))
+        feats = []
+        for j in range(len(dataset)):
+            feats.append(dataset.__getitem__(j))
+        get_frame_level_to_txt(feats, batch_number=i)
+
 
 
 def get_xvecs(list_sets, dest_task):
@@ -48,7 +70,7 @@ def get_xvecs(list_sets, dest_task):
         np.savetxt('../data/{}/{}/xvecs-20mf-0del-{}dim-{}.xvecs'.format(dest_task, dest_task, x.shape[1], i), x)
         print(x.shape)
 
-get_xvecs(['demencia94B'], 'demencia94ABC')
+# get_xvecs(['demencia94B'], 'demencia94ABC')
 
 def get_ivecs():
     num = [1, 2, 3, 4]
