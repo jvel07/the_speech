@@ -108,10 +108,10 @@ def read_file_new_line_sep(filename):
 # Reading a list of files from a directory regex e.g. '*.wav' or '*.mfc'
 def read_files_from_dir_reg(dir_name, regex):
     list_of_files = os.listdir(dir_name)
-    pattern = re.compile(regex)
+    pattern = re.compile(r'{}'.format(regex))
     file_list = []
     for entry in sorted(list_of_files):
-        if re.match(pattern, entry):  # fnmatch.fnmatch(entry, pattern):
+        if re.search(pattern, entry):  # fnmatch.fnmatch(entry, pattern):
             file_list.append(entry)
     return file_list
 
