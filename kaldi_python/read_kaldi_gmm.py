@@ -75,13 +75,15 @@ def get_diag_gmm_params(file_diag, out_dir):
     gmm = DiagGmm()  # creating DiagGmm object
     gmm.read(diag_mdl.stream(), diag_mdl.binary)  # reading model
 
+    file_name = os.path.basename(file_diag)
+
     vars = np.asanyarray(gmm.get_vars())
     means = np.asanyarray(gmm.get_means())
     weights = np.asanyarray(gmm.weights())  # priors
 
-    np.savetxt(out_dir + 'variances_dubm_{}'.format(gmm.num_gauss()), vars)
-    np.savetxt(out_dir + 'means_dubm_{}'.format(gmm.num_gauss()), means)
-    np.savetxt(out_dir + 'weights_dubm_{}'.format(gmm.num_gauss()), weights)
+    np.savetxt(out_dir + '{}_variances.dubm'.format(file_name), vars)
+    np.savetxt(out_dir + '{}_means.dubm'.format(file_name), means)
+    np.savetxt(out_dir + '{}_weights.dubm'.format(file_name), weights)
     print("Vars, means and weights saved to:", out_dir)
 
     return vars, means, weights, gmm.num_gauss()

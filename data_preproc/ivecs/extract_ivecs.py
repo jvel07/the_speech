@@ -36,7 +36,7 @@ def train_models(mfccs_ubm, list_feats_ivecs, diag, full, ivec_mdl, num_gauss, i
 
 
 regex = re.compile(r'\d+') # to get the number of gaussians when reading the txt models
-# Use this when there already exists the fubm trained
+# Use this when there already exists the fubm trained (for pcgita only)
 def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_name):
     num_iters = 100
     min_post = 0.025
@@ -83,6 +83,11 @@ def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_
 
 
 def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe, folder_name, mfcc_info):
+    # getting name of dirs
+    parent_dir_ubm = os.path.basename(os.path.dirname(list_files_ubm[0]))  # ...For naming properly the models' files only
+    dest_data_dir_ivecs = out_dir + recipe + '/' + folder_name
+    dest_data_dir_models = out_dir + 'UBMs/' + parent_dir_ubm
+
     # Loading Files for UBM
     list_feats = []
     for file_ubm in list_files_ubm:
@@ -100,11 +105,11 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
         list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         for g in list_n_gauss:
             # models for i-vecs
-            file_diag_ubm_model =out_dir + recipe + '/' + folder_name + '/ivec_models/dubm_mdl_{}g_dem_{}'.format(g, recipe)
-            file_full_ubm_model = out_dir + recipe + '/' + folder_name + '/ivec_models/fubm_mdl_{}g_dem_{}'.format(g, recipe)
-            file_ivec_extractor_model =out_dir + recipe + '/' + folder_name + '/ivec_models/ivec_mdl_{}g_dem_{}'.format(g, recipe)
-            if not os.path.isdir(out_dir + recipe + '/' + folder_name + '/ivec_models/'):
-                os.mkdir(out_dir + recipe + '/' + folder_name + '/ivec_models/')
+            file_diag_ubm_model = dest_data_dir_models + '/ivec_models/dubm_mdl_{}g_{}{}-{}del_{}.dubm'.format(g, mfcc_info[0], mfcc_info[2], mfcc_info[1], parent_dir_ubm)
+            file_full_ubm_model = dest_data_dir_models + '/ivec_models/fubm_mdl_{}g_{}{}-{}del_{}.fubm'.format(g, mfcc_info[0], mfcc_info[2], mfcc_info[1], parent_dir_ubm)
+            file_ivec_extractor_model = dest_data_dir_models + '/ivec_models/ivec_mdl_{}g_{}{}-{}del_{}.ivexc'.format(g, mfcc_info[0], mfcc_info[2], mfcc_info[1], parent_dir_ubm)
+            if not os.path.isdir(dest_data_dir_models + '/ivec_models/'):
+                os.mkdir(dest_data_dir_models + '/ivec_models/')
             # Train models
             ivec_dims = np.log2(g) * (len(list_feat[0][1]))
             model_dubm, model_fubm, model_ivector = train_models(np.vstack(array_mfccs_ubm), list_feat, file_diag_ubm_model,
@@ -124,8 +129,8 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
             # Output file (i-vectors)
             # info_num_feats = regex.findall(file_name)
             obs = '{}del'.format(mfcc_info[1])  # getting number of deltas info
-            file_fishers = out_dir + recipe + '/' + folder_name + '/ivecs-{}{}-{}-{}g-{}.ivecs'.format(
-                str(mfcc_info[0]), mfcc_info[2], obs, g, folder_name)
+            # output file for the ivecs
+            file_fishers = dest_data_dir_ivecs + '/ivecs-{}{}-{}-{}g-{}.ivecs'.format(str(mfcc_info[0]), mfcc_info[2], obs, g, folder_name)
             np.savetxt(file_fishers, a_ivectors, fmt='%.7f')
             print("{} ivecs saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
 

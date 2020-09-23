@@ -280,10 +280,12 @@ def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds):
 
     # CV generator inner (n_splits), outter (n_repeats)
     # cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_folds)
-    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_folds)#scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
+    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_folds, scoring='accuracy', refit=True)#scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
     clf.fit(X, Y)
-    nested_score = cross_val_score(clf, X, Y, cv=outer_folds, scoring='accuracy')
-    print(np.mean(nested_score))
+    nested_score = cross_val_score(clf, X, Y, cv=outer_folds, scoring='accuracy', n_jobs=-1)
+
+    print(nested_score)
+    print(np.mean(nested_score), np.std(nested_score))
     # Define parameters for function
     # nested_CV_search = NestedCV(model=svc, params_grid=p_grid, outer_kfolds=outer_folds, inner_kfolds=inner_folds, n_jobs=-1,
     #                             cv_options={'metric': accuracy_score, 'sqrt_of_score': True, 'randomized_search_iter': 30,

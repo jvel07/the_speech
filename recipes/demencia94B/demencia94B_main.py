@@ -22,8 +22,10 @@ out_dir = work_dir + 'data/'
 list_sets = ['demencia94ABC']
 
 # List of number of clusters wanted to use
-# list_n_clusters = [2, 4, 8, 16, 32, 64]
-list_n_clusters = [128]
+# list_n_clusters = [64, 128]
+# list_n_clusters = [2, 4, 8, 16]
+# list_n_clusters = [32]
+list_n_clusters = [64]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
@@ -48,7 +50,7 @@ def do_mfccs():
 def do_mfccs_ubm():
     print("=======MFCC extraction phase for UBM========")
     out_dir = work_dir + 'data/'
-    list_sets = ['wav16k_split_long']
+    list_sets = ['bea_wav8k']
 
     for folder_name in list_sets:
         cepstral_type = "mfcc"  # choose between "mfcc" or "plp"

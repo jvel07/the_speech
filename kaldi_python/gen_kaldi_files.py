@@ -4,36 +4,59 @@ import pandas as pd
 
 from common import util
 import numpy as np
+import recipes.dementia_new8k.dementia_new8k_helper as ah
+
+
+def sel_spec_wavs():
+    recipe = 'dementia_new8k'
+    work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/'  # for ubuntu (native bob kaldi)
+    audio_dir = work_dir + 'audio/dementia_new8k'
+
+    source_file = work_dir + 'data/{}/labels/labels.csv'.format(recipe)
+    list_of_wavs = util.traverse_dir(audio_dir, file_type='.wav')
+    list_of_wavs.sort()
+    list_specific_wavs = ah.load_specific(source_file=source_file, list_original_audios=list_of_wavs)
+    list_specific_wavs.sort()  # best 33 wavs selected manually
+    wav_names_only = []
+    for wav in list_specific_wavs:
+        wav_names_only.append(os.path.basename(wav))
+
+    return wav_names_only
+
+
 
 
 # generate kaldi scp file
 def create_scp_kaldi(list_sets):
-    task = 'fluencia'
+    task = 'dementia_new8k'
+    audio_folder = 'bea_wav8k'
+    dest_kaldi_folder = 'bea_wav8k'
     for i in list_sets:
-        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i)  # path to the audio
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/fluencia/'
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(audio_folder)  # path to the audio
+        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/dementia_new8k/'
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
         print(path)
 
-        list_audios = util.read_files_from_dir(path)  # util.just_original_75()
+        list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
+        delimiter='\n') #sel_spec_wavs() #util.read_files_from_dir(path)  # util.just_original_75()
         new_list = []
         for item2 in list_audios:
             new_list.append(item2 + ' ' + path + item2)
         # np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
-        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/wav.scp'.format(task), new_list, fmt="%s", delimiter=' ')
+        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
     return new_list
 
-# create_scp_kaldi('l')
+create_scp_kaldi('l')
 
 # when the labels are present with the speaker id
 def create_utt2spk_kaldi(list_sets):
-    task = 'fluencia'
+    task = 'dementia_new8k'
+    audio_folder = 'dementia_new8k'
     for name in list_sets:
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, name)  # path to the kaldi folder
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(audio_folder, name)  # path to the kaldi folder
         print(path)
         list_audios = util.read_files_from_dir(path) #util.just_original_75()
-        df = pd.read_csv('/media/jose/hk-data/PycharmProjects/the_speech/data/{}/labels/labels.csv'.format(task),
-                         dtype=str)
+        df = pd.read_csv('/media/jose/hk-data/PycharmProjects/the_speech/data/{}/labels/labels.csv'.format(task), dtype=str)
         # df.columns = ['id', 'label']
         # ids = df.file_name.values
         df_2 = df[df['file_name'].str.match('test')]
@@ -47,20 +70,25 @@ def create_utt2spk_kaldi(list_sets):
         # return new_list
 
 
+
 # when no speaker id nor labels are provided. Output e.g.: 130C_szurke.wav 130
 def create_utt2spk_kaldi_2(list_sets):
-    task = 'fluencia'
+    task = 'dementia_new8k'
+    audio_folder = 'bea_wav8k'
+    dest_kaldi_folder = 'bea_wav8k'
     for i1 in list_sets:
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i1)  # when there's train, dev, test folders
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(task) # when ther's just one folder
-        list_audios = util.read_files_from_dir(path)
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(audio_folder) # when ther's just one folder
+        list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
+        delimiter='\n') # sel_spec_wavs() #util.read_files_from_dir(path)
         new_list = []
         for i in list_audios:
             ii = os.path.splitext(i)[0]
-            new_list.append(i + ' ' + ii[0:3])
-        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/train/utt2spk'.format(task, task), new_list, fmt="%s", delimiter=' ')
+            new_list.append( i + ' ' + ii[0:15])
+        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/utt2spk'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
         return new_list
 
+create_utt2spk_kaldi_2('l')
 
 # for cold database; given in file e.g.: vp010_02_06_butter_009.wav	train_0001.wav
 def generate_utt2spk():
