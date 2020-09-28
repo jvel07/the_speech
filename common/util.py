@@ -180,13 +180,6 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
 """
 
 
-def encode_labels(_y, label_1, label_0):
-     le = preprocessing.LabelEncoder()
-     le.fit([label_1, label_0])
-     y = le.transform(_y)
-     y = y.reshape(-1, 1)
-     return y, le
-
 # from a list of files and labels, take only the set of files that have a specified label value.
 # e.g. from the dataset parkinson's, take the file-names with PD label only.
 def take_only_specfic_label(wavs_dir, list_labels, lbl_value):

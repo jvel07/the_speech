@@ -335,3 +335,26 @@ def train_rbfsvm_cpu(X, Y, X_eval, c, gamma):
     svc.fit(X, Y)
     y_prob = svc.predict_proba(X_eval)
     return y_prob
+
+
+def leave_one_out_cv(X, y, c):
+    loo = LeaveOneOut()
+    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    array_posteriors = np.zeros((len(y), len(np.unique(y))))
+    array_trues = []
+
+    for train_index, test_index in loo.split(X, y):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        svc.fit(X_train, y_train)
+
+        y_prob = svc._predict_proba_lr(X_test)
+        array_posteriors[test_index] = y_prob
+        preds = np.argmax(array_posteriors, axis=1)
+
+        array_trues.append(y_test[0])
+
+    return preds, np.squeeze(array_trues)
+
+
+
