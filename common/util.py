@@ -180,6 +180,36 @@ def process_htk_files_for_fishers_normal(path_to_mfccs, regex):
 """
 
 
+# def results_to_csv(file_name, g, feat_type, num_filters, deltas, vad, pca, acc):
+#     if not os.path.isfile(file_name):
+#         with open(file_name, mode='w') as csv_file:
+#             file_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+#             file_writer.writerow(['Gaussians', 'Feature', 'N_filters', 'VAD', 'PCA', 'Accuracy'])
+#             file_writer.writerow([g, feat_type, num_filters, deltas, vad, pca, acc])
+#             print("File " + file_name + " created!")
+#     else:
+#         with open(file_name, 'a') as csv_file:
+#             file_writer = csv.writer(csv_file)
+#             file_writer.writerow([g, feat_type, num_filters, deltas, vad, pca, acc])
+#             print("File " + file_name + " updated!")
+#
+
+# write results to csv
+def results_to_csv(file_name, list_columns, list_values):
+    if not os.path.isfile(file_name):
+        with open(file_name, mode='w') as csv_file:
+            file_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            file_writer.writerow(list_columns)
+            file_writer.writerow(list_values)
+            print("File " + file_name + " created!")
+    else:
+        with open(file_name, 'a') as csv_file:
+            file_writer = csv.writer(csv_file)
+            file_writer.writerow(list_values)
+            print("File " + file_name + " updated!")
+
+
+
 # from a list of files and labels, take only the set of files that have a specified label value.
 # e.g. from the dataset parkinson's, take the file-names with PD label only.
 def take_only_specfic_label(wavs_dir, list_labels, lbl_value):

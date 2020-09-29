@@ -1,6 +1,6 @@
 # from data_preproc.mfccs import extract_mfccs
-from data_preproc.fisher import extract_fishers
-# from data_preproc.ivecs import extract_ivecs
+# from data_preproc.fisher import extract_fishers
+from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util
@@ -26,8 +26,8 @@ ubm_folder_name = 'bea_wav8k'
 
 # List of number of clusters wanted to use
 # list_n_clusters = [256]
-list_n_clusters = [2, 4, 8, 16, 32, 64, 128, 256, 512]
-# list_n_clusters = [128]
+# list_n_clusters = [2, 4, 8, 16, 32, 64, 128, 256]
+list_n_clusters = [256]
 # list_n_clusters = [64]
 
 
@@ -152,6 +152,6 @@ def steps(i):
     return func()
 
 
-steps(5)
+steps(2)
 # step(4)
 # steps(2)

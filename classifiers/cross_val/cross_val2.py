@@ -58,18 +58,7 @@ def metrics(ground_truths, preds):
 
 
 # Writing results to a csv
-def results_to_csv(file_name, g, feat_type, num_filters, deltas, vad, pca, acc):
-    if not os.path.isfile(file_name):
-        with open(file_name, mode='w') as csv_file:
-            file_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            file_writer.writerow(['Gaussians', 'Feature', 'N_filters', 'VAD', 'PCA', 'Accuracy'])
-            file_writer.writerow([g, feat_type, num_filters, deltas, vad, pca, acc])
-            print("File " + file_name + " created!")
-    else:
-        with open(file_name, 'a') as csv_file:
-            file_writer = csv.writer(csv_file)
-            file_writer.writerow([g, feat_type, num_filters, deltas, vad, pca, acc])
-            print("File " + file_name + " updated!")
+
 
 
 if __name__ == '__main__':
