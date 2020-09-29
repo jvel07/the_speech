@@ -10,7 +10,7 @@ from recipes.pc_gita.utils_pcgita import save_labels
 recipe = 'pcgita'
 
 # List of audio-sets (folders containing audio samples)
-list_sets = ['monologue_test', 'readtext_test']
+list_sets = ['monologue_erlangen', 'readtext_erlangen']
 
 
 # Working directories
@@ -25,7 +25,7 @@ def do_mfccs():
 
     audio_dir = work_dir + 'audio/'
     out_dir = work_dir + 'data/'
-    list_sets = ['monologue_test', 'readtext_test']
+    list_sets = ['monologue_erlangen', 'readtext_erlangen']
     cepstral_type = "mfcc"  # choose between "mfcc" or "plp"
 
     for folder_name in list_sets:
@@ -34,7 +34,7 @@ def do_mfccs():
         list_of_wavs.sort()
         # save the labels. list of sets/tasks (NAME of the folders containing the audios), dir to the audios, output dir
         save_labels(list_sets, audio_dir, out_dir + recipe + '/')  # make labels of the wavs
-        for deltas in [0]:
+        for deltas in [1,2]:
             extract_mfccs.compute_flevel_feats(list_of_wavs, out_dir, cepstral_type=cepstral_type, num_feats=20,
                                                recipe=recipe, folder_name=folder_name, num_deltas=deltas, obs='')
 
@@ -57,9 +57,9 @@ def do_fishers_pretrained_ubm():
     out_dir = work_dir + 'data/'  # Where the computed features will live in
     ubm_dir = work_dir + 'data/' + recipe + '/UBMs/'  # where the diagonal ubms live
     list_ubm_files = util.traverse_dir(ubm_dir, '.mdl')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
-    mfcc_n_deltas = 0  # Number of deltas of the mfccs
+    mfcc_n_deltas = 2  # Number of deltas of the mfccs
 
-    list_sets = ['monologue_test', 'readtext_test']
+    list_sets = ['monologue_erlangen', 'readtext_erlangen']
 
     for folder_name in list_sets:  # iterating over the list of sets where the features live
         print("\nReading dir:", mfccs_dir + folder_name)

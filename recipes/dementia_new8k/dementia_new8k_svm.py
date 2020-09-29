@@ -10,7 +10,7 @@ import numpy as np
 from recipes.dementia_new8k.dementia_new8k_helper import load_data_demecia_new8k
 
 task = 'dementia_new8k'
-feat_type = ['ivecs', 'mfcc', 2]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
+feat_type = ['fisher', 'mfcc', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
 
 # Loading data: 'fisher' or 'ivecs's, training and evaluating it
 gaussians = [2, 4, 8, 16, 32, 64, 128, 256]
@@ -27,8 +27,8 @@ for ga in gaussians:
 
 
 
-    # pow_scaler = preprocessing.PowerTransformer()
-    # x_train = pow_scaler.fit_transform(x_train)
+    pow_scaler = preprocessing.PowerTransformer()
+    x_train = pow_scaler.fit_transform(x_train)
 
 
     std_scaler = preprocessing.StandardScaler()
@@ -37,7 +37,7 @@ for ga in gaussians:
 
     for c in list_c:
         preds, trues = svm_fits.leave_one_out_cv(x_train, y_train.ravel(), c=c)
-        print("with", c, "-", ga, recall_score(trues, preds, labels=[1, 0], average='macro'))
+        print("with", c, "-", ga, accuracy_score(trues, preds), " auc:", roc_auc_score(trues, preds))
     print()
     print(std_scaler)
     print()

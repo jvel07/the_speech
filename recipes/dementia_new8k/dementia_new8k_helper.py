@@ -21,8 +21,8 @@ def load_data_demecia_new8k(gauss, task, feat_type, frame_lev_type, n_feats, n_d
 
         # Load data
         print("Reading features in", os.path.basename(file_train))
-        # X_train = np.squeeze(np.load(file_train, allow_pickle=True))
-        X_train = np.squeeze(np.loadtxt(file_train))
+        X_train = np.squeeze(np.load(file_train, allow_pickle=True))
+        # X_train = np.squeeze(np.loadtxt(file_train))
         df_labels = pd.read_csv(file_lbl_train)
         Y_train, encoder = encode_labels(df_labels.label.values, list_labels)
 
