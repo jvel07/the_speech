@@ -206,7 +206,7 @@ def results_to_csv(file_name, list_columns, list_values):
         with open(file_name, 'a') as csv_file:
             file_writer = csv.writer(csv_file)
             file_writer.writerow(list_values)
-            print("File " + file_name + " updated!")
+            # print("File " + file_name + " updated!")
 
 
 

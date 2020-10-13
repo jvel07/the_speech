@@ -171,7 +171,7 @@ def train_model_resample(X, Y, c, seed):
 
 
 # train and evaluate normally
-def train_model_normal(X, Y, X_t, Y_t, c):
+def train_lsvm_normal(X, Y, X_t, Y_t, c):
     svc = svm.LinearSVC(C=c, verbose=0, max_iter=20000)  # , class_weight='balanced')
     # X, Y, idx= resample_data(X, Y, r=545412)  # resampling
     svc.fit(X, Y)
@@ -330,6 +330,13 @@ def train_linearsvm_cpu(X, Y, X_eval, c):
     return y_prob
 
 
+def train_linearSVR_cpu(X, Y, X_eval, c):
+    svr = svm.LinearSVR(C=c, max_iter=100000)
+    svr.fit(X, Y)
+    y_prob = svr.predict(X_eval)
+    return y_prob
+
+
 def train_rbfsvm_cpu(X, Y, X_eval, c, gamma):
     svc = svm.SVC(kernel='rbf', gamma=gamma, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
     svc.fit(X, Y)
@@ -341,7 +348,7 @@ def leave_one_out_cv(X, y, c):
     loo = LeaveOneOut()
     svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
     array_posteriors = np.zeros((len(y), len(np.unique(y))))
-    array_trues = []
+    list_trues = []
 
     for train_index, test_index in loo.split(X, y):
         X_train, X_test = X[train_index], X[test_index]
@@ -352,9 +359,9 @@ def leave_one_out_cv(X, y, c):
         array_posteriors[test_index] = y_prob
         preds = np.argmax(array_posteriors, axis=1)
 
-        array_trues.append(y_test[0])
+        list_trues.append(y_test[0])
 
-    return preds, np.squeeze(array_trues)
+    return preds, np.squeeze(list_trues)
 
 
 
