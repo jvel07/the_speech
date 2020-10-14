@@ -1,14 +1,15 @@
 import numpy as np
 import sklearn as sk
 from imblearn.under_sampling import RandomUnderSampler
-from nested_cv import NestedCV
-from sklearn import svm
+# from nested_cv import NestedCV
+from sklearn import svm, linear_model, ensemble
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import StratifiedKFold, KFold, LeaveOneOut, GridSearchCV, cross_val_score, cross_validate, \
     RepeatedStratifiedKFold
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, recall_score, make_scorer, precision_score
 from sklearn.svm import SVC
+import xgboost as xgb
 
 from classifiers.cross_val import StatifiedGroupK_Fold
 
@@ -323,6 +324,14 @@ def train_svm_gpu(X, Y, X_eval, c, kernel, gamma):
     return y_prob
 
 
+def train_svr_gpu(X, Y, X_eval, c, kernel='linear', nu=0.5):
+    from thundersvm import NuSVR as thunder
+    svc = thunder(kernel=kernel, C=c, max_iter=100000, gpu_id=0, nu=nu)
+    svc.fit(X, Y)
+    y_prob = svc.predict(X_eval)
+    return y_prob
+
+
 def train_linearsvm_cpu(X, Y, X_eval, c):
     svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
     svc.fit(X, Y)
@@ -330,8 +339,14 @@ def train_linearsvm_cpu(X, Y, X_eval, c):
     return y_prob
 
 
+def train_xgboost_regressor(X, Y, X_eval):
+    model = xgb.XGBRegressor(tree_method='gpu_hist')
+    xgb.train(X, Y)
+    y_pred = model.predict(X_eval)
+    return y_pred
+
 def train_linearSVR_cpu(X, Y, X_eval, c):
-    svr = svm.LinearSVR(C=c, max_iter=100000)
+    svr = svm.SVR(kernel='linear', C=c, max_iter=100000)
     svr.fit(X, Y)
     y_prob = svr.predict(X_eval)
     return y_prob
