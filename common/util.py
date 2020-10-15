@@ -7,6 +7,8 @@ import csv
 from itertools import zip_longest
 import pickle
 from shutil import copy
+import seaborn
+import matplotlib.pyplot as plt
 
 from sklearn import preprocessing
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, confusion_matrix
@@ -219,6 +221,65 @@ def take_only_specfic_label(wavs_dir, list_labels, lbl_value):
     for wav, label in zip(all_wavs, list_labels):
         if label == lbl_value: lista.append(wav)
     return lista
+
+
+def plot_confusion_matrix(data, labels, output_filename):
+    """Plot confusion matrix using heatmap.
+
+    Args:
+        data (list of list): List of lists with confusion matrix data.
+        labels (list): Labels which will be plotted across x and y axis.
+        output_filename (str): Path to output file.
+
+    """
+    seaborn.set(color_codes=True)
+    plt.figure(1, figsize=(9, 6))
+
+    plt.title("Confusion Matrix")
+
+    seaborn.set(font_scale=1.2)
+    ax = seaborn.heatmap(data, annot=True, cmap="YlGnBu", fmt='.2f', cbar_kws={'label': 'Scale'})
+
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(labels)
+
+    ax.set(ylabel="True Label", xlabel="Predicted Label")
+
+    plt.savefig(output_filename, bbox_inches='tight', dpi=300)
+    plt.close()
+
+
+def plot_confusion_matrix_2(data, labels, output_filename):
+    """Plot confusion matrix using heatmap.
+
+    Args:
+        data (list of list): List of lists with confusion matrix data.
+        labels (list): Labels which will be plotted across x and y axis.
+        output_filename (str): Path to output file.
+
+    """
+    seaborn.set(color_codes=True)
+    plt.figure(1, figsize=(9, 6))
+
+    plt.title("Confusion Matrix")
+
+    seaborn.set(font_scale=0.95)
+
+    group_counts = ["{0: 0.0f}".format(value) for value in data.flatten()]
+    group_percentages = ["{0:.2%}".format(value) for value in data.flatten() / np.sum(data)]
+    labels_plot = [f"{v1}\n{v2}" for v1, v2 in zip(group_counts, group_percentages)]
+
+    labels_plot = np.asarray(labels_plot).reshape(data.shape[0], data.shape[1])
+
+    ax = seaborn.heatmap(data, annot=labels_plot, cmap="Greens", fmt='', cbar_kws={'label': 'Scale'})
+
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(labels)
+
+    ax.set(ylabel="True Label", xlabel="Predicted Label")
+
+    plt.savefig(output_filename, bbox_inches='tight', dpi=300)
+    plt.close()
 
 
 # copies specific files contained within a python list to a path (directory)

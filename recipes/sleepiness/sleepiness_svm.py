@@ -9,8 +9,9 @@ import recipes.utils_recipes.utils_recipe as rutils
 from classifiers.svm_utils import svm_fits
 import numpy as np
 from scipy import stats
+from sklearn.metrics import confusion_matrix
 
-from common import util
+from common.util import plot_confusion_matrix_2
 from recipes.sleepiness.sleepiness_helper import load_data_full
 
 task = 'sleepiness'
@@ -19,8 +20,9 @@ feat_type = ['xvecs', 'mfcc', 0]  # provide the types of features, type of frame
 # Loading data: 'fisher' or 'ivecs's, training and evaluating it
 # gaussians = [2, 4, 8, 16, 32, 64, 128, 256, 512]
 gaussians = [512]
-list_c = [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1]
-list_nu = [0.5]
+# list_c = [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1]
+list_c = [0.0001]
+list_nu = [0.2]
 # list_c = [0.001] # pretrainedXvecs
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, y_test,  file_n = load_data_full(
@@ -57,7 +59,7 @@ for ga in gaussians:
             preds = svm_fits.train_svr_gpu(x_train, y_train.ravel(), X_eval=x_dev, c=c, nu=nu)
             # preds = svm_fits.train_xgboost_regressor(x_train, y_train.ravel(), X_eval=x_dev)
 
-            # preds = np.around(preds, decimals=10)
+            # preds = np.around(preds, decimals=0)
             # coef = np.corrcoef(y_dev, preds, rowvar=True)
             coef, p_std = stats.spearmanr(y_dev, preds)
             spear_scores.append(coef)
@@ -72,10 +74,13 @@ for ga in gaussians:
 
     # clf = svm.LinearSVC(C=0.0001, max_iter=100000)
     # clf.fit(x_combined, y_combined.ravel())
-    y_pred = svm_fits.train_svr_gpu(x_combined, y_combined.ravel(), X_eval=x_test, c=optimum_complexity, nu=list_nu[0])
+    y_pred = svm_fits.train_svr_gpu(x_combined, y_combined.ravel(), X_eval=x_test, c=0.0001, nu=list_nu[0])
 
-    # y_pred = np.around(y_pred, decimals=10)
+    # y_pred = np.around(y_pred, decimals=0)
     coef_test, p_2 = stats.spearmanr(y_test, y_pred)
     # coef_test2 = np.corrcoef(y_test, y_pred)
 
     print("Test results with", optimum_complexity, "- spe:", coef_test)
+
+    a = confusion_matrix(y_test, np.around(y_pred), labels=np.unique(y_train))
+    plot_confusion_matrix_2(a, np.unique(y_train), 'conf.png')
