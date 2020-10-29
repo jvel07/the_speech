@@ -133,10 +133,7 @@ def extract_numbers_from_str(string):
 # Reading a list of files from a directory
 def read_files_from_dir(dir_name):
     list_of_files = os.listdir(dir_name)
-    file_list = []
-    for entry in sorted(list_of_files):
-        file_list.append(entry)
-    return file_list
+    return list_of_files.sort()
 
 
 """
@@ -249,7 +246,7 @@ def plot_confusion_matrix(data, labels, output_filename):
     plt.close()
 
 
-def plot_confusion_matrix_2(data, labels, output_filename):
+def plot_confusion_matrix_2(data, labels, output_filename, cmap, title):
     """Plot confusion matrix using heatmap.
 
     Args:
@@ -261,7 +258,7 @@ def plot_confusion_matrix_2(data, labels, output_filename):
     seaborn.set(color_codes=True)
     plt.figure(1, figsize=(9, 6))
 
-    plt.title("Confusion Matrix")
+    plt.title(title)
 
     seaborn.set(font_scale=0.95)
 
@@ -271,7 +268,7 @@ def plot_confusion_matrix_2(data, labels, output_filename):
 
     labels_plot = np.asarray(labels_plot).reshape(data.shape[0], data.shape[1])
 
-    ax = seaborn.heatmap(data, annot=labels_plot, cmap="Greens", fmt='', cbar_kws={'label': 'Scale'})
+    ax = seaborn.heatmap(data, annot=labels_plot, cmap=cmap, fmt='', cbar_kws={'label': 'Scale'})
 
     ax.set_xticklabels(labels)
     ax.set_yticklabels(labels)

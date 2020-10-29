@@ -37,4 +37,51 @@ def load_data_full(gauss, task, feat_type, n_feats):
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type[0]))
 
 
+def linear_trans_preds(y_train, preds_dev, preds_test_orig):
+    mean_y_train = np.mean(y_train)
+    std_y_train = np.std(y_train)
 
+    mean_preds_dev = np.mean(preds_dev)
+    std_preds_dev = np.std(preds_dev)
+
+    preds_dev_new = (preds_dev - mean_preds_dev) / std_preds_dev * std_y_train + mean_y_train
+    preds_dev_new = np.round(preds_dev_new)
+    preds_dev_new[preds_dev_new < 1] = 1
+    preds_dev_new[preds_dev_new > 9] = 9
+
+    preds_test_new = (preds_test_orig - mean_preds_dev) / std_preds_dev * std_y_train + mean_y_train
+    preds_test_new = np.round(preds_test_new)
+    preds_test_new[preds_test_new < 1] = 1
+    preds_test_new[preds_test_new > 9] = 9
+
+    return preds_dev_new, preds_test_new
+
+
+def linear_trans_preds_dev(y_train, preds_dev):
+    mean_y_train = np.mean(y_train)
+    std_y_train = np.std(y_train)
+
+    mean_preds_dev = np.mean(preds_dev)
+    std_preds_dev = np.std(preds_dev)
+
+    preds_dev_new = (preds_dev - mean_preds_dev) / std_preds_dev * std_y_train + mean_y_train
+    preds_dev_new = np.round(preds_dev_new)
+    preds_dev_new[preds_dev_new < 1] = 1
+    preds_dev_new[preds_dev_new > 9] = 9
+
+    return preds_dev_new
+
+
+def linear_trans_preds_test(y_train, preds_dev, preds_test):
+    mean_y_train = np.mean(y_train)
+    std_y_train = np.std(y_train)
+
+    mean_preds_dev = np.mean(preds_dev)
+    std_preds_dev = np.std(preds_dev)
+
+    preds_test_new = (preds_test - mean_preds_dev) / std_preds_dev * std_y_train + mean_y_train
+    preds_test_new = np.round(preds_test_new)
+    preds_test_new[preds_test_new < 1] = 1
+    preds_test_new[preds_test_new > 9] = 9
+
+    return preds_test_new

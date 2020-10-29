@@ -47,7 +47,7 @@ def create_scp_kaldi(list_sets):
         # np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
         np.savetxt('/home/jose/Documents/kaldi/egs/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
 
-create_scp_kaldi(['train', 'dev', 'test'])
+# create_scp_kaldi(['train', 'dev', 'test'])
 
 # when the labels are present with the speaker id
 def create_utt2spk_kaldi(list_sets):
@@ -78,18 +78,20 @@ def create_utt2spk_kaldi_2(list_sets):
     audio_folder = 'emotion_aibo'
     dest_kaldi_folder = 'train'
     for i1 in list_sets:
-        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i1)  # when there's train, dev, test folders
-        path = '/media/jose/hk-data/audio/{}/'.format(audio_folder) # when ther's just one folder
-        list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
-        delimiter='\n') # sel_spec_wavs() #util.read_files_from_dir(path)
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i1)  # when there's train, dev, test folders
+        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(audio_folder) # when ther's just one folder
+        # list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
+        # delimiter='\n')
+        # sel_spec_wavs()
+        list_audios = util.read_files_from_dir(path)
+        print(path)
         new_list = []
         for i in list_audios:
             ii = os.path.splitext(i)[0]
             new_list.append( i + ' ' + ii[0:6])
-        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/utt2spk'.format(task, i), new_list, fmt="%s", delimiter=' ')
-        return new_list
+        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/utt2spk'.format(task, i1), new_list, fmt="%s", delimiter=' ')
 
-create_utt2spk_kaldi_2('l')
+create_utt2spk_kaldi_2(['train', 'dev', 'test'])
 
 # for cold database; given in file e.g.: vp010_02_06_butter_009.wav	train_0001.wav
 def generate_utt2spk():
