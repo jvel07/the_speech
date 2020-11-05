@@ -62,16 +62,17 @@ def get_frame_level(list_sets):
 
 def get_xvecs(list_sets, dest_task):
     for i in list_sets:
-        # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp/xvectors_train/xvector.scp'.format(i))
-        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mf_noaugmented/xvectors_{0}/xvector.scp'.format(i))
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_23mfcc/xvectors_demencia_94abc_pretrained/xvector.scp')
+        # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_{0}/xvector.scp'.format(i))
         xvecs = []
         for j in range(len(dataset)):
             xvecs.append(dataset.__getitem__(j))
         x = np.vstack(xvecs)
-        np.savetxt('../data/{0}/{1}/xvecs-20mfcc-0del-{2}dim-BEA16kNoAug-{3}.xvecs'.format(dest_task, i, x.shape[1], i), x)
+        # np.savetxt('../data/{0}/{1}/xvecs-20mfcc-0del-{2}dim-BEA16kNoAug-{3}.xvecs'.format(dest_task, i, x.shape[1], i), x)
+        np.savetxt('../data/{0}/{1}/xvecs-20mfcc-0del-{2}dim-pretrainedV2-{3}.xvecs'.format(dest_task, dest_task, x.shape[1], dest_task), x)
         print(x.shape)
 
-get_xvecs(['train', 'dev', 'test'], 'sleepiness')
+get_xvecs(['train'], 'demencia94ABC')
 
 def get_ivecs():
     num = [1, 2, 3, 4]

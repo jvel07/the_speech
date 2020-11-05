@@ -128,16 +128,8 @@ def train_simple_skfcv(X, Y, n_folds, c, seed):
         posteriors = svc._predict_proba_lr(x_test)
         # scores2.append(svc.score(x_test, y_test))
         array_posteriors[test_index] = posteriors
-    # acc = evaluate_accuracy(Y, array_posteriors)
-    print(array_posteriors)
-    uar = evaluate_uar_score(Y, array_posteriors)  # [:, 1])
-    # f1 = evaluate_f1(Y, array_posteriors)
-    # np.savetxt('probs_mask_cv_{}_fisher'.format(c), array_posteriors)
 
-    # scores = {"accuracy": acc, "uar": uar, "f1": f1, "posteriors": array_posteriors}
-    scores = {"uar": uar, "posteriors": array_posteriors}
-
-    return scores, array_posteriors
+    return array_posteriors
 
 
 # SVM with stratified kfold cross validation and pca
@@ -254,7 +246,6 @@ def train_skfcv_SVM_gpu(X, Y, n_folds, c, kernel, gamma):
 
 def train_skfcv_SVM_cpu(X, Y, n_folds, c):
     svc = svm.LinearSVC(C=c, max_iter=100000, class_weight='balanced')
-    # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
 
@@ -275,18 +266,22 @@ def train_skfcv_SVM_cpu(X, Y, n_folds, c):
 # recall_macro_scorer = make_scorer(recall_macro, greater_is_better=True)
 
 
-def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds):
+def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds, metric):
     svc = svm.LinearSVC(max_iter=100000, class_weight='balanced')
+    # svc = svm.NuSVC(max_iter=100000, class_weight='balanced')
     p_grid = {'C': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]}
+    # p_grid = {'nu': [0.2, 0.5]}
 
     # CV generator inner (n_splits), outter (n_repeats)
     # cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_folds)
-    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_folds, scoring='accuracy', refit=True)#scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
+    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_folds, scoring=metric, refit=True)#scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
     clf.fit(X, Y)
-    nested_score = cross_val_score(clf, X, Y, cv=outer_folds, scoring='accuracy', n_jobs=-1)
+    nested_score = cross_val_score(clf, X, Y, cv=outer_folds, scoring='f1', n_jobs=-1)
 
     print(nested_score)
     print(np.mean(nested_score), np.std(nested_score))
+
+    return np.mean(nested_score)
     # Define parameters for function
     # nested_CV_search = NestedCV(model=svc, params_grid=p_grid, outer_kfolds=outer_folds, inner_kfolds=inner_folds, n_jobs=-1,
     #                             cv_options={'metric': accuracy_score, 'sqrt_of_score': True, 'randomized_search_iter': 30,
@@ -297,23 +292,6 @@ def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds):
     #                                                                              np.mean((nested_CV_search.best_inner_score_list)),
     #                                                                              nested_CV_search.best_params,
     #                                                                              nested_CV_search.variance))
-
-
-
-def train_skfcv_RBF_cpu(X, Y, n_folds, c, gamma):
-    svc = svm.SVC(kernel='rbf', gamma=gamma, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
-    # kf = LeaveOneOut()
-    kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
-    array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
-
-    for train_index, test_index in kf.split(X, Y):
-        x_train, x_test = X[train_index], X[test_index]
-        y_train, y_test = Y[train_index], Y[test_index]
-        svc.fit(x_train, y_train)
-        posteriors = svc.predict_proba(x_test)
-        array_posteriors[test_index] = posteriors
-
-    return array_posteriors, svc
 
 
 def train_svm_gpu(X, Y, X_eval, c, kernel, gamma):
@@ -373,10 +351,43 @@ def leave_one_out_cv(X, y, c):
         y_prob = svc._predict_proba_lr(X_test)
         array_posteriors[test_index] = y_prob
         preds = np.argmax(array_posteriors, axis=1)
-
-        list_trues.append(y_test[0])
+        list_trues.append(y_test)
 
     return preds, np.squeeze(list_trues)
 
 
+def skfcv_svmlinear_cpu(X, Y, n_folds, c):
+    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
+    array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
+    list_trues = np.zeros((len(Y), ))
+
+    for train_index, test_index in kf.split(X, Y):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        posteriors = svc._predict_proba_lr(x_test)
+        array_posteriors[test_index] = posteriors
+        preds = np.argmax(array_posteriors, axis=1)
+        list_trues[test_index] = y_test
+
+    return preds, list_trues
+
+
+def train_skfcv_RBF_cpu(X, Y, n_folds, c, gamma):
+    svc = svm.SVC(kernel='rbf', gamma=gamma, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
+    # kf = LeaveOneOut()
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
+    array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
+    list_trues = []
+
+    for train_index, test_index in kf.split(X, Y):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        posteriors = svc.predict_proba(x_test)
+        array_posteriors[test_index] = posteriors
+        list_trues.append(y_test)
+
+    return array_posteriors, svc
 

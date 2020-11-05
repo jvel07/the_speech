@@ -46,7 +46,7 @@ def load_data_demetia_new8k(gauss, task, feat_type, frame_lev_type, n_feats, n_d
         df_labels = pd.read_csv(file_lbl_train)
         Y_train, encoder = encode_labels(df_labels.label.values, list_labels)
 
-        return X_train, Y_train.ravel()
+        return X_train, Y_train.ravel(), file_train
     else:
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type))
 

@@ -47,8 +47,8 @@ for ga in gaussians:
 
         file_n = os.path.basename(file_train)
         print("with", c, "-", ga, "acc:", acc, " auc:", auc, " prec:", prec, " recall:", rec)
-        util.results_to_csv(file_name='exp_results/results_{}_{}.csv'.format(task, feat_type[0]), list_columns=['Exp. details', 'C value', 'Accuracy', 'AUC', 'Precision', 'Recall'],
-                            list_values=[file_n, c, acc, auc, prec, rec])
+        # util.results_to_csv(file_name='exp_results/results_{}_{}.csv'.format(task, feat_type[0]), list_columns=['Exp. details', 'C value', 'Accuracy', 'AUC', 'Precision', 'Recall'],
+        #                     list_values=[file_n, c, acc, auc, prec, rec])
 
     print()
     # print(std_scaler)
