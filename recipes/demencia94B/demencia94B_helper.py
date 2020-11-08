@@ -38,7 +38,7 @@ work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu mach
 def load_data_demetia_new8k(gauss, task, feat_type, frame_lev_type, n_feats, n_deltas, list_labels):
     if (feat_type == 'fisher') or (feat_type == 'ivecs') or (feat_type == 'xvecs'):
         # Set data directories
-        file_train = work_dir + '{}/{}/{}-{}{}-{}del-{}-{}.{}'.format(task, task, feat_type, n_feats, frame_lev_type, n_deltas, gauss, task, feat_type)
+        file_train = work_dir + '{0}/{0}/{1}/{1}-{2}{3}-{4}del-{5}-{0}.{6}'.format(task, feat_type, n_feats, frame_lev_type, n_deltas, gauss, feat_type)
         file_lbl_train = work_dir + '{}/labels/labels.csv'.format(task)
 
         # Load data

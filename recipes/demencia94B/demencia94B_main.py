@@ -1,6 +1,6 @@
-from data_preproc.mfccs import extract_mfccs
+# from data_preproc.mfccs import extract_mfccs
 # from data_preproc.fisher import extract_fishers
-# from data_preproc.ivecs import extract_ivecs
+from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util
@@ -17,15 +17,15 @@ work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/'  # for ubuntu (nati
 # in and out dirs
 audio_dir = work_dir + 'audio/'
 out_dir = work_dir + 'data/'
+ubm_folder_name = 'wav16k_split_long'
 
 # List of audio-sets (folder(s) containing audio samples)
 list_sets = ['demencia94ABC']
 
 # List of number of clusters wanted to use
 # list_n_clusters = [64, 128]
-# list_n_clusters = [2, 4, 8, 16]
+list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
 # list_n_clusters = [32]
-list_n_clusters = [64]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
@@ -89,6 +89,51 @@ def do_fishers():
             extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, feats_info=feats_info,
                                                 list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
 
+def do_fishers_pretrained_ubm():
+    feature_dir = work_dir + 'data/{}/'.format(recipe)
+    out_dir = work_dir + 'data/'  # Where the computed features will be saved
+    ubm_dir = work_dir + 'data/UBMs/' + ubm_folder_name +'/ivec_models/'  # where the diagonal ubms live
+    # list_ubm_files = util.traverse_dir(ubm_dir, '.dubm')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
+
+    list_sets = ['demencia94ABC']
+    for g in list_n_clusters:
+        for deltas in [2]:
+            # info-purpose parameters from the frame-level extracted features #
+            feats_info = [20, deltas, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+            for folder_name in list_sets:  # iterating over the list of sets where the features live
+                # print("\nReading dir:", feature_dir + folder_name+'/fisher/')
+                # here the diag ubm is used
+                list_ubm_files = util.traverse_dir_2(ubm_dir, '*_{}g_{}{}-{}del_{}.dubm'.format(g, feats_info[0], feats_info[2], feats_info[1],
+                                                                                                 ubm_folder_name))
+                list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name+'/flevel/', '*{}_{}_{}del.{}'.format(feats_info[0],
+                                                                                                          folder_name,
+                                                                                                          feats_info[1],
+                                                                                                          feats_info[2]))
+                extract_fishers.compute_fishers_pretr_ubm_2(list_mfcc_files=list_mfcc_files, out_dir=out_dir, feats_info=feats_info,
+                                                          list_files_ubm=list_ubm_files, recipe=recipe, folder_name=folder_name)
+
+def do_ivecs_pretrained_UBM():
+    feature_dir = work_dir + 'data/{}/'.format(recipe)
+    out_dir = work_dir + 'data/'  # Where the computed features will be saved
+    ubm_dir = work_dir + 'data/UBMs/' + ubm_folder_name +'/ivec_models/'  # where the diagonal ubms live
+    # list_ubm_files = util.traverse_dir(ubm_dir, '.dubm')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
+
+    list_sets = ['demencia94ABC']
+    for g in list_n_clusters:
+        for deltas in [0,1, 2]:
+            # info-purpose parameters from the frame-level extracted features #
+            feats_info = [20, deltas, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
+            for folder_name in list_sets:  # iterating over the list of sets where the features live
+                # print("\nReading dir:", feature_dir + folder_name+'/fisher/')
+                # here the FULL-diag ubm is used
+                list_ubm_files = util.traverse_dir_2(ubm_dir, '*_{}g_{}{}-{}del_{}.fubm'.format(g, feats_info[0], feats_info[2], feats_info[1],
+                                                                                                 ubm_folder_name))
+                list_mfcc_files = util.traverse_dir_2(feature_dir + folder_name+'/flevel/', '*{}_{}_{}del.{}'.format(feats_info[0],
+                                                                                                          folder_name,
+                                                                                                          feats_info[1],
+                                                                                                          feats_info[2]))
+                extract_ivecs.extract_ivecs(list_mfcc_files=list_mfcc_files, g=g, list_fubms=list_ubm_files,
+                                            mfcc_info=feats_info, recipe=recipe, out_dir=out_dir, folder_name=folder_name)
 
 def do_ivecs():
     print("=======i-vector extraction phase========")
@@ -117,12 +162,14 @@ def steps(i):
         1: do_fishers,
         2: do_ivecs,
         3: do_svm,
-        4: do_mfccs_ubm
+        4: do_mfccs_ubm,
+        5: do_fishers_pretrained_ubm,
+        6: do_ivecs_pretrained_UBM
     }
     func = switcher.get(i)
     return func()
 
 
-steps(4)
+steps(6)
 # steps(4)
 # steps(2)

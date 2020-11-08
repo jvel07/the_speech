@@ -23,7 +23,7 @@ list_c = [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1]
 # BEA16kNoAugSP
 for ga in gaussians:
     x_train, y_train, file_n = load_data_demetia_new8k(
-                                            gauss='512dim-BEA16kNoAugSP',
+                                            gauss='512dim-pretrainedV2',
                                             # gauss='{}g'.format(ga),
                                             task=task, feat_type=feat_type[0], frame_lev_type=feat_type[1],
                                             n_feats=20, n_deltas=feat_type[2], list_labels=[1,2,3])

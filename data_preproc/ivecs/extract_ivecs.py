@@ -7,7 +7,7 @@ import os
 
 from common import util
 
-
+# train ALL models: dubm, fubm, ivec-extractor
 def train_models(mfccs_ubm, feats_ivexc, diag, full, ivec_mdl, num_gauss, ivector_dim):
     num_iters = 100
     min_post = 0.025
@@ -35,7 +35,7 @@ def train_models(mfccs_ubm, feats_ivexc, diag, full, ivec_mdl, num_gauss, ivecto
     return dubm, fubm, ivector
 
 
-def train_ubm_models(mfccs_ubm, diag, full, num_gauss):
+def do_models(mfccs_ubm, diag, full, num_gauss):
     num_iters = 100
     # Train diagonal GMM
     print("Training " + str(num_gauss) + " diagonal-GMM...")
@@ -50,7 +50,53 @@ def train_ubm_models(mfccs_ubm, diag, full, num_gauss):
 
     return dubm, fubm
 
-def train_ivec_extractor(ivector_dim, feats_ivexc, fubm, ivec_mdl, ):
+
+# trains UBMs only (dubm and fubm)
+def train_ubm_only(list_n_gauss, out_dir, list_files_ubm, feats_info):
+    # getting name of dirs
+    parent_dir_ubm = os.path.basename(os.path.dirname(list_files_ubm[0]))  # ...For properly naming the models' files
+    dest_data_dir_models = out_dir + 'UBMs/' + parent_dir_ubm
+    if not os.path.isdir(dest_data_dir_models):
+        os.mkdir(dest_data_dir_models)
+
+    # Loading Files for UBM
+    list_feats = []
+    for file_ubm in list_files_ubm:
+        print("File of features for the UBM:", file_ubm)
+        array_feats = np.load(file_ubm, allow_pickle=True)
+        # convert list to array
+        array_feats = np.vstack(array_feats)
+        list_feats.append(array_feats)
+    array_mfccs_ubm = np.vstack(list_feats)
+    print("Shape of the UBM:", array_mfccs_ubm.shape)
+    del list_feats, array_feats
+
+    print("UBM will be trained using {} Gauss".format(list_n_gauss))
+    for g in list_n_gauss:
+        # models for i-vecs
+        file_diag_ubm_model = dest_data_dir_models + '/ivec_models/dubm_mdl_{}g_{}{}-{}del_{}.dubm'.format(g,
+                                                                                                           feats_info[
+                                                                                                               0],
+                                                                                                           feats_info[
+                                                                                                               2],
+                                                                                                           feats_info[
+                                                                                                               1],
+                                                                                                           parent_dir_ubm)
+        file_full_ubm_model = dest_data_dir_models + '/ivec_models/fubm_mdl_{}g_{}{}-{}del_{}.fubm'.format(g,
+                                                                                                           feats_info[
+                                                                                                               0],
+                                                                                                           feats_info[
+                                                                                                               2],
+                                                                                                           feats_info[
+                                                                                                               1],
+                                                                                                           parent_dir_ubm)
+        if not os.path.isdir(dest_data_dir_models + '/ivec_models/'):
+            os.mkdir(dest_data_dir_models + '/ivec_models/')
+        # Train models
+        do_models(mfccs_ubm=np.vstack(array_mfccs_ubm), diag=file_diag_ubm_model, full=file_full_ubm_model, num_gauss=g)
+
+
+def train_ivec_extractor(ivector_dim, feats_ivexc, fubm, ivec_mdl_out):
     num_iters = 100
     min_post = 0.025
     post_scale = 1
@@ -58,7 +104,7 @@ def train_ivec_extractor(ivector_dim, feats_ivexc, fubm, ivec_mdl, ):
     print("Training i-vec extractor with " + str(ivector_dim) + " dimensions...")
     feats = [[]]
     feats = feats_ivexc
-    ivector_extractor = bob.kaldi.ivector_train(feats, fubm, ivec_mdl,
+    ivector_extractor = bob.kaldi.ivector_train(feats, fubm, ivec_mdl_out,
                                       ivector_dim=ivector_dim,
                                       num_iters=num_iters, min_post=min_post,
                                       posterior_scale=post_scale)
@@ -67,25 +113,40 @@ def train_ivec_extractor(ivector_dim, feats_ivexc, fubm, ivec_mdl, ):
 
 
 # Extracting i-vecs when given the fubm and the ivec_extractor
-def extract_ivecs(list_mfcc_files, g, model_fubm, model_ivector, mfcc_info, dest_data_dir_ivecs, folder_name):
-    for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
-        list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
-        print("Extracting i-vecs from {}".format(file_name))
-        ivectors_list = []
-        n_gselect = int(np.log2(g))
-        print(n_gselect)
-        for i2 in list_feat:  # extracting i-vecs
-            ivector_array = bob.kaldi.ivector_extract(i2, model_fubm, model_ivector, num_gselect=n_gselect)
-            ivectors_list.append(ivector_array)
-        a_ivectors = np.vstack(ivectors_list)
-        print("i-vectors shape:", a_ivectors.shape)
-        # Output file (i-vectors)
-        obs = '{}del'.format(mfcc_info[1])  # getting number of deltas info
-        # output file for the ivecs
-        file_fishers = dest_data_dir_ivecs + '/ivecs-{}{}-{}-{}g-{}.ivecs'.format(str(mfcc_info[0]), mfcc_info[2], obs, g,
-                                                                                  folder_name)
-        np.savetxt(file_fishers, a_ivectors, fmt='%.7f')
-        print("{} ivecs saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
+def extract_ivecs(list_mfcc_files, g, list_fubms, mfcc_info, folder_name, recipe, out_dir):
+    # getting name of dirs
+    parent_dir_ubm = os.path.basename(os.path.dirname(os.path.dirname(list_fubms[0])))  # ...For naming properly the models' files only
+    dest_data_dir_ivecs = out_dir + recipe + '/' + folder_name
+    dest_data_dir_models = out_dir + 'UBMs/' + parent_dir_ubm
+    print(dest_data_dir_models)
+
+    for model_fubm in list_fubms:
+        print("Full-UBM model:", model_fubm)
+        # Loading File for UBM
+        obs_ivec = ''
+        with io.open_or_fd(model_fubm, mode='r') as fd:
+            fubm = fd.read()
+        for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
+            list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
+            print("Extracting i-vecs from {}".format(file_name))
+            ivectors_list = []
+            n_gselect = int(np.log2(g))
+            ivec_dims = int(np.log2(g) * (len(list_feat[0][1])))  # the ivec dims is given by log2(numgaussians) * mfcc features dim
+            file_ivec_extractor_model = dest_data_dir_models + '/ivec_models/ivec_mdl_{0}g_{1}{2}-{3}del_{4}.ivexc'.format(g, mfcc_info[0], mfcc_info[2], mfcc_info[1], recipe)
+            print("extractor path", file_ivec_extractor_model)
+            model_ivector = train_ivec_extractor(ivector_dim=ivec_dims, feats_ivexc=list_feat, fubm=fubm, ivec_mdl_out=file_ivec_extractor_model)
+            for i2 in list_feat:  # extracting i-vecs
+                ivector_array = bob.kaldi.ivector_extract(i2, fubm, model_ivector, num_gselect=n_gselect)
+                ivectors_list.append(ivector_array)
+            a_ivectors = np.vstack(ivectors_list)
+            print("i-vectors shape:", a_ivectors.shape)
+            # Output file (i-vectors)
+            obs = '{}del'.format(mfcc_info[1])  # getting number of deltas info
+            # output file for the ivecs
+            file_fishers = dest_data_dir_ivecs + '/ivecs/ivecs-{}{}-{}-{}g-{}.ivecs'.format(str(mfcc_info[0]), mfcc_info[2], obs, g,
+                                                                                      folder_name)
+            np.savetxt(file_fishers, a_ivectors, fmt='%.7f')
+            print("{} ivecs saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
 
 
 regex = re.compile(r'\d+') # to get the number of gaussians when reading the txt models
@@ -184,54 +245,11 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
             # info_num_feats = regex.findall(file_name)
             obs = '{}del'.format(mfcc_info[1])  # getting number of deltas info
             # output file for the ivecs
-            file_fishers = dest_data_dir_ivecs + '/ivecs-{}{}-{}-{}g-{}.ivecs'.format(str(mfcc_info[0]), mfcc_info[2], obs, g, folder_name)
+            file_fishers = dest_data_dir_ivecs + '/ivecs/ivecs-{}{}-{}-{}g-{}.ivecs'.format(str(mfcc_info[0]), mfcc_info[2], obs, g, folder_name)
             np.savetxt(file_fishers, a_ivectors, fmt='%.7f')
             print("{} ivecs saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
 
 
-# trains UBMs only (dubm and fubm)
-def train_ubm_only(list_n_gauss, out_dir, list_files_ubm, feats_info):
-    # getting name of dirs
-    parent_dir_ubm = os.path.basename(os.path.dirname(list_files_ubm[0]))  # ...For properly naming the models' files
-    dest_data_dir_models = out_dir + 'UBMs/' + parent_dir_ubm
-    if not os.path.isdir(dest_data_dir_models):
-        os.mkdir(dest_data_dir_models)
-
-    # Loading Files for UBM
-    list_feats = []
-    for file_ubm in list_files_ubm:
-        print("File of features for the UBM:", file_ubm)
-        array_feats = np.load(file_ubm, allow_pickle=True)
-        # convert list to array
-        array_feats = np.vstack(array_feats)
-        list_feats.append(array_feats)
-    array_mfccs_ubm = np.vstack(list_feats)
-    print("Shape of the UBM:", array_mfccs_ubm.shape)
-    del list_feats, array_feats
-
-    print("UBM will be trained using {} Gauss".format(list_n_gauss))
-    for g in list_n_gauss:
-        # models for i-vecs
-        file_diag_ubm_model = dest_data_dir_models + '/ivec_models/dubm_mdl_{}g_{}{}-{}del_{}.dubm'.format(g,
-                                                                                                           feats_info[
-                                                                                                               0],
-                                                                                                           feats_info[
-                                                                                                               2],
-                                                                                                           feats_info[
-                                                                                                               1],
-                                                                                                           parent_dir_ubm)
-        file_full_ubm_model = dest_data_dir_models + '/ivec_models/fubm_mdl_{}g_{}{}-{}del_{}.fubm'.format(g,
-                                                                                                           feats_info[
-                                                                                                               0],
-                                                                                                           feats_info[
-                                                                                                               2],
-                                                                                                           feats_info[
-                                                                                                               1],
-                                                                                                           parent_dir_ubm)
-        if not os.path.isdir(dest_data_dir_models + '/ivec_models/'):
-            os.mkdir(dest_data_dir_models + '/ivec_models/')
-        # Train models
-        train_ubm_models(mfccs_ubm=np.vstack(array_mfccs_ubm), diag=file_diag_ubm_model, full=file_full_ubm_model, num_gauss=g)
 
 
 # Save models

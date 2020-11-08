@@ -11,7 +11,7 @@ from kaldi_python.read_kaldi_gmm import get_diag_gmm_params
 
 def do_gmm(features, num_gaussian):
     print("Training {}-GMM fishers...".format(num_gaussian))
-    means, covs, priors, LL, posteriors = vlf.gmm.gmm(features, init_mode='kmeans', n_clusters=num_gaussian, n_repetitions=2, verbose=0)
+    means, covs, priors, LL, posteriors = vlf.gmm.gmm(features, n_clusters=num_gaussian, n_repetitions=2, verbose=0)
     return means, covs, priors
 
 
@@ -20,6 +20,7 @@ def do_fishers(features, means, covs, priors):
     print("Extracting FV encodings...")
     fish = vlf.fisher.fisher(features.transpose(), means.transpose(), covs.transpose(), priors, improved=True)
     return fish
+
 
 def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, recipe, folder_name, feats_info):
     # Loading Files for UBM
@@ -63,7 +64,7 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, r
                 list_fishers.append(fish)
             # Output file (fishers)
             obs = '{}del'.format(int(feats_info[1]))  # getting number of deltas info
-            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}{}-{}-{}g-{}.fisher'.format(
+            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher/fisher-{}{}-{}-{}g-{}.fisher'.format(
                 str(feats_info[0]), feats_info[2], obs, g, folder_name)
             # util.save_pickle(file_fishers, list_fishers)  # save as pickle
             np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
@@ -91,7 +92,7 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder
         # Output file (fishers)
         info_num_feats = regex.findall(file_name)
         obs = '{}del'.format(int(info_num_feats[1]))  # getting number of deltas info
-        file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}-{}-{}g-{}.fisher'.format(
+        file_fishers = out_dir + recipe + '/' + folder_name + '/fisher/fisher-{}-{}-{}g-{}.fisher'.format(
             int(info_num_feats[0]), obs, g, folder_name)
         util.save_pickle(file_fishers, list_fishers)  # save as pickle
         # np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
@@ -103,7 +104,7 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder
 def compute_fishers_pretr_ubm_2(list_mfcc_files, out_dir, list_files_ubm, recipe, folder_name, feats_info):
     for file_ubm in list_files_ubm:
         # Loading File for UBM
-        print("File for UBM:", file_ubm)
+        print("File for UBM:", os.path.basename(file_ubm))
         parent_dir_ubm = os.path.basename(os.path.dirname(os.path.dirname(list_files_ubm[0])))
         vars, means, weights, g = get_diag_gmm_params(file_diag=file_ubm, out_dir=out_dir + 'UBMs/' + parent_dir_ubm + '/GMM_fishers/')
 
@@ -117,9 +118,9 @@ def compute_fishers_pretr_ubm_2(list_mfcc_files, out_dir, list_files_ubm, recipe
                 list_fishers.append(fish)
             # Output file (fishers)
             # getting info about the number of frame-level feats and the deltas used (for naming the output files)
-            info_num_feats = regex.findall(os.path.basename(file_name))
-            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher-{}{}-{}del-{}g-{}.fisher'.format(feats_info[0], feats_info[2],
+            # info_num_feats = regex.findall(os.path.basename(file_name))
+            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher/fisher-{}{}-{}del-{}g-{}.fisher'.format(feats_info[0], feats_info[2],
                 feats_info[1], g, folder_name)
             util.save_pickle(file_fishers, list_fishers)  # save as pickle
             # np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
-            print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape, "\n")
+            # print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape, "\n")

@@ -71,19 +71,23 @@ def nnet3read(dnnFilename, outFilename="", write_to_disk=False):
 
 
 def get_diag_gmm_params(file_diag, out_dir):
-    diag_mdl = io.xopen(file_diag)  # reading .mdl or .ubm file
-    gmm = DiagGmm()  # creating DiagGmm object
-    gmm.read(diag_mdl.stream(), diag_mdl.binary)  # reading model
+    if not os.path.isfile(file_diag):
+        print("File {0} does not exist!".format(file_diag))
+    else:
+        print("Getting GMM stats from", format(os.path.basename(file_diag)))
+        diag_mdl = io.xopen(file_diag)  # reading .mdl or .ubm file
+        gmm = DiagGmm()  # creating DiagGmm object
+        gmm.read(diag_mdl.stream(), diag_mdl.binary)  # reading model
 
-    file_name = os.path.basename(file_diag)
+        file_name = os.path.basename(file_diag)
 
-    vars = np.asanyarray(gmm.get_vars())
-    means = np.asanyarray(gmm.get_means())
-    weights = np.asanyarray(gmm.weights())  # priors
+        vars = np.asanyarray(gmm.get_vars())
+        means = np.asanyarray(gmm.get_means())
+        weights = np.asanyarray(gmm.weights())  # priors
 
-    np.savetxt(out_dir + '{}_variances.dubm'.format(file_name), vars)
-    np.savetxt(out_dir + '{}_means.dubm'.format(file_name), means)
-    np.savetxt(out_dir + '{}_weights.dubm'.format(file_name), weights)
-    print("Vars, means and weights saved to:", out_dir)
+        np.savetxt(out_dir + '{}_variances.dubm'.format(file_name), vars)
+        np.savetxt(out_dir + '{}_means.dubm'.format(file_name), means)
+        np.savetxt(out_dir + '{}_weights.dubm'.format(file_name), weights)
+        print("Vars, means and weights saved to:", out_dir)
 
-    return vars, means, weights, gmm.num_gauss()
+        return vars, means, weights, gmm.num_gauss()

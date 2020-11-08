@@ -70,6 +70,7 @@ def load_data_full(gauss, task, feat_type, n_feats, n_deltas, list_labels):
     else:
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type[0]))
 
+
 def load_data_alternate(gauss, task):
     # Set data directories
     file_train = work_dir + 'alternate/vlfeats.mfccs.{}.all.{}.cv.txt'.format(task, gauss)

@@ -66,7 +66,7 @@ def compute_flevel_feats(list_wavs, out_dir, obs, num_feats, num_deltas, recipe,
         mfcc = cepstral_bkaldi(wav, num_feats, num_deltas, cepstral_type=cepstral_type,
                                raw_energy=raw_energy, num_mel_bins=num_mel_bins, low_freq=low_freq, high_freq=high_freq)
         list_mfccs.append(mfcc)
-    file_mfccs = out_dir + recipe + '/' + folder_name + '/{}_{}_{}_{}_{}.{}'.format(cepstral_type, recipe, num_feats,
+    file_mfccs = out_dir + recipe + '/' + folder_name + '/flevel/{}_{}_{}_{}_{}.{}'.format(cepstral_type, recipe, num_feats,
                                                                                            folder_name, observation,
                                                                                            cepstral_type)
     print("Extracted {} {} from {} utterances".format(len(list_mfccs), cepstral_type, len(list_wavs)))

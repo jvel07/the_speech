@@ -19,7 +19,7 @@ ubm_folder_name = 'wav16k_split_long'
 
 # List of number of clusters wanted to use
 # list_n_clusters = [256]
-list_n_clusters = [4, 8, 16, 32, 64, 128]
+list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
 # list_n_clusters = [256]
 # list_n_clusters = [64]
 

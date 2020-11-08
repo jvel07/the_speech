@@ -82,6 +82,7 @@ def save_pickle(file_name, data):
     with open(file_name, 'wb') as f:
         pickle.dump(data, f, protocol=4)
         print("Data pickled to file:", file_name, "With lenght:", len(data), "First ele. shape:", data[0].shape)
+        print()
 
 
 # Read training, dev and test features
