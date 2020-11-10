@@ -19,16 +19,16 @@ my_scorer = make_scorer(uar_scoring, greater_is_better=True)
 ##### scoring #####
 
 
-task = 'mask_gen'
-feat_type = ['fisher', 'mfcc']  #  provide the types of features and frame-level features to use e.g.: 'fisher', 'mfcc', 'xvecs'
+task = 'mask'
+feat_type = ['xvecs', 'mfcc']  #  provide the types of features and frame-level features to use e.g.: 'fisher', 'mfcc', 'xvecs'
 deli = 2
 # Loading data: 'fisher' or 'xvecs'
 # gaussians = [2, 4, 8, 16, 32, 64, 128]
 gaussians = [128]
 for gauss in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, lencoder = rutils.load_data_full(
-                                                                             # gauss='512dimL6',
-                                                                             gauss='{}g'.format(gauss),
+                                                                             gauss='512dimL6',
+                                                                             # gauss='{}g'.format(gauss),
                                                                              task=task,
                                                                              feat_type=feat_type, n_feats=23,
                                                                              n_deltas=deli, list_labels=['mask','clear'])

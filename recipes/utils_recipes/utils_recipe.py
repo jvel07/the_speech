@@ -18,7 +18,7 @@ def encode_labels(_y, list_labels):
     le.fit(list_labels)
     y = le.transform(_y)
     y = y.reshape(-1, 1)
-    return y, le
+    return np.squeeze(y), le
 
 
 # loads the data given the number of gaussians, the name of the task and the type of feature.
@@ -69,6 +69,29 @@ def load_data_full(gauss, task, feat_type, n_feats, n_deltas, list_labels):
         return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], enc
     else:
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type[0]))
+
+# same as the above one but here test labels are known
+def load_data_full_2(gauss, task, feat_info, list_labels):
+    list_datasets = ['train', 'dev', 'test']  # names for the datasets
+    dict_data = {}
+    if (feat_info[0] == 'fisher') or (feat_info[0] == 'ivecs') or (feat_info[0] == 'xvecs'):
+        # Load train, dev, test
+        for item in list_datasets:
+            # Set data directories
+            file_dataset = work_dir + '{}/{}/{}-{}{}-{}del-{}-{}.{}'.format(task, item, feat_info[0], feat_info[2], feat_info[1],
+                                                                            feat_info[3], str(gauss), item, feat_info[0])
+            # Load datasets
+            dict_data['x_'+item] = np.loadtxt(file_dataset)
+            # Load labels
+            file_lbl_train = work_dir + '{}/labels/labels.csv'.format(task) # set data dir
+            df = pd.read_csv(file_lbl_train)
+            df_labels = df[df['file_name'].str.match(item)]
+            # df_labels = df_labels.label.replace('?', list_labels[0])
+            dict_data['y_'+item], enc = encode_labels(df_labels.label.values, list_labels) #  binarizing labels
+        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], dict_data['y_test']
+    else:
+        raise ValueError("'{0}' is not a supported feature representation, please enter 'ivecs', 'fisher', or 'xvecs'.".format(feat_info[0]))
+
 
 
 def load_data_alternate(gauss, task):

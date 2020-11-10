@@ -37,12 +37,18 @@ work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu mach
 # example: train/fisher-23mf-0del-2g-train.fisher
 def load_data_demetia_new8k(gauss, task, feat_type, frame_lev_type, n_feats, n_deltas, list_labels):
     if (feat_type == 'fisher') or (feat_type == 'ivecs') or (feat_type == 'xvecs'):
+        print("Loading {} data".format(feat_type))
         # Set data directories
         file_train = work_dir + '{0}/{0}/{1}/{1}-{2}{3}-{4}del-{5}-{0}.{6}'.format(task, feat_type, n_feats, frame_lev_type, n_deltas, gauss, feat_type)
         file_lbl_train = work_dir + '{}/labels/labels.csv'.format(task)
 
         # Load data
-        X_train = np.loadtxt(file_train)
+        try:
+            X_train = np.loadtxt(file_train)
+        except ValueError:
+            print("File {0} not in txt format, trying to load it as a pickle...".format(os.path.basename(file_train)))
+            X_train = np.load(file_train, allow_pickle=True)
+
         df_labels = pd.read_csv(file_lbl_train)
         Y_train, encoder = encode_labels(df_labels.label.values, list_labels)
 

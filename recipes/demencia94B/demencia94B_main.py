@@ -1,6 +1,6 @@
 # from data_preproc.mfccs import extract_mfccs
-# from data_preproc.fisher import extract_fishers
-from data_preproc.ivecs import extract_ivecs
+from data_preproc.fisher import extract_fishers
+# from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util
@@ -24,8 +24,8 @@ list_sets = ['demencia94ABC']
 
 # List of number of clusters wanted to use
 # list_n_clusters = [64, 128]
-list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
-# list_n_clusters = [32]
+# list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
+list_n_clusters = [256]
 
 
 # Computes mfccs from wavs existing in the directories provided by the user
@@ -97,7 +97,7 @@ def do_fishers_pretrained_ubm():
 
     list_sets = ['demencia94ABC']
     for g in list_n_clusters:
-        for deltas in [2]:
+        for deltas in [0,1,2]:
             # info-purpose parameters from the frame-level extracted features #
             feats_info = [20, deltas, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
             for folder_name in list_sets:  # iterating over the list of sets where the features live
@@ -120,7 +120,7 @@ def do_ivecs_pretrained_UBM():
 
     list_sets = ['demencia94ABC']
     for g in list_n_clusters:
-        for deltas in [0,1, 2]:
+        for deltas in [0, 1, 2]:
             # info-purpose parameters from the frame-level extracted features #
             feats_info = [20, deltas, 'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
             for folder_name in list_sets:  # iterating over the list of sets where the features live
@@ -170,6 +170,6 @@ def steps(i):
     return func()
 
 
-steps(6)
+steps(5)
 # steps(4)
 # steps(2)

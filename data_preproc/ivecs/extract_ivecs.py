@@ -62,7 +62,7 @@ def train_ubm_only(list_n_gauss, out_dir, list_files_ubm, feats_info):
     # Loading Files for UBM
     list_feats = []
     for file_ubm in list_files_ubm:
-        print("File of features for the UBM:", file_ubm)
+        print("\n File of f-level features for the UBM:", os.path.basename(file_ubm))
         array_feats = np.load(file_ubm, allow_pickle=True)
         # convert list to array
         array_feats = np.vstack(array_feats)
@@ -118,23 +118,23 @@ def extract_ivecs(list_mfcc_files, g, list_fubms, mfcc_info, folder_name, recipe
     parent_dir_ubm = os.path.basename(os.path.dirname(os.path.dirname(list_fubms[0])))  # ...For naming properly the models' files only
     dest_data_dir_ivecs = out_dir + recipe + '/' + folder_name
     dest_data_dir_models = out_dir + 'UBMs/' + parent_dir_ubm
-    print(dest_data_dir_models)
 
     for model_fubm in list_fubms:
-        print("Full-UBM model:", model_fubm)
+        print("Full-UBM model:", os.path.basename(model_fubm))
         # Loading File for UBM
         obs_ivec = ''
         with io.open_or_fd(model_fubm, mode='r') as fd:
             fubm = fd.read()
         for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
             list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
-            print("Extracting i-vecs from {}".format(file_name))
+            print("Preparing to extract i-vecs from {0}, using {1} gaussians".format(os.path.basename(file_name), g))
             ivectors_list = []
             n_gselect = int(np.log2(g))
             ivec_dims = int(np.log2(g) * (len(list_feat[0][1])))  # the ivec dims is given by log2(numgaussians) * mfcc features dim
             file_ivec_extractor_model = dest_data_dir_models + '/ivec_models/ivec_mdl_{0}g_{1}{2}-{3}del_{4}.ivexc'.format(g, mfcc_info[0], mfcc_info[2], mfcc_info[1], recipe)
-            print("extractor path", file_ivec_extractor_model)
+            # print("extractor path", file_ivec_extractor_model)
             model_ivector = train_ivec_extractor(ivector_dim=ivec_dims, feats_ivexc=list_feat, fubm=fubm, ivec_mdl_out=file_ivec_extractor_model)
+            print("Extracting i-vector features...")
             for i2 in list_feat:  # extracting i-vecs
                 ivector_array = bob.kaldi.ivector_extract(i2, fubm, model_ivector, num_gselect=n_gselect)
                 ivectors_list.append(ivector_array)

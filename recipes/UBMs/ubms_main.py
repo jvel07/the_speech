@@ -19,8 +19,8 @@ ubm_folder_name = 'wav16k_split_long'
 
 # List of number of clusters wanted to use
 # list_n_clusters = [256]
-list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
-# list_n_clusters = [256]
+# list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
+list_n_clusters = [512]
 # list_n_clusters = [64]
 
 
@@ -52,7 +52,7 @@ def do_ubms():
     print("=======i-vector extraction phase========")
     ubm_dir = work_dir + 'data/UBMs/{0}/{0}'.format(ubm_folder_name)
 
-    for deltas in [2]:
+    for deltas in [0,1,2]:
         feats_info = [20, deltas, 'mfcc']  # info of the mfccs (n_features, deltas)
         # the following is a list in the case of the UBM is meant to be trained with training and dev sets
         list_files_ubm = [ubm_dir + '/mfcc_{0}_{1}_{0}_{2}del.mfcc'.format(ubm_folder_name, feats_info[0], deltas)]
