@@ -13,9 +13,12 @@ from common import util
 from recipes.demencia94B.demencia94B_helper import load_data_demetia_new8k, nested_cv, join_speakers_feats, \
     group_speakers_feats
 
+from common import metrics
+
 task = 'demencia94ABC'
+
 # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
-feat_type = ['fisher', 'mfcc', 0]
+feat_type = ['fisher', 'mfcc', 2]
 
 # Loading data: 'fisher' or 'ivecs's
 gaussians = [2, 4, 8, 16, 32, 64, 128, 256]
@@ -24,7 +27,7 @@ list_c = [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1]
 # BEA16kNoAugSP
 for ga in gaussians:
     x_train, y_train, file_n = load_data_demetia_new8k(
-        # gauss='512dim-pretrained',
+        # gauss='512dim-BEA16kNoAug',
         gauss='{}g'.format(ga),
         task=task, feat_type=feat_type[0], frame_lev_type=feat_type[1],
         n_feats=20, n_deltas=feat_type[2], list_labels=[1, 2, 3])
@@ -42,9 +45,9 @@ for ga in gaussians:
 
     # PCA
     pca_flag = False
-    if pca_flag == True:
-        pca = PCA(n_components=0.97)
-        x_train = pca.fit_transform(x_train)
+    # if pca_flag == True:
+    #     pca = PCA(n_components=0.97)
+    #     x_train = pca.fit_transform(x_train)
 
     # # Training data and evaluating (NESTED cv)
     # print("\n******WITH GAUSSIANS={} - {}-{}-{}deltas******".format(ga, feat_type[0], feat_type[1], feat_type[2]))
@@ -59,18 +62,28 @@ for ga in gaussians:
     #                     list_values=[os.path.basename(file_n), scores['accuracy'], scores['f1'], scores['precision'], scores['recall']])
 
     # Training data and evaluating (STRATIFIED cv)
+    # scores = dict.fromkeys(['exp', 'gauss', 'del', 'c', 'acc', 'f1', 'prec', 'rec', 'auc', 'auc-c0', 'auc', 'auc-c1', 'auc-c2'])
     for c in list_c:
-        preds, trues = svm_fits.skfcv_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
-        acc = accuracy_score(trues, preds)
+        if pca_flag == False:
+            preds, trues, posteriors = svm_fits.skfcv_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
+        else:
+            print("Training with PCA")
+            preds, trues, posteriors = svm_fits.skfcv_PCA_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c, pca=0.97)
+
+        acc = accuracy_score(y_train, preds)
+        auc = roc_auc_score(y_train, posteriors, multi_class='ovo', labels=np.unique(y_train))
+        aucs = metrics.roc_auc_score_multiclass(actual_class=y_train, pred_class=preds)
         preds[preds == 2] = 1
         trues[trues == 2] = 1
         f1 = f1_score(trues, preds)
         prec = precision_score(trues, preds)
         rec = recall_score(trues, preds)
-        print("with", c, "-", ga, "acc:", acc, " f1:", f1, " prec:", prec, " recall:", rec)
-        util.results_to_csv(file_name='results_94ABC/results_2_{}_all.csv'.format(task),
-                            list_columns=['Exp. details', 'Accuracy', 'F1', 'Precision', 'Recall', 'PCA', 'STD'],
-                            list_values=[os.path.basename(file_n), acc, f1, prec, rec, pca_flag, std_flag])
+
+
+        print("with", c, "-", ga, "acc:", acc, " f1:", f1, " prec:", prec, " recall:", rec, 'AUC:', auc, 'auc-c0:', aucs[0], 'auc-c1:', aucs[1], 'auc-c2:', aucs[2])
+        util.results_to_csv(file_name='results_94ABC/results_2_{}_{}.csv'.format(task, feat_type[0]),
+                            list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'Accuracy', 'F1', 'Precision', 'Recall', 'AUC', 'auc-c0', 'auc-c1', 'auc-c2', 'PCA', 'STD'],
+                            list_values=[os.path.basename(file_n), ga, feat_type[2], c, acc, f1, prec, rec, auc, aucs[0], aucs[1], aucs[2], pca_flag, std_flag])
 
     # list_c = [0.001, 1e-06, 0.01, 1e-05, 1]
     # for c in list_c:

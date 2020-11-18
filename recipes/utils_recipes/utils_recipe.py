@@ -88,7 +88,7 @@ def load_data_full_2(gauss, task, feat_info, list_labels):
             df_labels = df[df['file_name'].str.match(item)]
             # df_labels = df_labels.label.replace('?', list_labels[0])
             dict_data['y_'+item], enc = encode_labels(df_labels.label.values, list_labels) #  binarizing labels
-        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], dict_data['y_test']
+        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], dict_data['y_test'], file_dataset, enc
     else:
         raise ValueError("'{0}' is not a supported feature representation, please enter 'ivecs', 'fisher', or 'xvecs'.".format(feat_info[0]))
 

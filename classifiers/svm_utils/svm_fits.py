@@ -310,8 +310,8 @@ def train_svr_gpu(X, Y, X_eval, c, kernel='linear', nu=0.5):
     return y_prob
 
 
-def train_linearsvm_cpu(X, Y, X_eval, c):
-    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+def train_linearsvm_cpu(X, Y, X_eval, c, class_weight):
+    svc = svm.LinearSVC(C=c,  class_weight=class_weight, max_iter=100000)
     svc.fit(X, Y)
     y_prob = svc._predict_proba_lr(X_eval)
     return y_prob
@@ -350,10 +350,11 @@ def leave_one_out_cv(X, y, c):
 
         y_prob = svc._predict_proba_lr(X_test)
         array_posteriors[test_index] = y_prob
-        preds = np.argmax(array_posteriors, axis=1)
+        # preds = np.argmax(array_posteriors, axis=1)
+        preds = array_posteriors[:,1]
         list_trues.append(y_test)
 
-    return preds, np.squeeze(list_trues)
+    return preds.round(), np.squeeze(list_trues), array_posteriors
 
 
 def skfcv_svmlinear_cpu(X, Y, n_folds, c):
@@ -371,7 +372,31 @@ def skfcv_svmlinear_cpu(X, Y, n_folds, c):
         preds = np.argmax(array_posteriors, axis=1)
         list_trues[test_index] = y_test
 
-    return preds, list_trues
+    return preds, list_trues, array_posteriors
+
+
+def skfcv_PCA_svmlinear_cpu(X, Y, n_folds, c, pca=0.97):
+    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
+    array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
+    list_trues = np.zeros((len(Y), ))
+    pca = PCA(n_components=pca)
+
+    for train_index, test_index in kf.split(X, Y):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        # PCA
+        x_train = pca.fit_transform(x_train)
+        x_test = pca.transform(x_test)
+
+        svc.fit(x_train, y_train)
+        posteriors = svc._predict_proba_lr(x_test)
+        array_posteriors[test_index] = posteriors
+        preds = np.argmax(array_posteriors, axis=1)
+        list_trues[test_index] = y_test
+
+    return preds, list_trues, array_posteriors
+
 
 
 def train_skfcv_RBF_cpu(X, Y, n_folds, c, gamma):

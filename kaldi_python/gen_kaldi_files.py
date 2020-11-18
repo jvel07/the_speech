@@ -29,11 +29,11 @@ def sel_spec_wavs():
 # generate kaldi scp file
 def create_scp_kaldi(list_sets):
     task = 'emotion_aibo'
-    audio_folder = 'emotion_aibo_gen'
+    audio_folder = 'emotion_aibo_gen_classes'
     dest_kaldi_folder = 'emotion_aibo_gen'
     for i in list_sets:
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/'.format(audio_folder)  # path to the audio
-        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/{1}/'.format(audio_folder, i)  # path to the audio when it has train, dev, test partitions
+        # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/'.format(audio_folder)  # path to the audio
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/{1}/'.format(audio_folder, i)  # path to the audio when it has train, dev, test partitions
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/dementia_new8k/'
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
         print(path)
@@ -45,10 +45,10 @@ def create_scp_kaldi(list_sets):
         new_list = []
         for item2 in list_audios:
             new_list.append(item2 + ' ' + path + item2)
-        np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
-        # np.savetxt('/home/jose/Documents/kaldi/egs/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
+        # np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
+        np.savetxt('/home/jose/Documents/kaldi/egs/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
 
-# create_scp_kaldi(['train', 'dev', 'test'])
+# create_scp_kaldi(['class1_gen', 'class2_gen', 'class3_gen', 'class4_gen', 'class5_gen'])
 # create_scp_kaldi(['train'])
 
 # when the labels are present with the speaker id
@@ -77,10 +77,10 @@ def create_utt2spk_kaldi(list_sets):
 # when no speaker id nor labels are provided. Output e.g.: 130C_szurke.wav 130
 def create_utt2spk_kaldi_2(list_sets):
     task = 'emotion_aibo'
-    audio_folder = 'emotion_aibo'
+    audio_folder = 'emotion_aibo_gen_classes'
     dest_kaldi_folder = 'emotion_aibo_gen'
     for i1 in list_sets:
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(task, i1)  # when there's train, dev, test folders
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(audio_folder, i1)  # when there's train, dev, test folders
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(audio_folder) # when ther's just one folder
         # list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
         # delimiter='\n')
@@ -91,12 +91,13 @@ def create_utt2spk_kaldi_2(list_sets):
         new_list = []
         for i in list_audios:
             ii = os.path.splitext(i)[0]
-            new_list.append( i + ' ' + ii[0:6])
-            # new_list.append(i + ' ' + ii)
+            # new_list.append( i + ' ' + ii[0:6])
+            new_list.append(i + ' ' + ii)
+            new_list.sort()
         np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/utt2spk'.format(task, i1), new_list, fmt="%s", delimiter=' ')
         # np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/utt2spk'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
 
-create_utt2spk_kaldi_2(['train'])
+create_utt2spk_kaldi_2(['class1_gen', 'class2_gen', 'class3_gen', 'class4_gen', 'class5_gen'])
 
 # for cold database; given in file e.g.: vp010_02_06_butter_009.wav	train_0001.wav
 def generate_utt2spk():
