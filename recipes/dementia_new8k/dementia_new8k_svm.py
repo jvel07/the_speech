@@ -20,10 +20,10 @@ feat_type = ['xvecs', 'mfcc', 0]  # provide the types of features, type of frame
 gaussians = [512]
 list_c = [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1]
 # list_c = [1e-4]
-
+#7thBEA8kAug
 for ga in gaussians:
     x_train, y_train, file_train = load_data_demecia_new8k(
-                                            gauss='512dim-7thBEA8kAug',
+                                            gauss='512dim-',
                                             # gauss='{}g'.format(ga),
                                             task=task, feat_type=feat_type[0], frame_lev_type=feat_type[1],
                                             n_feats=20, n_deltas=feat_type[2], list_labels=[1, 2])
@@ -50,17 +50,17 @@ for ga in gaussians:
         auc = roc_auc_score(trues, preds, average='weighted')
         prec = precision_score(trues, preds)
         rec = recall_score(trues, preds)
+        f1 = f1_score(trues, preds)
+
 
         # np.savetxt('exp_results/posteriors_{0}_loocv_{1}_pretrained.txt'.format(c, task), posteriors)
         # np.savetxt('exp_results/trues_{0}_loocv_{1}_pretrained.txt'.format(c, task), trues)
 
         file_n = os.path.basename(file_train)
-        print("with", c, "-", ga, "acc:", acc, " auc:", auc, " prec:", prec, " recall:", rec)
-        # util.results_to_csv(file_name='exp_results/results_2_{}_{}.csv'.format(task, feat_type[0]),
-        #                     list_columns=['Exp. details', 'C-value', 'Accuracy', 'AUC', 'Precision', 'Recall', 'PCA', 'STD'],
-        #                     list_values=[file_n, c, acc, auc, prec, rec, pca_flag, std_flag])
+        print("with", c, "-", ga, "acc:", acc, " f1:", f1, " prec:", prec, " recall:", rec, 'AUC:', auc)
+        util.results_to_csv(file_name='exp_results/results_mszny_{}_{}.csv'.format(task, feat_type[0]),
+                            list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'Accuracy', 'F1', 'Precision',
+                                          'Recall', 'AUC', 'PCA', 'STD'],
+                            list_values=[os.path.basename(file_n), ga, feat_type[2], c, acc, f1, prec, rec, auc,
+                                        pca_flag, std_flag])
 
-
-    print()
-    # print(std_scaler)
-    print()

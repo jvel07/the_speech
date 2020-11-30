@@ -38,7 +38,7 @@ def create_scp_kaldi(list_sets):
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
         print(path)
 
-        # list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str, delimiter='\n')
+        # list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94ABC/filt_UBMbea_lthan4secs.txt', dtype=str, delimiter='\n')
         # sel_spec_wavs()
         list_audios = os.listdir(path)
         list_audios.sort()
@@ -82,7 +82,7 @@ def create_utt2spk_kaldi_2(list_sets):
     for i1 in list_sets:
         path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(audio_folder, i1)  # when there's train, dev, test folders
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(audio_folder) # when ther's just one folder
-        # list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
+        # list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94ABC/filt_UBMbea_lthan4secs.txt', dtype=str,
         # delimiter='\n')
         # sel_spec_wavs()
         list_audios = os.listdir(path)

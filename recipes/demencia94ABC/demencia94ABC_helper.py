@@ -52,7 +52,7 @@ def load_data_demetia_new8k(gauss, task, feat_type, frame_lev_type, n_feats, n_d
         df_labels = pd.read_csv(file_lbl_train)
         Y_train, encoder = encode_labels(df_labels.label.values, list_labels)
 
-        return X_train, Y_train.ravel(), file_train
+        return X_train, Y_train.ravel(), file_train, encoder
     else:
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type))
 
@@ -103,3 +103,23 @@ def group_speakers_feats(iterable, n):  # iterate every n element within a list
     for x, y, z in zip_longest(*[iter(iterable)] * n):
         lista.append(list((x, y, z)))
     return lista
+
+
+def take_just_B_utt(iterable):
+    lista = []
+    for x, y, z in zip_longest(*[iter(iterable)] * 3):
+        lista.append(list((y)))
+    return lista
+
+
+def getting_ix_occurrences(iterable, a):
+    list_indices = []
+    for i in range(len(iterable)):
+        if iterable[i] == a:
+            list_indices.append(i)
+
+    return list_indices
+
+
+def remove_ocurrences(iterable, list_indices):
+    return [i for j, i in enumerate(iterable) if j not in list_indices]

@@ -6,7 +6,7 @@ import os
 from common import util
 
 # Name of the task/recipe/dataset/etc.
-import recipes.demencia94B.demencia94B_helper as ah
+import recipes.demencia94ABC.demencia94ABC_helper as ah
 
 recipe = 'demencia94ABC'
 
@@ -57,7 +57,7 @@ def do_mfccs_ubm():
 
         # Loading filtered id-wavs
         arr_filtered_wavs_id = np.genfromtxt(
-            '/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94B/filt_UBMbea_lthan4secs.txt', dtype=str,
+            '/recipes/demencia94ABC/filt_UBMbea_lthan4secs.txt', dtype=str,
             delimiter='\n')
         list_specific_wavs = []
         for i in arr_filtered_wavs_id:
