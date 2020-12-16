@@ -10,15 +10,11 @@ from sklearn.model_selection import StratifiedKFold, KFold, LeaveOneOut, GridSea
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, recall_score, make_scorer, precision_score
 from sklearn.svm import SVC
 import xgboost as xgb
+from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 from classifiers.cross_val import StatifiedGroupK_Fold
 
-
-def resample_data(X, Y, r):
-    smote_enn = RandomUnderSampler(random_state=r)
-    X_resampled, y_resampled = smote_enn.fit_resample(X, Y)
-    indi = smote_enn.sample_indices_
-    return X_resampled, y_resampled, indi
 
 
 # train SVM model with stratified cross-validation
@@ -76,19 +72,6 @@ def train_sgkf_cv_resample(X, Y, n_splits, _c, groups, gaussians):
 
     return uar_tot, svc
 
-
-def do_pca(x1, x2, n_comp):
-    pca = PCA(n_components=n_comp)
-    x1 = pca.fit_transform(x1)
-    x2 = pca.transform(x2)
-    return x1, x2
-
-
-def do_lda(x1, x2, Y):
-    pca = LinearDiscriminantAnalysis(shrinkage='auto', solver='eigen')
-    x1 = pca.fit_transform(x1, Y)
-    x2 = pca.transform(x2)
-    return x1, x2
 
 
 def evaluate_auc_score(y_true, y_pred):
@@ -357,8 +340,9 @@ def leave_one_out_cv(X, y, c):
     return preds.round(), np.squeeze(list_trues), array_posteriors
 
 
-def skfcv_svmlinear_cpu(X, Y, n_folds, c):
-    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+def skfcv_svm_cpu(X, Y, n_folds, c, kernel):
+    # svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    svc = svm.SVC(kernel=kernel, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
     list_trues = np.zeros((len(Y), ))
@@ -367,7 +351,8 @@ def skfcv_svmlinear_cpu(X, Y, n_folds, c):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
         svc.fit(x_train, y_train)
-        posteriors = svc._predict_proba_lr(x_test)
+        # posteriors = svc._predict_proba_lr(x_test)
+        posteriors = svc.predict_proba(x_test)
         array_posteriors[test_index] = posteriors
         preds = np.argmax(array_posteriors, axis=1)
         list_trues[test_index] = y_test
@@ -375,8 +360,36 @@ def skfcv_svmlinear_cpu(X, Y, n_folds, c):
     return preds, list_trues, array_posteriors
 
 
+def skfcv_svr_cpu(X, Y, n_folds, c, kernel):
+    svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
+    trues = np.zeros((len(Y), ))
+    preds = np.zeros((len(Y), ))
+
+    for train_index, test_index in kf.split(X, Y):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        pred = svc.predict(x_test)
+        preds[test_index] = pred
+        trues[test_index] = y_test
+
+    return preds, trues
+
+
+def normalCV_svr_cpu(X, Y, test_size, c, kernel):
+    svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=1)
+    svc.fit(x_train, y_train)
+    pred = svc.predict(x_test)
+    return pred, y_test
+
+
+
 def skfcv_PCA_svmlinear_cpu(X, Y, n_folds, c, pca=0.97):
-    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    # svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    svc = svm.SVC(kernel='linear', probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
+
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
     list_trues = np.zeros((len(Y), ))
@@ -390,7 +403,7 @@ def skfcv_PCA_svmlinear_cpu(X, Y, n_folds, c, pca=0.97):
         x_test = pca.transform(x_test)
 
         svc.fit(x_train, y_train)
-        posteriors = svc._predict_proba_lr(x_test)
+        posteriors = svc.predict_proba(x_test)
         array_posteriors[test_index] = posteriors
         preds = np.argmax(array_posteriors, axis=1)
         list_trues[test_index] = y_test

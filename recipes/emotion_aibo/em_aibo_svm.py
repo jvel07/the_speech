@@ -9,6 +9,7 @@ from sklearn.metrics import recall_score, accuracy_score, precision_score, f1_sc
 import recipes.utils_recipes.utils_recipe as rutils
 from classifiers.svm_utils import svm_fits
 import numpy as np
+from sklearn.utils import shuffle
 
 import recipes.utils_recipes.utils_recipe as rutils
 from common import util
@@ -23,14 +24,14 @@ gaussians = [2]
 
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, y_test, file_n, le = rutils.load_data_full_2(
-        gauss='512dim-BEA16kNoAug',
+        gauss='512dim-pretrained',
         # gauss='{}g'.format(ga),
         task=task,
         feat_info=feat_info,
         list_labels=[1,2,3,4,5]
     )
 
-    class1, class2, class3, class4, class5, class1_lbl, class2_lbl, class3_lbl, class4_lbl, class5_lbl = h.load_synthetic_data()
+    class1, class2, class3, class4, class5, class1_lbl, class2_lbl, class3_lbl, class4_lbl, class5_lbl = h.load_synthetic_data(obs='pretrained')
     class1_lbl = le.transform(class1_lbl)
     class2_lbl = le.transform(class2_lbl)
     class3_lbl = le.transform(class3_lbl)
@@ -43,8 +44,10 @@ for ga in gaussians:
     x_combined = np.concatenate((x_train, x_dev))
     y_combined = np.concatenate((y_train, y_dev))
 
+    x_combined, y_combined = shuffle(x_combined, y_combined)
+
     # Scale data
-    std_flag = True
+    std_flag = False
     if std_flag == True:
         std_scaler = preprocessing.RobustScaler()
         std_scaler2 = preprocessing.RobustScaler()

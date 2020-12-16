@@ -65,7 +65,7 @@ for ga in gaussians:
     # scores = dict.fromkeys(['exp', 'gauss', 'del', 'c', 'acc', 'f1', 'prec', 'rec', 'auc', 'auc-c0', 'auc', 'auc-c1', 'auc-c2'])
     for c in list_c:
         if pca_flag == False:
-            preds, trues, posteriors = svm_fits.skfcv_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
+            preds, trues, posteriors = svm_fits.skfcv_svm_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
         else:
             print("Training with PCA")
             preds, trues, posteriors = svm_fits.skfcv_PCA_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c, pca=0.97)

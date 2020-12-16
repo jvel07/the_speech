@@ -51,12 +51,12 @@ def oversample(X, Y):
     return X_resampled, y_resampled
 
 
-def load_synthetic_data():
-    class1 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class1_gen/xvecs-23mfcc-0del-512dim-DNNtraindev-class1_gen.xvecs')
-    class2 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class2_gen/xvecs-23mfcc-0del-512dim-DNNtraindev-class2_gen.xvecs')
-    class3 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class3_gen/xvecs-23mfcc-0del-512dim-DNNtraindev-class3_gen.xvecs')
-    class4 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class4_gen/xvecs-23mfcc-0del-512dim-DNNtraindev-class4_gen.xvecs')
-    class5 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class5_gen/xvecs-23mfcc-0del-512dim-DNNtraindev-class5_gen.xvecs')
+def load_synthetic_data(obs):
+    class1 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class1_gen/xvecs-23mfcc-0del-512dim-{}-class1_gen.xvecs'.format(obs))
+    class2 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class2_gen/xvecs-23mfcc-0del-512dim-{}-class2_gen.xvecs'.format(obs))
+    class3 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class3_gen/xvecs-23mfcc-0del-512dim-{}-class3_gen.xvecs'.format(obs))
+    class4 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class4_gen/xvecs-23mfcc-0del-512dim-{}-class4_gen.xvecs'.format(obs))
+    class5 = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class5_gen/xvecs-23mfcc-0del-512dim-{}-class5_gen.xvecs'.format(obs))
 
     class1_lbl = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class1_gen/labels_class_1')
     class2_lbl = np.loadtxt('/media/jose/hk-data/PycharmProjects/the_speech/data/emotion_aibo/class2_gen/labels_class_2')

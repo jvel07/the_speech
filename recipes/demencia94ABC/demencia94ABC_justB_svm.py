@@ -71,7 +71,7 @@ for ga in gaussians:
     print(os.path.basename(file_n))
     for c in list_c:
         if pca_flag == False:
-            preds, trues, posteriors = svm_fits.skfcv_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
+            preds, trues, posteriors = svm_fits.skfcv_svm_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
         else:
             print("Training with PCA")
             preds, trues, posteriors = svm_fits.skfcv_PCA_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c, pca=0.97)
