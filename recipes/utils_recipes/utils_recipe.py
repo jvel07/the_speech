@@ -12,6 +12,8 @@ work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu mach
 # work_dir2 = 'D:/VHD'
 
 
+
+
 # Encoding labels to numbers
 def encode_labels(_y, list_labels):
     le = preprocessing.LabelEncoder()
@@ -78,8 +80,8 @@ def load_data_full_2(gauss, task, feat_info, list_labels):
         # Load train, dev, test
         for item in list_datasets:
             # Set data directories
-            file_dataset = work_dir + '{}/{}/{}-{}{}-{}del-{}-{}.{}'.format(task, item, feat_info[0], feat_info[2], feat_info[1],
-                                                                            feat_info[3], str(gauss), item, feat_info[0])
+            file_dataset = work_dir + '{0}/{1}/{2}-{3}{4}-{5}del-{6}-{7}.{2}'.format(task, item, feat_info[0], feat_info[3], feat_info[1],
+                                                                            feat_info[2], str(gauss), item, feat_info[0])
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
             # Load labels

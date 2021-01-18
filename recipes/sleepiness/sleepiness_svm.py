@@ -30,7 +30,7 @@ preds_dev = 0
 
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, y_test,  file_n = load_data_full(
-                                            gauss='512dim-DNNtrain',
+                                            gauss='512dim-v2',
                                             # gauss='{}g'.format(ga),
                                             task=task, feat_type=feat_type,
                                             n_feats=20)

@@ -1,4 +1,4 @@
-from sklearn.metrics import make_scorer, roc_curve
+from sklearn.metrics import make_scorer, roc_curve, recall_score
 from scipy.optimize import brentq
 from scipy.interpolate import interp1d
 from sklearn.metrics import roc_auc_score
@@ -31,3 +31,10 @@ def roc_auc_score_multiclass(actual_class, pred_class, average="macro"):
         roc_auc_dict[per_class] = roc_auc
 
     return roc_auc_dict
+
+
+# UAR scorer
+def uar_scoring(y_true, y_pred, **kwargs):
+    recall_score(y_true, y_pred, labels=[1, 0], average='macro')
+    my_scorer = make_scorer(uar_scoring, greater_is_better=True)
+    return my_scorer

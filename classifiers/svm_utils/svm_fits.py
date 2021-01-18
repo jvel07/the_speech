@@ -12,10 +12,12 @@ from sklearn.svm import SVC
 import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+from mango import Tuner, scheduler
+from scipy.stats import uniform
+from mango.domain.distribution import loguniform
 
 from classifiers.cross_val import StatifiedGroupK_Fold
-
-
+from common import metrics
 
 # train SVM model with stratified cross-validation
 def train_model_stk_cv(X, Y, n_splits, _c):
@@ -71,7 +73,6 @@ def train_sgkf_cv_resample(X, Y, n_splits, _c, groups, gaussians):
         uar_tot = (one + two) / 2
 
     return uar_tot, svc
-
 
 
 def evaluate_auc_score(y_true, y_pred):
@@ -158,14 +159,6 @@ def train_lsvm_normal(X, Y, X_t, Y_t, c):
     return uar, y_prob
 
 
-def uar_scoring(y_true, y_pred, **kwargs):
-    uar = recall_score(y_true, y_pred, labels=[1, 0], average='macro')
-    return uar
-
-
-my_scorer = make_scorer(uar_scoring, greater_is_better=True)
-
-
 # train and evaluate normally with rbf
 def grid_skfcv_gpu(X, Y, params, metrics):
     from thundersvm import SVC as thunder
@@ -212,7 +205,7 @@ def grid_cv_cpu(X, Y, params):
 # Train SVM with the thunder library (GPU usage)
 def train_skfcv_SVM_gpu(X, Y, n_folds, c, kernel, gamma):
     from thundersvm import SVC as thunder
-    svc = thunder(kernel=kernel, C=c, gamma=gamma,  class_weight='balanced', probability=True, max_iter=500000, gpu_id=0)
+    svc = thunder(kernel=kernel, C=c, gamma=gamma, class_weight='balanced', probability=True, max_iter=500000, gpu_id=0)
     # kf = LeaveOneOut()
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
@@ -257,7 +250,8 @@ def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds, metric):
 
     # CV generator inner (n_splits), outter (n_repeats)
     # cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_folds)
-    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_folds, scoring=metric, refit=True)#scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
+    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_folds, scoring=metric,
+                       refit=True)  # scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
     clf.fit(X, Y)
     nested_score = cross_val_score(clf, X, Y, cv=outer_folds, scoring='f1', n_jobs=-1)
 
@@ -294,10 +288,10 @@ def train_svr_gpu(X, Y, X_eval, c, kernel='linear', nu=0.5):
 
 
 def train_linearsvm_cpu(X, Y, X_eval, c, class_weight):
-    svc = svm.LinearSVC(C=c,  class_weight=class_weight, max_iter=100000)
+    svc = svm.LinearSVC(C=c, class_weight=class_weight, max_iter=100000)
     svc.fit(X, Y)
     y_prob = svc._predict_proba_lr(X_eval)
-    return y_prob
+    return y_prob, svc
 
 
 def train_xgboost_regressor(X, Y, X_eval):
@@ -305,6 +299,7 @@ def train_xgboost_regressor(X, Y, X_eval):
     xgb.train(X, Y)
     y_pred = model.predict(X_eval)
     return y_pred
+
 
 def train_linearSVR_cpu(X, Y, X_eval, c):
     svr = svm.SVR(kernel='linear', C=c, max_iter=100000)
@@ -322,7 +317,7 @@ def train_rbfsvm_cpu(X, Y, X_eval, c, gamma):
 
 def leave_one_out_cv(X, y, c):
     loo = LeaveOneOut()
-    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    svc = svm.LinearSVC(C=c, class_weight='balanced', max_iter=100000)
     array_posteriors = np.zeros((len(y), len(np.unique(y))))
     list_trues = []
 
@@ -334,25 +329,25 @@ def leave_one_out_cv(X, y, c):
         y_prob = svc._predict_proba_lr(X_test)
         array_posteriors[test_index] = y_prob
         # preds = np.argmax(array_posteriors, axis=1)
-        preds = array_posteriors[:,1]
+        preds = array_posteriors[:, 1]
         list_trues.append(y_test)
 
     return preds.round(), np.squeeze(list_trues), array_posteriors
 
 
 def skfcv_svm_cpu(X, Y, n_folds, c, kernel):
-    # svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
-    svc = svm.SVC(kernel=kernel, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
+    svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
+    # svc = svm.SVC(kernel=kernel, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
-    list_trues = np.zeros((len(Y), ))
+    list_trues = np.zeros((len(Y),))
 
     for train_index, test_index in kf.split(X, Y):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
         svc.fit(x_train, y_train)
-        # posteriors = svc._predict_proba_lr(x_test)
-        posteriors = svc.predict_proba(x_test)
+        posteriors = svc._predict_proba_lr(x_test)
+        # posteriors = svc.predict_proba(x_test)
         array_posteriors[test_index] = posteriors
         preds = np.argmax(array_posteriors, axis=1)
         list_trues[test_index] = y_test
@@ -363,8 +358,8 @@ def skfcv_svm_cpu(X, Y, n_folds, c, kernel):
 def skfcv_svr_cpu(X, Y, n_folds, c, kernel):
     svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
-    trues = np.zeros((len(Y), ))
-    preds = np.zeros((len(Y), ))
+    trues = np.zeros((len(Y),))
+    preds = np.zeros((len(Y),))
 
     for train_index, test_index in kf.split(X, Y):
         x_train, x_test = X[train_index], X[test_index]
@@ -377,13 +372,22 @@ def skfcv_svr_cpu(X, Y, n_folds, c, kernel):
     return preds, trues
 
 
-def normalCV_svr_cpu(X, Y, test_size, c, kernel):
+def normalCV_NuSVR_cpu(X, Y, n_folds, c, kernel):
     svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=1)
-    svc.fit(x_train, y_train)
-    pred = svc.predict(x_test)
-    return pred, y_test
+    kf = KFold(n_splits=n_folds, random_state=None)
 
+    array_preds = np.zeros((len(Y),))
+    list_trues = np.zeros((len(Y),))
+
+    for train_index, test_index in kf.split(X=X):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        pred = svc.predict(x_test)
+        array_preds[test_index] = pred
+        list_trues[test_index] = y_test
+
+    return array_preds, list_trues
 
 
 def skfcv_PCA_svmlinear_cpu(X, Y, n_folds, c, pca=0.97):
@@ -392,7 +396,7 @@ def skfcv_PCA_svmlinear_cpu(X, Y, n_folds, c, pca=0.97):
 
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
     array_posteriors = np.zeros((len(Y), len(np.unique(Y))))
-    list_trues = np.zeros((len(Y), ))
+    list_trues = np.zeros((len(Y),))
     pca = PCA(n_components=pca)
 
     for train_index, test_index in kf.split(X, Y):
@@ -410,7 +414,39 @@ def skfcv_PCA_svmlinear_cpu(X, Y, n_folds, c, pca=0.97):
 
     return preds, list_trues, array_posteriors
 
+######## scoring #####
+def uar_scoring(y_true, y_pred, **kwargs):
+    uar = recall_score(y_true, y_pred, labels=[1, 0], average='macro')
+    return uar
 
+my_scorer = make_scorer(uar_scoring, greater_is_better=True)
+
+
+#  check https://github.com/ARM-software/mango/
+def train_mango_skcv(X, Y, n_splits):
+    from thundersvm import SVC as thunder
+    param_space = {
+        # 'kernel': ['rbf', 'linear'],
+        # 'gamma': uniform(0.1, 4),  # 0.1 to 4.1
+        'C': [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1] #loguniform(-6, 6)  # 10^-7 to 10
+                   }
+
+    # @scheduler.serial
+    def objectiveSVM(args_list):
+        results = []
+        for hyper_par in args_list:
+            svc = svm.LinearSVC(**hyper_par, max_iter=100000,
+                                class_weight='balanced')
+            # svc = thunder(**hyper_par, max_iter=100000,
+            #               class_weight='balanced')
+            result = cross_val_score(svc, X, Y, scoring=my_scorer, n_jobs=-1, cv=n_splits).mean()
+            results.append(result)
+
+        return results
+
+    tuner = Tuner(param_dict=param_space, objective=objectiveSVM)
+    results = tuner.maximize()
+    return results
 
 def train_skfcv_RBF_cpu(X, Y, n_folds, c, gamma):
     svc = svm.SVC(kernel='rbf', gamma=gamma, probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')
@@ -428,4 +464,3 @@ def train_skfcv_RBF_cpu(X, Y, n_folds, c, gamma):
         list_trues.append(y_test)
 
     return array_posteriors, svc
-

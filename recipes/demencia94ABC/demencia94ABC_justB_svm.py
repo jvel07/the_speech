@@ -24,6 +24,7 @@ feat_type = ['ivecs', 'mfcc', 0]
 gaussians = [2, 4, 8, 16, 32, 64, 128, 256]
 # gaussians = [128]
 list_c = [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1, 1]
+# list_c = [0.01]
 # BEA16kNoAugSP
 for ga in gaussians:
     x_train, y_train, file_n, encoder = load_data_demetia_new8k(
@@ -71,22 +72,25 @@ for ga in gaussians:
     print(os.path.basename(file_n))
     for c in list_c:
         if pca_flag == False:
-            preds, trues, posteriors = svm_fits.skfcv_svm_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
+            preds, trues, posteriors = svm_fits.skfcv_svm_cpu(X=x_train, Y=y_train, n_folds=5, c=c, kernel='linear')
         else:
             print("Training with PCA")
             preds, trues, posteriors = svm_fits.skfcv_PCA_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c, pca=0.97)
 
         acc = accuracy_score(y_train, preds)
-        auc = roc_auc_score(y_train, preds)
+        auc = roc_auc_score(y_train, posteriors[:, 1])
         # auc = metrics.roc_auc_score_multiclass(actual_class=y_train, pred_class=preds)
         f1 = f1_score(trues, preds)
         prec = precision_score(trues, preds)
         rec = recall_score(trues, preds)
 
         print("with", c, "-", ga, "acc:", acc, " f1:", f1, " prec:", prec, " recall:", rec, 'AUC:', auc)
-        util.results_to_csv(file_name='results_94ABC/results_2_{}_{}.csv'.format(task, feat_type[0]),
+        util.results_to_csv(file_name='results_94ABC/results_new_{}_{}.csv'.format(task, feat_type[0]),
                             list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'Accuracy', 'F1', 'Precision', 'Recall', 'AUC', 'PCA', 'STD'],
                             list_values=[os.path.basename(file_n), ga, feat_type[2], c, acc, f1, prec, rec, auc, pca_flag, std_flag])
+        # np.savetxt('posteriors_mszny_{}'.format(os.path.basename(file_n)), posteriors)
+        # np.savetxt('preds_mszny_{}'.format(os.path.basename(file_n)), preds)
+
 
     # list_c = [0.001, 1e-06, 0.01, 1e-05, 1]
     # for c in list_c:
