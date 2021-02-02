@@ -33,8 +33,8 @@ class SPKID_Dataset(Dataset):
         return len(self.feat_list)
 
     def __getitem__(self, idx):
-       # feat = kaldi_io.read_mat(self.feat_list[idx])
-       feat = kaldi_io.read_vec_flt(self.feat_list[idx])
+       feat = kaldi_io.read_mat(self.feat_list[idx])
+       # feat = kaldi_io.read_vec_flt(self.feat_list[idx])
        return feat
 
     def __getutt__(self, idx):
@@ -45,23 +45,30 @@ class SPKID_Dataset(Dataset):
 
 def get_frame_level_to_txt(list_features, batch_number):
     for c, feat in enumerate(list_features, 1):
-        file_name = 'fluencia/vads/vad_train.{}_{}.vad'.format(batch_number, c)
-        np.savetxt(file_name, feat)
-        print('Saved', file_name)
+        out_file_name = 'sleepiness/train/vad_train.{}_{}.vad'.format(batch_number, c)
+        np.savetxt(out_file_name, feat)
+        print('Saved', out_file_name)
 
 
-def get_frame_level(list_sets):
-    for i in list_sets:
-        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/mfcc/vad_train.{}.scp'.format(i))
+def get_frame_level(list_sets, n_batches):
+    feats_info = ['sleepiness', 'mfcc', 23, 0]  # [task, feat_type, n_feats, deltas]
+    for _set in list_sets:
         feats = []
-        for j in range(len(dataset)):
-            feats.append(dataset.__getitem__(j))
-        get_frame_level_to_txt(feats, batch_number=i)
+        for k in range(1, n_batches+1):
+            in_file = '/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/mfcc/raw_mfcc_{}.{}.scp'.format(_set, k)
+            print(in_file)
+            dataset = SPKID_Dataset(in_file)
+            for j in range(len(dataset)):
+                feats.append(dataset.__getitem__(j))
+        out_file_name = '/media/jose/hk-data/PycharmProjects/the_speech/data/{0}/{1}/{2}_{0}_{3}_{1}_{4}del.{2}'.format(feats_info[0], _set, feats_info[1], feats_info[2], feats_info[3])
+        np.save(out_file_name, feats, allow_pickle=True)
+        print('Saved', out_file_name)
 
+# get_frame_level(['train', 'dev', 'test'], 8)
 
 
 def get_xvecs(list_sets, dest_task):
-    obs = '9612365'
+    obs = '7234786_fbanks40'
     for i in list_sets:
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
         dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_23mf_train_only_srand_{1}/{0}/xvector.scp'.format(i, obs))
@@ -73,7 +80,7 @@ def get_xvecs(list_sets, dest_task):
         # np.savetxt('../data/{0}/{1}/xvecs/xvecs-23mfcc-0del-{2}dim-pretrained-{3}.xvecs'.format(dest_task, dest_task, x.shape[1], dest_task), x)
         print(x.shape)
 
-get_xvecs(['train', 'dev', 'test'], 'sleepiness')
+# get_xvecs(['train', 'dev', 'test'], 'sleepiness')
 
 def get_ivecs():
     num = [1, 2, 3, 4]

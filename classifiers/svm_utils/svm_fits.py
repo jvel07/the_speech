@@ -356,7 +356,7 @@ def skfcv_svm_cpu(X, Y, n_folds, c, kernel):
 
 
 def skfcv_svr_cpu(X, Y, n_folds, c, kernel):
-    svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    svc = svm.SVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
     kf = StratifiedKFold(n_splits=n_folds, shuffle=False, random_state=None)
     trues = np.zeros((len(Y),))
     preds = np.zeros((len(Y),))
@@ -380,6 +380,24 @@ def normalCV_NuSVR_cpu(X, Y, n_folds, c, kernel):
     list_trues = np.zeros((len(Y),))
 
     for train_index, test_index in kf.split(X=X):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        pred = svc.predict(x_test)
+        array_preds[test_index] = pred
+        list_trues[test_index] = y_test
+
+    return array_preds, list_trues
+
+
+def loocv_NuSVR_cpu(X, Y, c, kernel):
+    svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    loo = LeaveOneOut()
+
+    array_preds = np.zeros((len(Y),))
+    list_trues = np.zeros((len(Y),))
+
+    for train_index, test_index in loo.split(X=X):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
         svc.fit(x_train, y_train)

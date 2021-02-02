@@ -20,12 +20,12 @@ x_train = x_train.values
 y_train = df.BDI.values
 
 # std data
-std_scaler = preprocessing.RobustScaler()
+std_scaler = preprocessing.StandardScaler()
 x_train = std_scaler.fit_transform(x_train)
 
 # train
 list_c = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]
 for c in list_c:
-    preds, trues = svm_fits.normalCV_NuSVR_cpu(X=x_train, Y=y_train, n_folds=10, c=c, kernel='linear')
+    preds, trues = svm_fits.loocv_NuSVR_cpu(X=x_train, Y=y_train, c=c, kernel='rbf')
     corr, _ = stats.pearsonr(trues, preds)
     print("with {}:".format(c), corr)
