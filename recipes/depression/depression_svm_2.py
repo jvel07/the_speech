@@ -15,12 +15,12 @@ import numpy as np
 # load data
 file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/finaldb.txt'
 df = pd.read_csv(file, delimiter='\t')
-x_train = df.drop(['fileName'], axis=1)
+x_train = df.drop(['fileName'], axis=1)  # dropping 'fileName' column
 x_train.fillna(0, inplace=True)
 
 x_train['Sex'] = x_train['Sex'].astype('category')  # setting the 'sex' column as category
-x_train_men = x_train[x_train['Sex'].str.match('F')]
-x_train_women = x_train[x_train['Sex'].str.match('N')]
+x_train_men = x_train[x_train['Sex'].str.match('F')]  # getting men's data
+x_train_women = x_train[x_train['Sex'].str.match('N')]  # getting women's data
 
 x_train_men['Sex'] = x_train_men['Sex'].cat.codes  # encoding cat to numbers
 x_train_women['Sex'] = x_train_women['Sex'].cat.codes  # encoding cat to numbers
