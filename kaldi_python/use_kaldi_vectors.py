@@ -1,6 +1,7 @@
 # Reading ark and scp files that were extracted using Kaldi.
 import kaldi_io
 import numpy as np
+import pandas
 
 
 def read_as_dict(file):
@@ -20,14 +21,14 @@ class Dataset(object):
 class SPKID_Dataset(Dataset):
     # Loads i-vectors/x-vectors for the data
     def __init__(self, vector_scp):
-        self.feat_list = self.read_scp(vector_scp)
+        self.feat_list, self.utt_list = self.read_scp(vector_scp)
 
     def read_scp(self, vector_scp):
         utt2scp = read_as_dict(vector_scp)
         feat_list = []
         for utt in utt2scp:
             feat_list.append(utt2scp[utt])
-        return feat_list#, list(utt2scp.keys())
+        return feat_list, list(utt2scp.keys())
 
     def __len__(self):
         return len(self.feat_list)
@@ -40,7 +41,6 @@ class SPKID_Dataset(Dataset):
     def __getutt__(self, idx):
         utt = self.utt_list[idx]
         return utt
-
 
 
 def get_frame_level_to_txt(list_features, batch_number):
@@ -82,20 +82,26 @@ def get_xvecs(list_sets, dest_task):
 
 
 def get_xvecs_2(list_sets, dest_task):
-    srand_list = ['389743', '564896', '2656842', '2959019', '4336987', '7234786', '9612365', '423877642', '987236753',
-                  '764352323']
+    # srand_list = ['389743', '564896', '2656842', '2959019', '4336987', '7234786', '9612365', '423877642', '987236753',
+    #               '764352323']
+    srand_list = ['389743']
 
-    obs = 'spec'
+    obs = 'aug'
+    feat = '40fbanks'
     for srand in srand_list:
         for i in list_sets:
             # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
+            # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python'
+            #                         '/exp_{0}_train_only_srand_{1}_{2}/{2}/xvector.scp'.format(feat,srand, obs, i))
             dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python'
-                                    '/exp_train_only_srand_{0}_{1}/{2}/xvector.scp'.format(srand, obs, i))
+                                    '/exp_{0}_DNN_train_dev_srand_{1}_{2}/{3}/xvector.scp'.format(feat,srand, obs, i))
             xvecs = []
             for j in range(len(dataset)):
                 xvecs.append(dataset.__getitem__(j))
             x = np.vstack(xvecs)
-            file_name = '../data/{0}/{1}/xvecs-23mfcc-0del-{2}dim-train_dev-{5}_{4}-{3}.xvecs'.format(dest_task, i, x.shape[1], i, obs, srand)
+            file_name = '../data/{0}/{1}/xvecs-{6}-0del-{2}dim-train_dev-{5}_{4}-{3}.xvecs'.format(dest_task, i,
+                                                                                                      x.shape[1], i,
+                                                                                                      obs, srand, feat)
             np.savetxt(file_name, x)
             # np.savetxt('../data/{0}/{1}/xvecs/xvecs-23mfcc-0del-{2}dim-pretrained-{3}.xvecs'.format(dest_task, dest_task, x.shape[1], dest_task), x)
             print(x.shape)
@@ -103,7 +109,31 @@ def get_xvecs_2(list_sets, dest_task):
             print()
 
 
-get_xvecs_2(['train', 'dev', 'test'], 'sleepiness')
+get_xvecs_2(['train', 'dev', 'test'], 'primates')
+
+def get_xvecs_as_dataframe(list_sets, dest_task):
+    srand = 389743
+    obs = 'noAug'
+    feat = '40fbanks'
+    xvecs = []
+    filenames = []
+    for i in list_sets:
+        # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
+        # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python'
+        #                         '/exp_{0}_train_only_srand_{1}_{2}/{2}/xvector.scp'.format(feat,srand, obs, i))
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python'
+                                '/exp_{0}_DNN_train_dev_srand_{1}_{2}/{3}/xvector.scp'.format(feat, srand, obs, i))
+        for j in range(len(dataset)):
+            xvecs.append(dataset.__getitem__(j))
+            filenames.append(str(dataset.__getutt__(j)))
+        df = pandas.DataFrame(data=xvecs, columns=np.arange(len(xvecs[0])))
+        df['filename'] = filenames
+        file_name = '../data/{0}/{1}/xvecs-{6}-0del-{2}dim-train_dev-{5}_{4}-{3}.csv'.format(dest_task, i,
+                                                                                               df.shape[1]-1, i,
+                                                                                               obs, srand, feat)
+        df.to_csv(file_name)
+
+# get_xvecs_as_dataframe(['train', 'dev', 'test'], 'primates')
 
 
 def get_ivecs():

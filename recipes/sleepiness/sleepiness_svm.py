@@ -50,7 +50,7 @@ for srand in srand_list:
         x_combined = np.concatenate((x_train, x_dev))
         y_combined = np.concatenate((y_train, y_dev))
 
-        std_flag = False
+        std_flag = True
         if std_flag:
             std_scaler = preprocessing.StandardScaler()
             x_train = std_scaler.fit_transform(x_train)
@@ -73,18 +73,18 @@ for srand in srand_list:
             spear_scores.append(coef)
             print("with", c, "- spe:", coef)
 
-            # util.results_to_csv(file_name='exp_results/results_{}_{}_srand_spec.csv'.format(task, feat_type[0]),
-            #                     list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
-            #                     list_values=[os.path.basename(file_n), ga, feat_type[2], c, coef,
-            #                                  std_flag, 'DEV', srand])
+            util.results_to_csv(file_name='exp_results/results_{}_{}_srand_spec.csv'.format(task, feat_type[0]),
+                                list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
+                                list_values=[os.path.basename(file_n), ga, feat_type[2], c, coef,
+                                             std_flag, 'DEV', srand])
 
         # Train SVM model on the whole training data with optimum complexity and get predictions on test data
         optimum_complexity = list_c[np.argmax(spear_scores)]
         print('\nOptimum complexity: {0:.6f}'.format(optimum_complexity))
 
         # Saving best dev posteriors
-        dev_preds = svm_fits.train_svr_gpu(x_train, y_train.ravel(), X_eval=x_dev, c=optimum_complexity, nu=0.5)
-        np.savetxt('preds_{}/best_preds_dev_{}_srand_{}.txt'.format(feat, optimum_complexity, srand), dev_preds)
+        # dev_preds = svm_fits.train_svr_gpu(x_train, y_train.ravel(), X_eval=x_dev, c=optimum_complexity, nu=0.5)
+        # np.savetxt('preds_{}/best_preds_dev_{}_srand_{}.txt'.format(feat, optimum_complexity, srand), dev_preds)
 
         y_pred = svm_fits.train_svr_gpu(x_combined, y_combined.ravel(), X_eval=x_test, c=optimum_complexity, nu=list_nu[0])
         # y_pred = sh.linear_trans_preds_test(y_train=y_train, preds_dev=preds_orig, preds_test=y_pred)
@@ -93,11 +93,11 @@ for srand in srand_list:
 
         print(os.path.basename(file_n), "\nTest results with", optimum_complexity, "- spe:", coef_test)
         print(20*'-')
-        # util.results_to_csv(file_name='exp_results/results_{}_{}_srand_spec.csv'.format(task, feat_type[0]),
-        #                     list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
-        #                     list_values=[os.path.basename(file_n), ga, feat_type[2], optimum_complexity, coef_test,
-        #                                  std_flag, 'TEST', srand])
-        np.savetxt('preds_{}/preds_test_{}_srand_{}.txt'.format(feat, optimum_complexity, srand), y_pred)
+        util.results_to_csv(file_name='exp_results/results_{}_{}_srand_spec.csv'.format(task, feat_type[0]),
+                            list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
+                            list_values=[os.path.basename(file_n), ga, feat_type[2], optimum_complexity, coef_test,
+                                         std_flag, 'TEST', srand])
+        # np.savetxt('preds_{}/preds_test_{}_srand_{}.txt'.format(feat, optimum_complexity, srand), y_pred)
         #
         # a = confusion_matrix(y_test, np.around(y_pred), labels=np.unique(y_train))
         # plot_confusion_matrix_2(a, np.unique(y_train), 'conf.png', cmap='Oranges', title="Spearman CC .365")

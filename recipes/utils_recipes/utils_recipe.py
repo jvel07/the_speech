@@ -49,28 +49,27 @@ def load_data_single(gauss, task, feat_type, n_feats, n_deltas, list_labels):
 # Format of the data labels required and file with the following headers:
 #    'file_name     label'  Example: 'file_name     label'
 #    'recording.wav label'. Example: 'train_0001.wav True', 'train_0002.wav 2 False', ...
-def load_data_full(gauss, task, feat_type, n_feats, n_deltas, list_labels):
+def load_data_compare2021(gauss, task, feat_type, n_feats, list_labels):
     list_datasets = ['train', 'dev', 'test']  # names for the datasets
-    # list_labels = ['y_train', 'y_dev']  # names for the labels
     dict_data = {}
     if (feat_type[0] == 'fisher') or (feat_type[0] == 'ivecs') or (feat_type[0] == 'xvecs'):
         # Load train, dev, test
         for item in list_datasets:
             # Set data directories
-            file_dataset = work_dir + '{}/{}/{}-{}{}-{}del-{}-{}.{}'.format(task, item, feat_type[0], n_feats, feat_type[1],
-                                                                            n_deltas, str(gauss), item, feat_type[0])
+            file_dataset = work_dir + '{0}/{1}/{2}-{3}{4}-{5}del-{6}-{7}.{8}'.format(task, item, feat_type[0], n_feats, feat_type[1],
+                                                                            feat_type[2], str(gauss), item, feat_type[0])
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
-            # dict_data['x_'+item] = np.load(file_dataset, allow_pickle=True)
             # Load labels
-            file_lbl_train = work_dir + '{}/labels/labels.csv'.format(task) # set data dir
+            file_lbl_train = work_dir + '{}/labels/{}.csv'.format(task, item) # set data dir
             df = pd.read_csv(file_lbl_train)
-            df_labels = df[df['file_name'].str.match(item)]
+            df_labels = df[df['filename'].str.match(item)]
             df_labels = df_labels.label.replace('?', list_labels[0])
             dict_data['y_'+item], enc = encode_labels(df_labels.values, list_labels) #  binarizing labels
-        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], enc
+        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], file_dataset, enc
     else:
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type[0]))
+
 
 # same as the above one but here test labels are known
 def load_data_full_2(gauss, task, feat_info, list_labels):
@@ -94,6 +93,20 @@ def load_data_full_2(gauss, task, feat_info, list_labels):
     else:
         raise ValueError("'{0}' is not a supported feature representation, please enter 'ivecs', 'fisher', or 'xvecs'.".format(feat_info[0]))
 
+
+# Create labels from the name of the wavs (specific for compare challenge 2021)
+# E.g. file name: 001_train_00001.wav where the 3rd character is the code of the label (1 in this case)
+def generate_lbl_from_wav_names(path_to_wavs, dest_path, labels_dict):
+    list_audios = os.listdir(path_to_wavs)
+    list_audios.sort()
+    new_list = []
+    for i in list_audios:
+        label_code = i[2]
+        label_cat = labels_dict[int(label_code)]
+        wav_name = i[4:]
+        new_list.append(wav_name + "," + label_cat)
+    np.savetxt('{}/{}.csv'.format(dest_path, os.path.basename(path_to_wavs)), new_list, delimiter=',', fmt='%s')
+    return new_list
 
 
 def load_data_alternate(gauss, task):

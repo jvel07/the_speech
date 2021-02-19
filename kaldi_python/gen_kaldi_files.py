@@ -31,7 +31,7 @@ def create_scp_kaldi(list_sets):
     dest_kaldi_folder = 'primates'
     for i in list_sets:
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/'.format(audio_folder)  # path to the audio
-        path = '/media/jvel/data/audio/{0}/{1}/'.format(audio_folder, i)  # path to the audio when it has train, dev, test partitions
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/{1}/'.format(audio_folder, i)  # path to the audio when it has train, dev, test partitions
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/dementia_new8k/'
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
         print(path)
@@ -44,7 +44,7 @@ def create_scp_kaldi(list_sets):
         for item2 in list_audios:
             new_list.append(item2 + ' ' + path + item2)
         # np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
-        np.savetxt('/home/jvel/Documents/kaldi/egs/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
+        np.savetxt('/home/jose/Documents/kaldi/egs/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
 
 # create_scp_kaldi(['class1_gen', 'class2_gen', 'class3_gen', 'class4_gen', 'class5_gen'])
 create_scp_kaldi(['train', 'dev', 'test'])
@@ -55,10 +55,10 @@ def create_utt2spk_kaldi(list_sets):
     task = 'primates'
     audio_folder = 'primates'
     for name in list_sets:
-        path = '/media/jvel/data/audio/{0}/{1}/'.format(audio_folder, name)  # path to the kaldi folder
+        path = '../data/audio/{0}/{1}/'.format(audio_folder, name)  # path to the kaldi folder
         print(path)
         list_audios = util.read_files_from_dir(path) #util.just_original_75()
-        df = pd.read_csv('/home/jvel/PycharmProjects/the_speech/data/{}/labels/labels.csv'.format(task), dtype=str)
+        df = pd.read_csv('../data/{}/labels/labels.csv'.format(task), dtype=str)
         # df.columns = ['id', 'label']
         # ids = df.file_name.values
         df_2 = df[df['file_name'].str.match(name)]
@@ -77,11 +77,11 @@ def create_utt2spk_kaldi_sep(list_sets):
     task = 'primates'
     audio_folder = 'primates'
     for name in list_sets:
-        path = '/media/jvel/data/audio/{0}/{1}/'.format(audio_folder, name)  # path to the kaldi folder
+        path = '../audio/{0}/{1}/'.format(audio_folder, name)  # path to the kaldi folder
         print(path)
         list_audios = os.listdir(path) #util.just_original_75()
         list_audios.sort()
-        df = pd.read_csv('/home/jvel/PycharmProjects/the_speech/data/{}/labels/{}.csv'.format(task, name), dtype=str)
+        df = pd.read_csv('../data/{}/labels/{}.csv'.format(task, name), dtype=str)
         df['label'] = df['label'].astype('category')
         df['label'] = df['label'].cat.codes
         ids = df.label.values
@@ -92,15 +92,15 @@ def create_utt2spk_kaldi_sep(list_sets):
         for i in list_audios:
             value = i + ' ' + i[0:3]
             new_list.append(value)
-        #
+
         # for i, j in zip(list_audios, ids):
         #     # kk = os.path.splitext(k)[0]
         #     value = '{}_{}'.format(str(j), i) + ' 00' + str(j)
-        #     # new_utt_name = '00{}_{}'.format(str(j), i)
+        #     new_utt_name = '00{}_{}'.format(str(j), i)
         #     new_list.append(value)
         #     # new_list.sort()
-        #     # os.rename('{0}{1}'.format(path, i), '{0}{1}'.format(path, new_utt_name))
-        np.savetxt('/home/jvel/Documents/kaldi/egs/{0}/data/{1}/utt2spk'.format(task, name), new_list, fmt="%s", delimiter=' ')
+        #     os.rename('{0}{1}'.format(path, i), '{0}{1}'.format(path, new_utt_name))
+        np.savetxt('/home/jose/Documents/kaldi/egs/{0}/data/{1}/utt2spk'.format(task, name), new_list, fmt="%s", delimiter=' ')
         # return new_list
 
 
@@ -112,7 +112,7 @@ def create_utt2spk_kaldi_2(list_sets):
     audio_folder = 'emotion_aibo_gen_classes'
     dest_kaldi_folder = 'emotion_aibo_gen'
     for i1 in list_sets:
-        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/{}/'.format(audio_folder, i1)  # when there's train, dev, test folders
+        path = '../../audio/{}/{}/'.format(audio_folder, i1)  # when there's train, dev, test folders
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{}/'.format(audio_folder) # when ther's just one folder
         # list_audios = np.genfromtxt('/media/jose/hk-data/PycharmProjects/the_speech/recipes/demencia94ABC/filt_UBMbea_lthan4secs.txt', dtype=str,
         # delimiter='\n')
