@@ -68,17 +68,19 @@ def get_frame_level(list_sets, n_batches):
 
 
 def get_xvecs(list_sets, dest_task):
-    obs = '389743_fbanks40'
+    obs = 'vad_aug'
     for i in list_sets:
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
-        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_23mf_train_only_srand_{1}/{0}/xvector.scp'.format(i, obs))
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_23mfcc_DNN_BEA16k_pretrained_{1}/{0}/xvector.scp'.format(i, obs))
         xvecs = []
         for j in range(len(dataset)):
             xvecs.append(dataset.__getitem__(j))
         x = np.vstack(xvecs)
-        np.savetxt('../data/{0}/{1}/xvecs-23mfcc-0del-{2}dim-train_dev-{4}-{3}.xvecs'.format(dest_task, i, x.shape[1], i, obs), x)
+        np.savetxt('../data/{0}/{1}/xvecs-23mfcc-0del-{2}dim-BEA16k_{4}-{3}.xvecs'.format(dest_task, i, x.shape[1], i, obs), x)
         # np.savetxt('../data/{0}/{1}/xvecs/xvecs-23mfcc-0del-{2}dim-pretrained-{3}.xvecs'.format(dest_task, dest_task, x.shape[1], dest_task), x)
         print(x.shape)
+
+get_xvecs(['train'], 'depression')
 
 
 def get_xvecs_2(list_sets, dest_task):
@@ -86,22 +88,25 @@ def get_xvecs_2(list_sets, dest_task):
     #               '764352323']
     srand_list = ['389743']
 
-    obs = 'aug'
-    feat = '40fbanks'
+    obs = 'vad'
+    feat = '23mfcc'
     for srand in srand_list:
         for i in list_sets:
             # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
             # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python'
             #                         '/exp_{0}_train_only_srand_{1}_{2}/{2}/xvector.scp'.format(feat,srand, obs, i))
             dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python'
-                                    '/exp_{0}_DNN_train_dev_srand_{1}_{2}/{3}/xvector.scp'.format(feat,srand, obs, i))
+                                    '/ORIG_exp_{0}_DNN_sre16_pretrained_{1}/{2}/xvector.scp'.format(feat, obs, i))
             xvecs = []
             for j in range(len(dataset)):
                 xvecs.append(dataset.__getitem__(j))
             x = np.vstack(xvecs)
-            file_name = '../data/{0}/{1}/xvecs-{6}-0del-{2}dim-train_dev-{5}_{4}-{3}.xvecs'.format(dest_task, i,
+            # file_name = '../data/{0}/{1}/xvecs-{6}-0del-{2}dim-train_dev-{5}_{4}-{3}.xvecs'.format(dest_task, i,
+            #                                                                                           x.shape[1], i,
+            #                                                                                           obs+'-voxcel', srand, feat)
+            file_name = '../data/{0}/{1}/xvecs-{5}-0del-{2}dim-sre16_{4}-{3}.xvecs'.format(dest_task, i,
                                                                                                       x.shape[1], i,
-                                                                                                      obs, srand, feat)
+                                                                                                      obs, feat)
             np.savetxt(file_name, x)
             # np.savetxt('../data/{0}/{1}/xvecs/xvecs-23mfcc-0del-{2}dim-pretrained-{3}.xvecs'.format(dest_task, dest_task, x.shape[1], dest_task), x)
             print(x.shape)
@@ -109,7 +114,7 @@ def get_xvecs_2(list_sets, dest_task):
             print()
 
 
-get_xvecs_2(['train', 'dev', 'test'], 'primates')
+# get_xvecs_2(['train', 'dev', 'test'], 'depression')
 
 def get_xvecs_as_dataframe(list_sets, dest_task):
     srand = 389743

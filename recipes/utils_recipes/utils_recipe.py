@@ -61,7 +61,7 @@ def load_data_compare2021(gauss, task, feat_type, n_feats, list_labels):
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
             # Load labels
-            file_lbl_train = work_dir + '{}/labels/{}.csv'.format(task, item) # set data dir
+            file_lbl_train = work_dir + '{}/labels/{}_orig.csv'.format(task, item) # set data dir
             df = pd.read_csv(file_lbl_train)
             df_labels = df[df['filename'].str.match(item)]
             df_labels = df_labels.label.replace('?', list_labels[0])

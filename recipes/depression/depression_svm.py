@@ -6,17 +6,17 @@ from scipy import stats
 
 
 # load data
-file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/finaldb.txt'
-df = pd.read_csv(file, delimiter='\t')
-x_train = df.drop(['fileName', 'BDI'], axis=1)
-x_train.fillna(0, inplace=True)
+file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/train/xvecs-23mfcc-0del-512dim-sre16_vad-train.xvecs'
+df = pd.read_csv(file, delimiter=' ')
+# x_train = df.drop(['fileName', 'BDI'], axis=1)
+# x_train.fillna(0, inplace=True)
 
-x_train['Sex'] = x_train['Sex'].astype('category')  # setting the 'sex' column as category
-x_train['Sex'] = x_train['Sex'].cat.codes  # encoding cat to numbers
+# x_train['Sex'] = x_train['Sex'].astype('category')  # setting the 'sex' column as category
+# x_train['Sex'] = x_train['Sex'].cat.codes  # encoding cat to numbers
 
-x_train = x_train.drop(['Age', 'Sex'], axis=1)  # dropping sex and age columns
+# x_train = x_train.drop(['Age', 'Sex'], axis=1)  # dropping sex and age columns
 
-x_train = x_train.values
+x_train = df.values
 y_train = df.BDI.values
 
 # std data

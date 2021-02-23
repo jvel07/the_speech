@@ -408,6 +408,24 @@ def loocv_NuSVR_cpu(X, Y, c, kernel):
     return array_preds, list_trues
 
 
+def loocv_SVR_cpu(X, Y, c, kernel):
+    svc = svm.SVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    loo = LeaveOneOut()
+
+    array_preds = np.zeros((len(Y),))
+    list_trues = np.zeros((len(Y),))
+
+    for train_index, test_index in loo.split(X=X):
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        pred = svc.predict(x_test)
+        array_preds[test_index] = pred
+        list_trues[test_index] = y_test
+
+    return array_preds, list_trues
+
+
 def skfcv_PCA_svmlinear_cpu(X, Y, n_folds, c, pca=0.97):
     # svc = svm.LinearSVC(C=c,  class_weight='balanced', max_iter=100000)
     svc = svm.SVC(kernel='linear', probability=True, C=c, verbose=0, max_iter=100000, class_weight='balanced')

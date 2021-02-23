@@ -18,7 +18,7 @@ from recipes.sleepiness.sleepiness_helper import load_data_full
 from recipes.sleepiness import sleepiness_helper as sh
 
 task = 'primates'
-feat_type = ['xvecs', 'fbanks', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
+feat_type = ['xvecs', 'mfcc', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
 
 # Loading data: 'fisher' or 'ivecs's, training and evaluating it
 # gaussians = [2, 4, 8, 16, 32, 64, 128, 256, 512]
@@ -37,32 +37,33 @@ preds_dev = 0
 srand_list = ['389743']
 
 dev_preds_dic = {}
-obs = 'aug'
+obs = 'vad'
 
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, y_test,  file_n = rutils.load_data_compare2021(
-                                            gauss='512dim-train_dev-{0}_{1}'.format(srand_list[0], obs),
-                                            # gauss='512dim-train_dev-{0}'.format(srand),
+                                            # gauss='512dim-train_dev-{0}_{1}'.format(srand_list[0], obs),
+                                            gauss='512dim-sre16_{0}'.format(obs),
                                             # gauss='{}g'.format(ga),
                                             task=task, feat_type=feat_type,
-                                            n_feats=40, list_labels=['chimpanze', 'geunon', 'mandrille', 'redcap',
+                                            n_feats=23, list_labels=['chimpanze', 'geunon', 'mandrille', 'redcap',
                                                                      'background'])
 
     # x_combined = np.concatenate((x_train, x_dev))
     # y_combined = np.concatenate((y_train, y_dev))
-
+    # lbl = df.values[:, -1]
+    # x_t = df.values[:, 1:-1]
     # x_combined, y_combined = shuffle(x_combined, y_combined)
     x_train, y_train = shuffle(x_train, y_train)
     x_dev, y_dev = shuffle(x_dev, y_dev)
 
-    std_flag = False
+    std_flag = True
     if std_flag:
         std_scaler = preprocessing.StandardScaler()
         x_train = std_scaler.fit_transform(x_train)
         x_dev = std_scaler.transform(x_dev)
 
-        x_combined = std_scaler.fit_transform(x_combined)
-        x_test = std_scaler.transform(x_test)
+        # x_combined = std_scaler.fit_transform(x_combined)
+        # x_test = std_scaler.transform(x_test)
 
     scores = []
     for c in list_c:
