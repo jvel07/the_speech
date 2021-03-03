@@ -26,12 +26,12 @@ def sel_spec_wavs():
 
 # generate kaldi scp file
 def create_scp_kaldi(list_sets):
-    task = 'primates'
-    audio_folder = 'primates_orig'
-    dest_kaldi_folder = 'primates'
+    task = 'CovidSpeech'
+    audio_folder = 'CovidSpeech'
+    dest_kaldi_folder = 'CovidSpeech'
     for i in list_sets:
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/'.format(audio_folder)  # path to the audio
-        path = '/media/jose/hk-data/audio/{0}/{1}/'.format(audio_folder, i)  # path to the audio when it has train, dev, test partitions
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/{1}/'.format(audio_folder, i)  # path to the audio when it has train, dev, test partitions
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/dementia_new8k/'
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
         print(path)
@@ -47,19 +47,19 @@ def create_scp_kaldi(list_sets):
         np.savetxt('/home/jose/Documents/kaldi/egs/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
 
 # create_scp_kaldi(['class1_gen', 'class2_gen', 'class3_gen', 'class4_gen', 'class5_gen'])
-# create_scp_kaldi(['train', 'dev', 'test'])
+create_scp_kaldi(['train', 'dev', 'test'])
 
 
 # when the labels are present with the speaker id and are stored in one single file
 def create_utt2spk_kaldi(list_sets):
-    task = 'primates'
-    audio_folder = 'primates_orig'
+    task = 'CovidSpeech'
+    audio_folder = 'CovidSpeech'
     for name in list_sets:
-        path = '/media/jose/hk-data/audio/{0}/{1}/'.format(audio_folder, name)  # path to the audio folder
+        path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/{1}/'.format(audio_folder, name)  # path to the audio folder
         print(path)
         list_audios = os.listdir(path) #util.just_original_75()
         list_audios.sort()
-        df = pd.read_csv('../data/{}/labels/{}.csv'.format(task, name), dtype=str)
+        # df = pd.read_csv('../data/{}/labels/{}.csv'.format(task, name), dtype=str)
         # df.columns = ['id', 'label']
         # ids = df.file_name.values
         # df_2 = df[df['filename'].str.match(name)]

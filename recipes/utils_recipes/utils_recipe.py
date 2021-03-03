@@ -12,8 +12,6 @@ work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu mach
 # work_dir2 = 'D:/VHD'
 
 
-
-
 # Encoding labels to numbers
 def encode_labels(_y, list_labels):
     le = preprocessing.LabelEncoder()

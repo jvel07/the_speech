@@ -68,19 +68,31 @@ def get_frame_level(list_sets, n_batches):
 
 
 def get_xvecs(list_sets, dest_task):
-    obs = 'vad_aug'
+    obs = '_VAD'
+    # obs = ''
+    feat = '23mfcc'
+    net = 'SRE16'
     for i in list_sets:
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
-        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_23mfcc_DNN_BEA16k_pretrained_{1}/{0}/xvector.scp'.format(i, obs))
+        # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/ORIG_exp_{2}_DNN_{3}_'
+        #                         '{1}/{0}/xvector.scp'.format(i, obs, feat, net))
+        # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_transfer_l/x_vectors'
+        #                         '/{0}/xvector.scp'.format(i, obs, feat, net))
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/SRE16_x_vectors_VAD/'
+                                '{0}/xvector.scp'.format(i))
         xvecs = []
         for j in range(len(dataset)):
             xvecs.append(dataset.__getitem__(j))
         x = np.vstack(xvecs)
-        np.savetxt('../data/{0}/{1}/xvecs-23mfcc-0del-{2}dim-BEA16k_{4}-{3}.xvecs'.format(dest_task, i, x.shape[1], i, obs), x)
+        file_name = '../data/{0}/{1}/xvecs-{5}-0del-{2}dim-{6}{4}-{3}.xvecs'.format(dest_task, i, x.shape[1], i,
+                                                                                         obs, feat, net)
+        np.savetxt(file_name, x)
         # np.savetxt('../data/{0}/{1}/xvecs/xvecs-23mfcc-0del-{2}dim-pretrained-{3}.xvecs'.format(dest_task, dest_task, x.shape[1], dest_task), x)
         print(x.shape)
+        print(file_name)
 
-get_xvecs(['train'], 'depression')
+
+get_xvecs(['train', 'dev', 'test'], 'CovidSpeech')
 
 
 def get_xvecs_2(list_sets, dest_task):

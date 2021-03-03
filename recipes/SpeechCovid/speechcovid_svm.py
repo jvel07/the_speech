@@ -1,3 +1,8 @@
+"""
+Created by José Vicente Egas López
+on 2021. 03. 02. 15 44
+
+"""
 import os
 
 import pandas as pd
@@ -17,7 +22,7 @@ from common.util import plot_confusion_matrix_2
 from recipes.sleepiness.sleepiness_helper import load_data_full
 from recipes.sleepiness import sleepiness_helper as sh
 
-task = 'primates'
+task = 'CovidSpeech'
 feat_type = ['xvecs', 'mfcc', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
 
 # Loading data: 'fisher' or 'ivecs's, training and evaluating it
@@ -25,29 +30,24 @@ feat_type = ['xvecs', 'mfcc', 0]  # provide the types of features, type of frame
 gaussians = [512]
 list_c = [1e-6, 1e-5, 1e-4, 1e-3, 0.01, 0.1]
 # list_c = [0.0001]
-list_nu = [0.5]
-# list_c = [0.001] # pretrainedXvecs
 
 preds_dev = 0
-# xvecs-23mfcc-0del-512dim-train_dev-7234786_fbanks-test.xvecs
-# Test results with 0.0001 - spe: 0.37575972110242667
 
 # srand_list = ['389743', '564896', '2656842', '2959019', '4336987', '7234786', '9612365', '423877642', '987236753',
 #               '764352323']
 srand_list = ['389743']
 
 dev_preds_dic = {}
-obs = 'VAD_aug'
-net = 'transferSRE16'
+obs = 'VAD'
+net = 'SRE16'
 
 for ga in gaussians:
-    x_train, x_dev, x_test, y_train, y_dev, y_test,  file_n = rutils.load_data_compare2021(
+    x_train, x_dev, x_test, y_train, y_dev, file_n, enc = rutils.load_data_compare2021(
                                             # gauss='512dim-train_dev-{0}_{1}'.format(srand_list[0], obs),
                                             gauss='512dim-{1}_{0}'.format(obs, net),
                                             # gauss='{}g'.format(ga),
                                             task=task, feat_type=feat_type,
-                                            n_feats=23, list_labels=['chimpanze', 'geunon', 'mandrille', 'redcap',
-                                                                     'background'])
+                                            n_feats=23, list_labels=['positive', 'negative'])
 
     # x_combined = np.concatenate((x_train, x_dev))
     # y_combined = np.concatenate((y_train, y_dev))
@@ -67,9 +67,10 @@ for ga in gaussians:
         # x_test = std_scaler.transform(x_test)
 
     scores = []
+    print(file_n)
     for c in list_c:
         posteriors, clf = svm_fits.train_linearsvm_cpu(x_train, y_train.ravel(), c=c, X_eval=x_dev, class_weight='balanced')
-        # posteriors = svm_fits.train_rbfsvm_cpu(x_train, y_train.ravel(), c=c, X_eval=x_dev, gamma=g)
+        # posteriors = svm_fits.train_rbfsvm_cpu(x_train, y_train.ravel(), c=c, X_eval=x_dev, gamma=0.55555555555555)
 
         # np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_k{}_{}_fisher_{}.txt'.format(folds, c, kernel), posteriors)
         y_pred = np.argmax(posteriors, axis=1)
@@ -77,14 +78,15 @@ for ga in gaussians:
         scores.append(uar)
         print("with", c, "-", uar)
 
-        # util.results_to_csv(file_name='exp_results/results_{}_{}_srand_spec.csv'.format(task, feat_type[0]),
-        #                     list_columns=['Exp. Details', 'Gaussians', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
-        #                     list_values=[os.path.basename(file_n), ga, feat_type[2], c, uar,
-        #                                  std_flag, 'DEV', srand])
+    best_c = list_c[np.argmax(scores)]
+    best_uar = np.max(scores)
+    util.results_to_csv(file_name='exp_results/results_{}_{}.csv'.format(task, feat_type[0]),
+                        list_columns=['Exp. Details', 'C', 'UAR', 'STD', 'NET', 'SET'],
+                        list_values=[os.path.basename(file_n), best_c, best_uar, std_flag, net, 'DEV'])
 
     # Train SVM model on the whole training data with optimum complexity and get predictions on test data
     optimum_complexity = list_c[np.argmax(scores)]
-    print('\nOptimum complexity: {0:.6f}'.format(optimum_complexity))
+    print('\nOptimum complexity: {0:.6f}'.format(optimum_complexity), best_uar)
 
     # Saving best dev posteriors
     # dev_preds = svm_fits.train_svr_gpu(x_train, y_train.ravel(), X_eval=x_dev, c=optimum_complexity, nu=0.5)
