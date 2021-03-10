@@ -38,8 +38,8 @@ preds_dev = 0
 srand_list = ['389743']
 
 dev_preds_dic = {}
-obs = 'VAD'
-net = 'SRE16'
+obs = 'VAD_SPK'
+net = 'coldDNN'
 
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, file_n, enc = rutils.load_data_compare2021(
@@ -51,13 +51,8 @@ for ga in gaussians:
 
     # x_combined = np.concatenate((x_train, x_dev))
     # y_combined = np.concatenate((y_train, y_dev))
-    # lbl = df.values[:, -1]
-    # x_t = df.values[:, 1:-1]
-    # x_combined, y_combined = shuffle(x_combined, y_combined)
-    x_train, y_train = shuffle(x_train, y_train)
-    x_dev, y_dev = shuffle(x_dev, y_dev)
 
-    std_flag = True
+    std_flag = False
     if std_flag:
         std_scaler = preprocessing.StandardScaler()
         x_train = std_scaler.fit_transform(x_train)

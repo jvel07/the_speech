@@ -11,11 +11,13 @@ import numpy as np
 from common import util
 
 task = 'depression'
-feat_type = ['23fbanks']
+feat_type = ['20fbanks']
+feat_2 = 'ivecs'
 
 net = 'BEA16k'
-file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/train/xvecs-{0}-0del-512dim-{1}_VAD_aug-train.' \
-       'xvecs'.format(feat_type[0], net)
+# file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/train/{2}-{0}-0del-512dim-{1}_VAD_aug-train.' \
+#        '{2}'.format(feat_type[0], net, feat_2)
+file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/depression/ivecs-20fbanks-0del-256g-depression.ivecs'
 df = pd.read_csv(file, delimiter=' ', header=None)
 
 # load labels

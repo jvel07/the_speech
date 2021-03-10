@@ -36,7 +36,6 @@ def load_data_full(gauss, task, feat_type, n_feats):
     else:
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type[0]))
 
-
 # linear transformation for predictions (see sleepiness paper)
 def linear_trans_preds(y_train, preds_dev, preds_test_orig):
     mean_y_train = np.mean(y_train)

@@ -7,6 +7,7 @@ import os
 
 from common import util
 
+
 # train ALL models: dubm, fubm, ivec-extractor
 def train_models(mfccs_ubm, feats_ivexc, diag, full, ivec_mdl, num_gauss, ivector_dim):
     num_iters = 100
@@ -149,7 +150,9 @@ def extract_ivecs(list_mfcc_files, g, list_fubms, mfcc_info, folder_name, recipe
             print("{} ivecs saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
 
 
-regex = re.compile(r'\d+') # to get the number of gaussians when reading the txt models
+regex = re.compile(r'\d+')  # to get the number of gaussians when reading the txt models
+
+
 # Use this when there already exists the fubm trained
 def compute_ivecs_pretr_ubms(list_mfcc_files, out_dir, file_ubm, recipe, folder_name):
     num_iters = 100
@@ -203,7 +206,7 @@ def compute_ivecs(list_n_gauss, list_mfcc_files, out_dir, list_files_ubm, recipe
     dest_data_dir_ivecs = out_dir + recipe + '/' + folder_name
     dest_data_dir_models = out_dir + 'UBMs/' + parent_dir_ubm
 
-    # Loading Files for UBM
+    # Loading mfcc Files for UBM
     list_feats = []
     for file_ubm in list_files_ubm:
         print("File of features for the UBM:", file_ubm)

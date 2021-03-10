@@ -84,3 +84,22 @@ np.savetxt('/media/jose/hk-data/PycharmProjects/the_speech/data/mask/probs_mask_
 
 # s = recall_score(y_dev, a, labels=[1, 0], average='macro')
 # print(s)
+
+# for renaming the cold db wavs for kaldi's format
+def cold_db():
+    a = '/media/jose/hk-data/PycharmProjects/the_speech/data/cold/labels/list-map-testlabels_bk.tsv'
+    df = pd.read_csv(a, sep='\t')
+    list_spk = []
+    list_new_wavs = []
+    audio_path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/cold_c/'
+    for idx, row in df.iterrows():
+        orig = row['original_name']
+        file_name = row['file_name']
+        label = row['cold']
+        spkid = orig[0:5]
+        set_first_char = file_name[0:2]
+        new_name = '{}{}_{}'.format(set_first_char, spkid, file_name)
+        list_spk.append(set_first_char+spkid)
+        list_new_wavs.append(new_name)
+        print(new_name)
+        os.rename(audio_path+file_name, audio_path+new_name)

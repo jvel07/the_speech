@@ -37,8 +37,8 @@ preds_dev = 0
 srand_list = ['389743']
 
 dev_preds_dic = {}
-obs = 'VAD_aug'
-net = 'transferSRE16'
+obs = 'vad'
+net = 'sre16'
 
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, y_test,  file_n = rutils.load_data_compare2021(

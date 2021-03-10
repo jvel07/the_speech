@@ -1,6 +1,6 @@
-# from data_preproc.mfccs import extract_mfccs
-from data_preproc.fisher import extract_fishers
-# from data_preproc.ivecs import extract_ivecs
+from data_preproc.mfccs import extract_mfccs
+# from data_preproc.fisher import extract_fishers
+from data_preproc.ivecs import extract_ivecs
 import numpy as np
 import os
 from common import util

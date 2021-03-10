@@ -9,12 +9,12 @@ from sklearn.model_selection import StratifiedKFold, KFold, LeaveOneOut, GridSea
     RepeatedStratifiedKFold
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, recall_score, make_scorer, precision_score
 from sklearn.svm import SVC
-import xgboost as xgb
+# import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
-from mango import Tuner, scheduler
-from scipy.stats import uniform
-from mango.domain.distribution import loguniform
+# from mango import Tuner, scheduler
+from scipy.stats import uniform, stats
+# from mango.domain.distribution import loguniform
 
 from classifiers.cross_val import StatifiedGroupK_Fold
 from common import metrics
@@ -400,6 +400,36 @@ def loocv_NuSVR_cpu(X, Y, c, kernel):
     for train_index, test_index in loo.split(X=X):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
+        svc.fit(x_train, y_train)
+        pred = svc.predict(x_test)
+        array_preds[test_index] = pred
+        list_trues[test_index] = y_test
+
+    return array_preds, list_trues
+
+
+def loocv_NuSVR_cpu_pearson(X, Y, c, kernel):
+    svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    loo = LeaveOneOut()
+
+    array_preds = np.zeros((len(Y),))
+    list_trues = np.zeros((len(Y),))
+
+    for train_index, test_index in loo.split(X=X):
+        corr_list = []
+        x_train, x_test = X[train_index], X[test_index]
+        y_train, y_test = Y[train_index], Y[test_index]
+        # doing feature selection based on the most correlated features
+        for idx_column_feature in range(len(x_train[1])):
+            corr, _ = stats.pearsonr(y_train, x_train[:, idx_column_feature])  # take corr
+            corr_list.append(abs(corr))  # collect the corr (abs) values
+        ordered_asc = sorted(corr_list, reverse=True)  # sort desc the corr list
+        min_corr = ordered_asc[0:20]  # and pick n most correlating # min_corr = # n higher correlated
+        indices = [index for index, item in enumerate(corr_list) if item in set(min_corr)]  # take the indices that correspond to the min_corr values in the corr_list
+        x_train_selected = x_train[indices]
+        y_train_selected = y_train[indices]
+        # keepfeats = find(corr >= min_corr)
+
         svc.fit(x_train, y_train)
         pred = svc.predict(x_test)
         array_preds[test_index] = pred

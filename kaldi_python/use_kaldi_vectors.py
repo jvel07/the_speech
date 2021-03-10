@@ -51,35 +51,38 @@ def get_frame_level_to_txt(list_features, batch_number):
 
 
 def get_frame_level(list_sets, n_batches):
-    feats_info = ['sleepiness', 'mfcc', 23, 0]  # [task, feat_type, n_feats, deltas]
+    feats_info = ['depression', 'fbank', 23, 0]  # [task, feat_type, n_feats, deltas]
     for _set in list_sets:
         feats = []
         for k in range(1, n_batches+1):
-            in_file = '/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/mfcc/raw_mfcc_{}.{}.scp'.format(_set, k)
+            in_file = '/home/jose/Documents/kaldi/egs/depression/data/mfcc/raw_{0}_{1}.{2}.scp'.format(feats_info[1],
+                                                                                                       _set, k)
             print(in_file)
             dataset = SPKID_Dataset(in_file)
             for j in range(len(dataset)):
                 feats.append(dataset.__getitem__(j))
-        out_file_name = '/media/jose/hk-data/PycharmProjects/the_speech/data/{0}/{1}/{2}_{0}_{3}_{1}_{4}del.{2}'.format(feats_info[0], _set, feats_info[1], feats_info[2], feats_info[3])
+        out_file_name = '/media/jose/hk-data/PycharmProjects/the_speech/data' \
+                        '/{0}/{1}/{2}_{0}_{3}_{1}_{4}del.{2}'.format(feats_info[0], _set,
+                                                                     feats_info[1], feats_info[2], feats_info[3])
         np.save(out_file_name, feats, allow_pickle=True)
         print('Saved', out_file_name)
 
-# get_frame_level(['train', 'dev', 'test'], 8)
+# get_frame_level(['train'], 1)
 
 
 def get_xvecs(list_sets, dest_task):
-    obs = '_VAD'
+    obs = '_VAD_SPK'
     # obs = ''
     feat = '23mfcc'
-    net = 'SRE16'
+    net = 'coldDNN'
     for i in list_sets:
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/ORIG_exp_{2}_DNN_{3}_'
         #                         '{1}/{0}/xvector.scp'.format(i, obs, feat, net))
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_transfer_l/x_vectors'
         #                         '/{0}/xvector.scp'.format(i, obs, feat, net))
-        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/SRE16_x_vectors_VAD/'
-                                '{0}/xvector.scp'.format(i))
+        dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/{0}_{2}_xvecs_VAD_spk/'
+                                '{1}/xvector.scp'.format(feat, i, net))
         xvecs = []
         for j in range(len(dataset)):
             xvecs.append(dataset.__getitem__(j))
