@@ -11,13 +11,11 @@ import numpy as np
 from common import util
 
 task = 'depression'
-feat_type = ['20fbanks']
-feat_2 = 'ivecs'
+exp_info = ['xvecs', '23fbanks', 'BEA16k']  # feat_type, frame-level feat, DNN class
 
-net = 'BEA16k'
-# file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/train/{2}-{0}-0del-512dim-{1}_VAD_aug-train.' \
-#        '{2}'.format(feat_type[0], net, feat_2)
-file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/depression/ivecs-20fbanks-0del-256g-depression.ivecs'
+file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/depression/{0}-{2}-0del-512dim-{1}_VAD_aug-train.{0}'\
+    .format(exp_info[0], exp_info[2], exp_info[1])
+# file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/depression/ivecs-20fbanks-0del-256g-depression.ivecs'
 df = pd.read_csv(file, delimiter=' ', header=None)
 
 # load labels
@@ -56,17 +54,20 @@ if std:
 
 # train SVR
 list_c = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]
-scores = []
-for c in list_c:
-    preds, trues = svm_fits.loocv_NuSVR_cpu(X=x_train, Y=y_train, c=c, kernel='linear')
-    # preds, trues = svm_fits.loocv_SVR_cpu(X=x_train, Y=y_train, c=c, kernel='linear')
-    corr, _ = stats.pearsonr(trues, preds)
-    scores.append(corr)
-    print("with {}:".format(c), corr)
+keep_feats = [42]
+for n in keep_feats:
+    scores = []
+    for c in list_c:
+        preds, trues = svm_fits.loocv_NuSVR_cpu_pearson(X=x_train, Y=y_train, c=c, kernel='linear', keep_feats=n)
+        # preds, trues = svm_fits.loocv_SVR_cpu(X=x_train, Y=y_train, c=c, kernel='linear')
+        corr, _ = stats.pearsonr(trues, preds)
+        scores.append(corr)
+        print("with {}:".format(c), corr)
+    print()
 
-best_c = list_c[np.argmax(scores)]
-best_corr = np.max(scores)
-# util.results_to_csv(file_name='exp_results/results_{}_{}.csv'.format(task, feat_type[0]),
-#                     list_columns=['Exp. Details', 'C', 'STD', 'x-vec model', 'PEARSON', 'Gender', 'Age'],
-#                     list_values=[os.path.basename(file), best_c, std, net, best_corr, concat_sex, concat_age])
+    best_c = list_c[np.argmax(scores)]
+    best_corr = np.max(scores)
+    util.results_to_csv(file_name='exp_results/results_depression.csv',#.format(task, feat_type[0]),
+                        list_columns=['Exp. Details', 'C', 'STD', 'x-vec model', 'PEARSON', 'Gender', 'Age', 'KeepFeats'],
+                        list_values=[os.path.basename(file), best_c, std, exp_info[2], best_corr, concat_sex, concat_age, n])
 

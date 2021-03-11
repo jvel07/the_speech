@@ -408,7 +408,19 @@ def loocv_NuSVR_cpu(X, Y, c, kernel):
     return array_preds, list_trues
 
 
-def loocv_NuSVR_cpu_pearson(X, Y, c, kernel):
+def feat_selection_spearman(x, y, keep_feats):
+    corr_list = []
+    for idx_column_feature in range(len(x[1])):
+        corr, _ = stats.pearsonr(y, x[:, idx_column_feature])  # take corr
+        corr_list.append(abs(corr))  # collect the corr (abs) values
+    ordered_asc = sorted(corr_list, reverse=True)  # sort desc the corr list
+    min_corr = ordered_asc[0:keep_feats]  # pick n most correlating # min_corr = # n higher correlated
+    indices = [index for index, item in enumerate(corr_list) if
+               item in set(min_corr)]  # take the indices that correspond to the min_corr values in the corr_list
+    return indices
+
+
+def loocv_NuSVR_cpu_pearson(X, Y, c, kernel, keep_feats):
     svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
     loo = LeaveOneOut()
 
@@ -416,22 +428,17 @@ def loocv_NuSVR_cpu_pearson(X, Y, c, kernel):
     list_trues = np.zeros((len(Y),))
 
     for train_index, test_index in loo.split(X=X):
-        corr_list = []
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = Y[train_index], Y[test_index]
         # doing feature selection based on the most correlated features
-        for idx_column_feature in range(len(x_train[1])):
-            corr, _ = stats.pearsonr(y_train, x_train[:, idx_column_feature])  # take corr
-            corr_list.append(abs(corr))  # collect the corr (abs) values
-        ordered_asc = sorted(corr_list, reverse=True)  # sort desc the corr list
-        min_corr = ordered_asc[0:20]  # and pick n most correlating # min_corr = # n higher correlated
-        indices = [index for index, item in enumerate(corr_list) if item in set(min_corr)]  # take the indices that correspond to the min_corr values in the corr_list
-        x_train_selected = x_train[indices]
-        y_train_selected = y_train[indices]
+        selected_idx_train = feat_selection_spearman(x_train, y_train, keep_feats)
+        x_train_selected = x_train[:, selected_idx_train]
+        x_test_selected = x_test[:, selected_idx_train]
         # keepfeats = find(corr >= min_corr)
+        # print(x_train_selected.shape)
 
-        svc.fit(x_train, y_train)
-        pred = svc.predict(x_test)
+        svc.fit(x_train_selected, y_train)
+        pred = svc.predict(x_test_selected)
         array_preds[test_index] = pred
         list_trues[test_index] = y_test
 
