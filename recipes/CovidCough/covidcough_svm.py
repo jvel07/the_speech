@@ -39,7 +39,7 @@ srand_list = ['389743']
 
 dev_preds_dic = {}
 obs = 'VAD'
-net = 'coldDNN'
+net = 'coughvidDNN'
 
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, file_n, enc = rutils.load_data_compare2021(

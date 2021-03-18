@@ -2,13 +2,15 @@ import os
 
 import pandas as pd
 from sklearn import preprocessing
+from sklearn.metrics import recall_score, roc_auc_score, f1_score
 
 from classifiers.svm_utils import svm_fits
 from scipy import stats
 import numpy as np
 
 # load data
-from common import util
+from common import util, metrics
+from common.metrics import calculate_sensitivity_specificity
 
 task = 'depression'
 exp_info = ['xvecs', '23fbanks', 'BEA16k']  # feat_type, frame-level feat, DNN class
@@ -47,27 +49,57 @@ y_train = df_lbl.label.values
 
 
 # std data
-std = True
+std = False
 if std:
     std_scaler = preprocessing.StandardScaler()
     x_train = std_scaler.fit_transform(x_train)
 
 # train SVR
 list_c = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]
-keep_feats = [42]
+keep_feats = [50, 100, 150, 200, 250, 300, 350, 400, 450]
 for n in keep_feats:
-    scores = []
+    corr_scores = []
+    uar_scores = []
+    auc_scores = []
+    f1_scores = []
+    spec_scores = []
+    sens_scores = []
+    eer_scores = []
+
     for c in list_c:
         preds, trues = svm_fits.loocv_NuSVR_cpu_pearson(X=x_train, Y=y_train, c=c, kernel='linear', keep_feats=n)
         # preds, trues = svm_fits.loocv_SVR_cpu(X=x_train, Y=y_train, c=c, kernel='linear')
         corr, _ = stats.pearsonr(trues, preds)
-        scores.append(corr)
-        print("with {}:".format(c), corr)
+        corr_scores.append(corr)
+
+        # binary class
+        trues_bin = np.copy(trues)
+        trues_bin[trues_bin < 13.5] = 0
+        trues_bin[trues_bin >= 13.5] = 1
+        preds_bin = np.copy(preds)
+        preds_bin[preds_bin < 13.5] = 0
+        preds_bin[preds_bin >= 13.5] = 1
+
+        auc = roc_auc_score(trues_bin, preds)
+        uar = recall_score(trues_bin, preds_bin, average='macro')
+        uar_scores.append(uar)
+        sens_scores.append(recall_score(trues_bin, preds_bin))
+        sensitivity, specificity, accuracy = calculate_sensitivity_specificity(trues_bin, preds_bin)
+        spec_scores.append(specificity)
+        f1 = f1_score(trues_bin, preds_bin)
+        f1_scores.append(f1)
+        eer = metrics.calculate_eer(trues_bin, preds_bin)
+        eer_scores.append(eer)
+
+        print("with {}:".format(c), corr, uar, sensitivity, specificity, f1, auc, eer)
     print()
 
-    best_c = list_c[np.argmax(scores)]
-    best_corr = np.max(scores)
-    util.results_to_csv(file_name='exp_results/results_depression.csv',#.format(task, feat_type[0]),
-                        list_columns=['Exp. Details', 'C', 'STD', 'x-vec model', 'PEARSON', 'Gender', 'Age', 'KeepFeats'],
-                        list_values=[os.path.basename(file), best_c, std, exp_info[2], best_corr, concat_sex, concat_age, n])
+    best_c = list_c[np.argmax(eer_scores)]
+    best_corr = np.max(corr_scores)
+    best_eer = np.min(eer_scores)
+    # util.results_to_csv(file_name='exp_results/results_depression_2.csv',#.format(task, feat_type[0]),
+    #                     list_columns=['Exp. Details', 'C', 'STD', 'UAR', 'SPEC', 'AUC',
+    #                                   'x-vec model', 'PEARSON', 'KeepFeats'],
+    #                     list_values=[os.path.basename(file), best_c, std, uar, specificity, auc,
+    #                                  exp_info[2], best_corr, n])
 

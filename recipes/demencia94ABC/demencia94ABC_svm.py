@@ -65,14 +65,14 @@ for ga in gaussians:
     # scores = dict.fromkeys(['exp', 'gauss', 'del', 'c', 'acc', 'f1', 'prec', 'rec', 'auc', 'auc-c0', 'auc', 'auc-c1', 'auc-c2'])
     for c in list_c:
         if pca_flag == False:
-            preds, trues, posteriors = svm_fits.skfcv_svm_cpu(X=x_train, Y=y_train, n_folds=5, c=c)
+            preds, trues, posteriors = svm_fits.skfcv_svm_cpu(X=x_train, Y=y_train, n_folds=5, c=c, kernel='linear')
         else:
             print("Training with PCA")
             preds, trues, posteriors = svm_fits.skfcv_PCA_svmlinear_cpu(X=x_train, Y=y_train, n_folds=5, c=c, pca=0.97)
 
         acc = accuracy_score(y_train, preds)
         auc = roc_auc_score(y_train, posteriors, multi_class='ovo', labels=np.unique(y_train))
-        aucs = metrics.roc_auc_score_multiclass(actual_class=y_train, pred_class=preds)
+        aucs = metrics.roc_auc_score_multiclass(actual_class=y_train, pred_class=preds)#np.mean(posteriors, axis=1))
         preds[preds == 2] = 1
         trues[trues == 2] = 1
         f1 = f1_score(trues, preds)

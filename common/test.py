@@ -103,3 +103,17 @@ def cold_db():
         list_new_wavs.append(new_name)
         print(new_name)
         os.rename(audio_path+file_name, audio_path+new_name)
+
+def fitler_coughvid_wavs():
+    files = glob.glob('/media/jose/hk-data/audio/public_coughvid/', '*.wav')
+    a = pd.read_csv('/home/jose/Documents/kaldi/egs/coughvid/metadata_compiled.csv')
+
+    best = a[a.cough_detected > 0.95]
+
+    count = 0
+    for idx, x in best.iterrows():
+        count = count + 1
+        orig = str(x['uuid']) + '.wav'
+        new_wav = 'train_{:04d}.wav'.format(count)
+        shutil.copyfile('/media/jose/hk-data/audio/public_coughvid/{}'.format(orig),
+                        '/media/jose/hk-data/PycharmProjects/the_speech/audio/coughvid/train/{}'.format(new_wav))

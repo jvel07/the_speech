@@ -2,6 +2,7 @@ from sklearn.metrics import make_scorer, roc_curve, recall_score
 from scipy.optimize import brentq
 from scipy.interpolate import interp1d
 from sklearn.metrics import roc_auc_score
+import numpy as np
 
 
 def calculate_eer(y_true, y_score):
@@ -38,3 +39,27 @@ def uar_scoring(y_true, y_pred, **kwargs):
     recall_score(y_true, y_pred, labels=[1, 0], average='macro')
     my_scorer = make_scorer(uar_scoring, greater_is_better=True)
     return my_scorer
+
+
+def calculate_sensitivity_specificity(y_test, y_pred_test):
+    # Note: More parameters are defined than necessary.
+    # This would allow return of other measures other than sensitivity and specificity
+
+    # Get true/false for whether a breach actually occurred
+    actual_pos = y_test == 1
+    actual_neg = y_test == 0
+
+    # Get true and false test (true test match actual, false tests differ from actual)
+    true_pos = (y_pred_test == 1) & (actual_pos)
+    false_pos = (y_pred_test == 1) & (actual_neg)
+    true_neg = (y_pred_test == 0) & (actual_neg)
+    false_neg = (y_pred_test == 0) & (actual_pos)
+
+    # Calculate accuracy
+    accuracy = np.mean(y_pred_test == y_test)
+
+    # Calculate sensitivity and specificity
+    sensitivity = np.sum(true_pos) / np.sum(actual_pos)
+    specificity = np.sum(true_neg) / np.sum(actual_neg)
+
+    return sensitivity, specificity, accuracy

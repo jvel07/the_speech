@@ -23,7 +23,7 @@ from recipes.sleepiness.sleepiness_helper import load_data_full
 from recipes.sleepiness import sleepiness_helper as sh
 
 task = 'CovidSpeech'
-feat_type = ['xvecs', 'mfcc', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
+feat_type = ['xvecs', 'spectrogram', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
 
 # Loading data: 'fisher' or 'ivecs's, training and evaluating it
 # gaussians = [2, 4, 8, 16, 32, 64, 128, 256, 512]
@@ -39,7 +39,7 @@ srand_list = ['389743']
 
 dev_preds_dic = {}
 obs = 'VAD_SPK'
-net = 'coldDNN'
+net = 'coldDNN_AUG'
 
 for ga in gaussians:
     x_train, x_dev, x_test, y_train, y_dev, file_n, enc = rutils.load_data_compare2021(
@@ -47,7 +47,7 @@ for ga in gaussians:
                                             gauss='512dim-{1}_{0}'.format(obs, net),
                                             # gauss='{}g'.format(ga),
                                             task=task, feat_type=feat_type,
-                                            n_feats=23, list_labels=['positive', 'negative'])
+                                            n_feats="", list_labels=['positive', 'negative'])
 
     # x_combined = np.concatenate((x_train, x_dev))
     # y_combined = np.concatenate((y_train, y_dev))

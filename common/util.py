@@ -108,15 +108,22 @@ def read_file_new_line_sep(filename):
     return list_of_lines
 
 
-# Reading a list of files from a directory regex e.g. '*.wav' or '*.mfc'
+# Reading a list of files from a directory regex e.g. '.wav' or '.mffc'
 def read_files_from_dir_reg(dir_name, regex):
     list_of_files = os.listdir(dir_name)
     pattern = re.compile(r'{}'.format(regex))
     file_list = []
     for entry in sorted(list_of_files):
-        if re.search(pattern, entry):  # fnmatch.fnmatch(entry, pattern):
+        if re.match(pattern, entry):  # fnmatch.fnmatch(entry, pattern):
             file_list.append(entry)
     return file_list
+
+"""
+import glob, os
+os.chdir("/mydir")
+for file in glob.glob("*.txt"):
+    print(file)
+"""
 
 
 # extracting numbers from strings. E.g. from '/home/egasj/PycharmProjects/the_speech/data/pcgita/UBMs/64/ubm/final.ubm'

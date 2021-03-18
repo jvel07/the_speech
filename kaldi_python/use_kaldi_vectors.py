@@ -73,8 +73,8 @@ def get_frame_level(list_sets, n_batches):
 def get_xvecs(list_sets, dest_task):
     obs = 'VAD'
     # obs = ''
-    feat = '23mfcc'
-    net = 'coldDNN'
+    feat = '40fbanks'
+    net = 'coughvidDNN'
     for i in list_sets:
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/ORIG_exp_{2}_DNN_{3}_'
@@ -104,7 +104,7 @@ def get_xvecs_2(list_sets, dest_task):
     srand_list = ['389743']
 
     obs = 'vad'
-    feat = '23mfcc'
+    feat = 'spectro'
     for srand in srand_list:
         for i in list_sets:
             # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
