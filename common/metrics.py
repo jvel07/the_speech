@@ -3,6 +3,7 @@ from scipy.optimize import brentq
 from scipy.interpolate import interp1d
 from sklearn.metrics import roc_auc_score
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def calculate_eer(y_true, y_score):
@@ -63,3 +64,5 @@ def calculate_sensitivity_specificity(y_test, y_pred_test):
     specificity = np.sum(true_neg) / np.sum(actual_neg)
 
     return sensitivity, specificity, accuracy
+
+

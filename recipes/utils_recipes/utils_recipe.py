@@ -1,7 +1,10 @@
+from glob import glob
+
 import numpy as np
 import pandas as pd
 import os
 from common import util
+# import arff
 
 
 from sklearn import preprocessing
@@ -54,7 +57,7 @@ def load_data_compare2021(gauss, task, feat_type, n_feats, list_labels):
         # Load train, dev, test
         for item in list_datasets:
             # Set data directories
-            file_dataset = work_dir + '{0}/{1}/{2}-{3}{4}-{5}del-{6}-{7}.{8}'.format(task, item, feat_type[0], n_feats, feat_type[1],
+            file_dataset = work_dir + '{0}/{1}/{2}/{2}-{3}{4}-{5}del-{6}-{7}.{8}'.format(task, item, feat_type[0], n_feats, feat_type[1],
                                                                             feat_type[2], str(gauss), item, feat_type[0])
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
@@ -182,3 +185,54 @@ def load_data_compare():
     y_devel, encoder = encode_labels(y_devel, ['mask', 'clear'])
 
     return X_train, X_devel, X_test, y_train, y_devel, encoder
+
+
+def load_feats_compare_2021(feature_folder, list_labels):
+    train_file = glob(os.path.join(feature_folder, 'train.*'))[0]
+    print("reading", train_file)
+    devel_file = glob(os.path.join(feature_folder, 'devel.*'))[0]
+    test_file = glob(os.path.join(feature_folder, 'test.*'))[0]
+    if "auDeep" in feature_folder:
+        label_index = -2
+    else:
+        label_index = -1
+    if train_file.endswith('.arff'):
+        with open(train_file) as f:
+            arff_data = arff.load(f)
+            train_X = np.array(arff_data['data'])[:, 1:label_index].astype(np.float32)
+            train_y = np.array(arff_data['data'])[:, label_index].astype(str)
+            feature_names = [attribute[0] for attribute in arff_data['attributes'][1:label_index]]
+
+        with open(devel_file) as f:
+            arff_data = arff.load(f)
+            devel_names = np.array(arff_data['data'])[:, 0]
+            devel_X = np.array(arff_data['data'])[:, 1:label_index].astype(np.float32)
+            devel_y = np.array(arff_data['data'])[:, label_index].astype(str)
+
+        with open(test_file) as f:
+            arff_data = arff.load(f)
+            test_names = np.array(arff_data['data'])[:, 0]
+            test_X = np.array(arff_data['data'])[:, 1:label_index].astype(np.float32)
+            test_y = np.array(arff_data['data'])[:, label_index].astype(str)
+    else:
+        train_df = pd.read_csv(train_file)
+        devel_df = pd.read_csv(devel_file)
+        test_df = pd.read_csv(test_file)
+        feature_names = list(train_df.columns)[1:label_index]
+
+        train_X = train_df.values[:, 1:label_index].astype(np.float32)
+        train_y = train_df.values[:, label_index].astype(str)
+        train_y, le = encode_labels(train_y, list_labels)
+
+        devel_names = devel_df.values[:, 0]
+        devel_X = devel_df.values[:, 1:label_index].astype(np.float32)
+        devel_y = devel_df.values[:, label_index].astype(str)
+        devel_y, le = encode_labels(devel_y, list_labels)
+
+
+        test_names = test_df.values[:, 0]
+        test_X = test_df.values[:, 1:label_index].astype(np.float32)
+        test_y = test_df.values[:, label_index].astype(str)
+        # test_y, le = encode_labels(test_y, list_labels)
+
+    return train_X, devel_X, test_X, train_y, devel_y, test_y

@@ -11,9 +11,10 @@ from recipes.sleepiness import sleepiness_helper as sh
 from common import util
 
 #
-# srand_list = ['389743', '564896', '2656842', '2959019', '4336987', '7234786', '423877642', '987236753']
+srand_list = ['389743', '564896', '2656842', '2959019', '4336987', '7234786', '9612365', '423877642', '987236753',
+              '764352323']
 # srand_list = ['9612365', '764352323']
-srand_list = ['764352323']
+# srand_list = ['764352323']
 
 df = pd.read_csv('../../data/sleepiness/labels/labels.csv')
 
@@ -27,41 +28,55 @@ df_labels = df[df['file_name'].str.match('test')]
 y_test = df_labels.label.values
 
 feat_type = 'spec'
-std_flag = False
+
+std_flag = True
+std = ''
+if std_flag:
+    stand = '_std'
+
 c = '0.001'
 
-best_preds_dev = []
-best_preds_test = []
+# selecting n random srands to train the SVR with
+for ra in [10]:
+    no_srand_randoms = ra  # reset the seed for the same set of numbers to appear every time
+    np.random.seed(7)  # for the seed to repeat everytime
+    srand_idx = np.random.choice(10, size=no_srand_randoms, replace=False)  # generating list of srands indices
+    selected_srands = [srand_list[index] for index in srand_idx]  # picking the corresponding srands
+    srands_info = ' '.join(selected_srands)  # for information purposes, convert list to string
 
-for srand in srand_list:
-    preds_dev = np.loadtxt('preds_{}/best_preds_dev_0.001_srand_{}.txt'.format(feat_type, srand))
-    coef_dev, p_std = stats.spearmanr(y_dev, preds_dev)
-    print("SRAND {} - dev".format(srand), coef_dev)
+    best_preds_dev = []
+    best_preds_test = []
 
-    best_preds_dev.append(preds_dev)
+    for srand in selected_srands:
+        preds_dev = np.loadtxt('preds_{}/best_preds_dev_0.0001_srand_{}{}.txt'.format(feat_type, srand, stand))
+        coef_dev, p_std = stats.spearmanr(y_dev, preds_dev)
+        print("SRAND {} - dev".format(srand), coef_dev)
 
-comb_dev = np.mean((best_preds_dev), axis=0)
+        best_preds_dev.append(preds_dev)
 
-res_dev_t = sh.linear_trans_preds_dev(y_train=y_train, preds_dev=comb_dev)
-tot_coef_dev, p_std = stats.spearmanr(y_dev, res_dev_t)
+    comb_dev = np.mean((best_preds_dev), axis=0)
 
-util.results_to_csv(file_name='exp_results/bests_comb_srand_xvecs_{}.csv'.format(feat_type),
-                    list_columns=['Exp. Details', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
-                    list_values=['xvecs_srand', c, tot_coef_dev, std_flag, 'DEV', "ALL"])
+    res_dev_t = sh.linear_trans_preds_dev(y_train=y_train, preds_dev=comb_dev)
+    tot_coef_dev, p_std = stats.spearmanr(y_dev, res_dev_t)
 
-# LOAD TEST PREDICTIONS
-for srand in srand_list:
-    preds_test = np.loadtxt('preds_{}/preds_test_0.001_srand_{}.txt'.format(feat_type, srand))
-    coef_test, p_std = stats.spearmanr(y_test, preds_test)
-    print("SRAND {} - test".format(srand), coef_test)
-    print()
-    best_preds_test.append(preds_test)
+    csv_name = 'results_srands_selected.csv'
+    util.results_to_csv(file_name='exp_results/{}'.format(csv_name),
+                        list_columns=['Exp. Details', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
+                        list_values=['xvecs_srand_{}'.format(feat_type), c, tot_coef_dev, std_flag, 'DEV', srands_info])
 
-comb_test = np.mean((best_preds_test), axis=0)
+    # LOAD TEST PREDICTIONS
+    for srand in selected_srands:
+        preds_test = np.loadtxt('preds_{}/preds_test_0.0001_srand_{}{}.txt'.format(feat_type, srand, stand))
+        coef_test, p_std = stats.spearmanr(y_test, preds_test)
+        print("SRAND {} - test".format(srand), coef_test)
+        print()
+        best_preds_test.append(preds_test)
 
-res_test_t = sh.linear_trans_preds_test(y_train=y_train, preds_dev=comb_dev, preds_test=comb_test)
-tot_coef_test, p_std = stats.spearmanr(y_test, res_test_t)
+    comb_test = np.mean((best_preds_test), axis=0)
 
-util.results_to_csv(file_name='exp_results/bests_comb_srand_xvecs_{}.csv'.format(feat_type),
-                    list_columns=['Exp. Details', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
-                    list_values=['xvecs_srand', c, tot_coef_test, std_flag, 'TEST', "ALL"])
+    res_test_t = sh.linear_trans_preds_test(y_train=y_train, preds_dev=comb_dev, preds_test=comb_test)
+    tot_coef_test, p_std = stats.spearmanr(y_test, res_test_t)
+
+    util.results_to_csv(file_name='exp_results/{}'.format(csv_name),
+                        list_columns=['Exp. Details', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
+                        list_values=['xvecs_srand_{}'.format(feat_type), c, tot_coef_test, std_flag, 'TEST', srands_info])

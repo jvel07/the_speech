@@ -45,21 +45,22 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, r
 
             # Files for storing the mean, covs and weights (priors) of the GMM
             file_means = out_dir + recipe + '/UBM/means_gmm_{}{}_{}del_{}g'.format(feats_info[0], feats_info[2],
-                                                                             feats_info[1], str(g))
+                                                                                   feats_info[1], str(g))
             file_covs = out_dir + recipe + '/UBM/covs_gmm_{}{}_{}del_{}g'.format(feats_info[0], feats_info[2],
-                                                                             feats_info[1], str(g))
+                                                                                 feats_info[1], str(g))
             file_priors = out_dir + recipe + '/UBM/priors_gmm_{}{}_{}del_{}g'.format(feats_info[0], feats_info[2],
-                                                                             feats_info[1], str(g))
+                                                                                     feats_info[1], str(g))
             try:
                 np.savetxt(file_means, means)
                 np.savetxt(file_covs, covs)
                 np.savetxt(file_priors, priors)
                 print("UBM statistics saved successfully.")
             except:
-                print("Error: couldn't save UBM statistics! Check that the path exists and try again.")
+                print("Error: couldn't save UBM statistics! Check that the path exists and try again.", )
 
             for feat in list_feat:  # iterating over the mfccs
-                fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), covs.transpose(), priors, square_root=True,
+                fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), covs.transpose(), priors,
+                                         square_root=True,
                                          normalized=True, improved=True)  # Extracting fishers from features
                 list_fishers.append(fish)
             # Output file (fishers)
@@ -68,12 +69,16 @@ def compute_fishers(list_n_clusters, list_mfcc_files, out_dir, list_files_ubm, r
                 str(feats_info[0]), feats_info[2], obs, g, folder_name)
             # util.save_pickle(file_fishers, list_fishers)  # save as pickle
             np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
-            print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape)
+            print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:",
+                  list_fishers[0].shape)
             print()
 
 
 # When the GMM-diagonals and -variances are already provided.
-regex = re.compile(r'\d+')  #  to find the specific format file of the provided model (usually '.mdl'; per Kaldi's format)
+regex = re.compile(
+    r'\d+')  # to find the specific format file of the provided model (usually '.mdl'; per Kaldi's format)
+
+
 def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder_name):
     # Loading File for UBM
     print("File for UBM:", file_ubm)
@@ -82,12 +87,13 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder
     # print(list_feats[0])
     print("Fisher-vecs will be extracted using {} number of Gaussians!".format(g))
     for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
-        list_feat = np.load(file_name, allow_pickle=True)  #  this list should contain all the mfccs per FILE
+        list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
         # for g in list_n_clusters:
         list_fishers = []
         # means, covs, priors = do_gmm(array_mfccs_ubm[:2000], g)  # training GMM (here not neccesary since we already have it)
         for feat in list_feat:  # iterating over the wavs (mfccs)
-            fish = vlf.fisher.fisher(feat.transpose(), means[:,:60].transpose(), vars[:,:60].transpose(), weights, improved=True)
+            fish = vlf.fisher.fisher(feat.transpose(), means[:, :60].transpose(), vars[:, :60].transpose(), weights,
+                                     improved=True)
             list_fishers.append(fish)  # Extracting fishers from features
         # Output file (fishers)
         info_num_feats = regex.findall(file_name)
@@ -96,8 +102,8 @@ def compute_fishers_pretr_ubm(list_mfcc_files, out_dir, file_ubm, recipe, folder
             int(info_num_feats[0]), obs, g, folder_name)
         util.save_pickle(file_fishers, list_fishers)  # save as pickle
         # np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
-        print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape, "\n")
-
+        print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:",
+              list_fishers[0].shape, "\n")
 
 
 # When the GMM-diagonals and -variances are already provided.
@@ -106,11 +112,12 @@ def compute_fishers_pretr_ubm_2(list_mfcc_files, out_dir, list_files_ubm, recipe
         # Loading File for UBM
         print("File for UBM:", os.path.basename(file_ubm))
         parent_dir_ubm = os.path.basename(os.path.dirname(os.path.dirname(list_files_ubm[0])))
-        vars, means, weights, g = get_diag_gmm_params(file_diag=file_ubm, out_dir=out_dir + 'UBMs/' + parent_dir_ubm + '/GMM_fishers/')
+        vars, means, weights, g = get_diag_gmm_params(file_diag=file_ubm,
+                                                      out_dir=out_dir + 'UBMs/' + parent_dir_ubm + '/GMM_fishers/')
 
         print("Fisher-vecs will be extracted using {} number of Gaussians!".format(g))
         for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
-            list_feat = np.load(file_name, allow_pickle=True)  #  this list should contain all the mfccs per FILE
+            list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
             list_fishers = []
             for feat in list_feat:  # iterating over the wavs (mfccs)
                 # Extracting fishers from features
@@ -119,7 +126,8 @@ def compute_fishers_pretr_ubm_2(list_mfcc_files, out_dir, list_files_ubm, recipe
             # Output file (fishers)
             # getting info about the number of frame-level feats and the deltas used (for naming the output files)
             # info_num_feats = regex.findall(os.path.basename(file_name))
-            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher/fisher-{}{}-{}del-{}g-{}.fisher'.format(feats_info[0], feats_info[2],
+            file_fishers = out_dir + recipe + '/' + folder_name + '/fisher/fisher-{}{}-{}del-{}g-{}.fisher'.format(
+                feats_info[0], feats_info[2],
                 feats_info[1], g, folder_name)
             util.save_pickle(file_fishers, list_fishers)  # save as pickle
             # np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt

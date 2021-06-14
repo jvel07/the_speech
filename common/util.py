@@ -1,5 +1,7 @@
 # import bob
 #import h5py
+import math
+
 import numpy as np
 import os, fnmatch
 import re
@@ -8,6 +10,7 @@ from itertools import zip_longest
 import pickle
 from shutil import copy
 import seaborn
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 from sklearn import preprocessing
@@ -216,7 +219,6 @@ def results_to_csv(file_name, list_columns, list_values):
             # print("File " + file_name + " updated!")
 
 
-
 # from a list of files and labels, take only the set of files that have a specified label value.
 # e.g. from the dataset parkinson's, take the file-names with PD label only.
 def take_only_specfic_label(wavs_dir, list_labels, lbl_value):
@@ -283,8 +285,27 @@ def plot_confusion_matrix_2(data, labels, output_filename, cmap, title):
 
     ax.set(ylabel="True Label", xlabel="Predicted Label")
 
-    plt.savefig(output_filename, bbox_inches='tight', dpi=300)
+    plt.savefig(output_filename, bbox_inches='tight', dpi=500)
     plt.close()
+
+
+def plot_figure(data, labels, legend_x, legend_y, output_filename):
+    plt.figure(1, figsize=(9, 6))
+    seaborn.set_style('whitegrid')
+    ax = seaborn.lineplot(data, labels)
+    ax.set(xlabel=legend_x, ylabel=legend_y)
+    plt.savefig(output_filename, bbox_inches='tight', dpi=1000, format='eps')
+    plt.close()
+
+
+def plot_multiple_histograms(df):
+    fig, axs = plt.subplots(2, 2, figsize=(9, 6))
+    sns.set_theme(style='whitegrid', font_scale=1)
+    sns.barplot(ax=axs[0, 0], x=df['UAR'], y=df['dims'])
+    sns.barplot(ax=axs[0, 1], x=df['AUC'], y=df['dims'])
+    sns.barplot(ax=axs[1, 1], x=df['CC'], y=df['dims'])
+    sns.barplot(ax=axs[1, 0], x=df['RMSE'], y=df['dims'])
+    plt.savefig('../recipes/depression/exp_results/metrics', bbox_inches='tight', dpi=500)
 
 
 # copies specific files contained within a python list to a path (directory)

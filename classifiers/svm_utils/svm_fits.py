@@ -301,10 +301,10 @@ def train_xgboost_regressor(X, Y, X_eval):
     return y_pred
 
 
-def train_linearSVR_cpu(X, Y, X_eval, c):
-    svr = svm.SVR(kernel='linear', C=c, max_iter=100000)
-    svr.fit(X, Y)
-    y_prob = svr.predict(X_eval)
+def train_svr_cpu(X, Y, X_eval, c, kernel='linear', nu=0.5):
+    svc = svm.NuSVR(kernel=kernel, C=c, max_iter=100000, nu=nu, gamma='auto')
+    svc.fit(X, Y)
+    y_prob = svc.predict(X_eval)
     return y_prob
 
 
@@ -412,6 +412,8 @@ def feat_selection_spearman(x, y, keep_feats):
     corr_list = []
     for idx_column_feature in range(len(x[1])):
         corr, _ = stats.pearsonr(y, x[:, idx_column_feature])  # take corr
+        # print("y", y.shape)
+        # print("x", x[:, idx_column_feature].shape)
         corr_list.append(abs(corr))  # collect the corr (abs) values
     ordered_asc = sorted(corr_list, reverse=True)  # sort desc the corr list
     min_corr = ordered_asc[0:keep_feats]  # pick n most correlating # min_corr = # n higher correlated
@@ -421,7 +423,9 @@ def feat_selection_spearman(x, y, keep_feats):
 
 
 def loocv_NuSVR_cpu_pearson(X, Y, c, kernel, keep_feats):
-    svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    from thundersvm import NuSVR as thunder
+    svc = thunder(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    # svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
     loo = LeaveOneOut()
 
     array_preds = np.zeros((len(Y),))

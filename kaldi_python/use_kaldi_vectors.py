@@ -73,7 +73,7 @@ def get_frame_level(list_sets, n_batches):
 def get_xvecs(list_sets, dest_task):
     obs = 'VAD'
     # obs = ''
-    feat = '40fbanks'
+    feat = 'spectrogram'
     net = 'coughvidDNN'
     for i in list_sets:
         # dataset = SPKID_Dataset('/media/jose/hk-data/PycharmProjects/the_speech/kaldi_python/exp_20mfcc/xvectors_demencia_94abc_bea16k_special/xvector.scp')
