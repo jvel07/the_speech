@@ -7,7 +7,8 @@ from sklearn.model_selection import LeaveOneOut
 
 from recipes.utils_recipes.utils_recipe import encode_labels
 
-work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu machine
+# work_dir = '/home/jvel/PycharmProjects/the_speech/data/'  # ubuntu machine
+work_dir = '../../data/'
 
 
 # E.g.: (4, 'mask', 'fisher') or 'ivecs'
@@ -23,8 +24,9 @@ def load_data_full(gauss, task, feat_type, n_feats):
         # Load train, dev, test
         for item in list_datasets:
             # Set data directories
-            file_dataset = work_dir + '{0}/{1}/{2}-{3}{4}-{5}del-{6}-{7}.{8}'.format(task, item, feat_type[0], n_feats, feat_type[1],
+            file_dataset = work_dir + '{0}/{1}/{2}-{3}{4}-{5}del-{6}_VAD-{7}.{8}'.format(task, item, feat_type[0], n_feats, feat_type[1],
                                                                             feat_type[2], str(gauss), item, feat_type[0])
+            # print(file_dataset)
             # Load datasets
             dict_data['x_'+item] = np.loadtxt(file_dataset)
             # Load labels
@@ -35,6 +37,7 @@ def load_data_full(gauss, task, feat_type, n_feats):
         return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], dict_data['y_test'], file_dataset
     else:
         raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_type[0]))
+
 
 # linear transformation for predictions (see sleepiness paper)
 def linear_trans_preds(y_train, preds_dev, preds_test_orig):

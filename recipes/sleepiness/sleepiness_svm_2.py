@@ -16,8 +16,9 @@ from common.util import plot_confusion_matrix_2
 from recipes.sleepiness.sleepiness_helper import load_data_full
 from recipes.sleepiness import sleepiness_helper as sh
 
+
 task = 'sleepiness'
-feat_type = ['xvecs', 'mfcc', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
+feat_type = ['xvecs', 'spectrogram', 0]  # provide the types of features, type of frame-level feats, and deltas to use e.g.: 'fisher', 'mfcc', 0
 
 # Loading data: 'fisher' or 'ivecs's, training and evaluating it
 # gaussians = [2, 4, 8, 16, 32, 64, 128, 256, 512]
@@ -35,37 +36,15 @@ srand_list = ['389743', '564896', '2656842', '2959019', '4336987', '7234786', '9
               '764352323']
 # srand_list = ['423877642', '987236753', '764352323']
 
-# selecting n random srands to train the SVR with
-for ra in [3,5,7,9]:
-    no_srand_randoms = ra  # reset the seed for the same set of numbers to appear every time
-    np.random.seed(7)  # for the seed to repeat everytime
-    srand_idx = np.random.choice(10, size=no_srand_randoms, replace=False)  # generating list of srands indices
-    selected_srands = [srand_list[index] for index in srand_idx]  # picking the corresponding srands
-    srands_info = ' '.join(selected_srands)  # for information purposes, convert list to string
+for srand in srand_list:
+    print("SRAND", srand)
+    x_train, x_dev, x_test, y_train, y_dev, y_test,  file_n = load_data_full(
+                                            # gauss='512dim-train_dev-{0}{1}'.format(srand, feat),
+                                            gauss='512dim-sleepinessDNN-{0}'.format(srand),
+                                            # gauss='{}g'.format(ga),
+                                            task=task, feat_type=feat_type,
+                                            n_feats='')
 
-    dev_preds_dic = {}
-    feat = '_spec'
-    list_xvecs_train = []
-    list_xvecs_dev = []
-    list_xvecs_test = []
-
-    for srand in srand_list :
-        print("SRAND", srand)
-        x_train, x_dev, x_test, y_train, y_dev, y_test,  file_n = load_data_full(
-                                                # gauss='512dim-train_dev-{0}{1}'.format(srand, feat),
-                                                gauss='512dim-sleepinessDNN-{0}'.format(srand),
-                                                # gauss='{}g'.format(ga),
-                                                task=task, feat_type=feat_type,
-                                                n_feats=23)
-        ensemble_feats = True
-        if ensemble_feats:
-            list_xvecs_train.append(x_train)
-            list_xvecs_dev.append(x_dev)
-            list_xvecs_test.append(x_test)
-            x_train = np.concatenate(list_xvecs_train, axis=1)
-            x_dev = np.concatenate(list_xvecs_dev, axis=1)
-            x_test = np.concatenate(list_xvecs_test, axis=1)
-            srand = srands_info
 
     x_combined = np.concatenate((x_train, x_dev))
     y_combined = np.concatenate((y_train, y_dev))
@@ -98,15 +77,15 @@ for ra in [3,5,7,9]:
     best_coef = np.max(spear_scores)
     print('\nOptimum complexity: {0:.6f}'.format(optimum_complexity))
 
-    csv_name = 'results_{}_srands_selected.csv'.format(task)
-    # util.results_to_csv(file_name='exp_results/{}'.format(csv_name),
-    #                     list_columns=['Exp. Details', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
-    #                     list_values=[os.path.basename(file_n), feat_type[2], optimum_complexity, best_coef,
-    #                                  std_flag, 'DEV', srand])
+    csv_name = 'results_{}_srands.csv'.format(task)
+    util.results_to_csv(file_name='exp_results/{}'.format(csv_name),
+                        list_columns=['Exp. Details', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
+                        list_values=[os.path.basename(file_n), feat_type[2], optimum_complexity, best_coef,
+                                     std_flag, 'DEV', srand])
 
     # Saving best dev posteriors
-    # dev_preds = svm_fits.train_svr_gpu(x_train, y_train.ravel(), X_eval=x_dev, c=optimum_complexity, nu=0.5)
-    # np.savetxt('preds{}/best_preds_dev_{}_srand_{}.txt'.format(feat, optimum_complexity, srand), dev_preds)
+    dev_preds = svm_fits.train_svr_gpu(x_train, y_train.ravel(), X_eval=x_dev, c=optimum_complexity, nu=0.5)
+    np.savetxt('preds_{}/best_preds_dev_{}_srand_{}.txt'.format(feat_type[1], optimum_complexity, srand), dev_preds)
 
     # Testing the model
     y_pred = svm_fits.train_svr_gpu(x_combined, y_combined.ravel(), X_eval=x_test, c=optimum_complexity, nu=list_nu[0])
@@ -120,7 +99,7 @@ for ra in [3,5,7,9]:
                         list_columns=['Exp. Details', 'Deltas', 'C', 'SPE', 'STD', 'SET', 'SRAND'],
                         list_values=[os.path.basename(file_n), feat_type[2], optimum_complexity, coef_test,
                                      std_flag, 'TEST', srand])
-    np.savetxt('preds_{}/preds_test_{}_srand_{}.txt'.format(feat, optimum_complexity, srand), y_pred)
+    np.savetxt('preds_{}/preds_test_{}_srand_{}.txt'.format(feat_type[1], optimum_complexity, srand), y_pred)
     #
     # a = confusion_matrix(y_test, np.around(y_pred), labels=np.unique(y_train))
     # plot_confusion_matrix_2(a, np.unique(y_train), 'conf.png', cmap='Oranges', title="Spearman CC .365")
