@@ -78,7 +78,7 @@ a_ivectors = np.vstack(ivectors_list)
 file = '../data/depression/depression/ivecs/ivecs-20mfcc-0del-256g-depression-2.ivecs'
 np.savetxt(file, a_ivectors, fmt='%.7f')
 
-with 0.01: 0.5645135111648696
+# with 0.01: 0.5645135111648696
 
 
 

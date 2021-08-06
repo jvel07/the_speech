@@ -113,7 +113,7 @@ def train_ivec_extractor(ivector_dim, feats_ivexc, fubm, ivec_mdl_out):
     return ivector_extractor
 
 
-# Extracting i-vecs when given the fubm and the ivec_extractor
+# Extracting i-vecs when given the fubm
 def extract_ivecs(list_mfcc_files, g, list_fubms, mfcc_info, folder_name, recipe, out_dir):
     # getting name of dirs
     parent_dir_ubm = os.path.basename(os.path.dirname(os.path.dirname(list_fubms[0])))  # ...For naming properly the models' files only
@@ -148,6 +148,45 @@ def extract_ivecs(list_mfcc_files, g, list_fubms, mfcc_info, folder_name, recipe
                                                                                       folder_name)
             np.savetxt(file_fishers, a_ivectors, fmt='%.7f')
             print("{} ivecs saved to:".format(len(a_ivectors)), file_fishers, "with shape:", a_ivectors.shape, '\n')
+
+
+# Extracting i-vecs when given the fubm and the ivector extractor
+def extract_ivecs_pret_ubm_ivexc(list_mfcc_files, g, list_fubms, list_extractors_files, mfcc_info, folder_name, recipe, out_dir):
+    # getting name of dirs
+    parent_dir_ubm = os.path.basename(os.path.dirname(os.path.dirname(list_fubms[0])))  # ...For naming properly the models' files only
+    dest_data_dir_ivecs = out_dir + recipe + '/' + folder_name
+    dest_data_dir_models = out_dir + 'UBMs/' + parent_dir_ubm
+
+    for model_fubm, ivec_extrac in zip(list_fubms, list_extractors_files):
+        print("Full-UBM model:", os.path.basename(model_fubm))
+        # Loading File for UBM
+        obs_ivec = ''
+        with io.open_or_fd(model_fubm, mode='r') as fd:
+            fubm = fd.read()
+        with io.open_or_fd(ivec_extrac, mode='r') as fd:
+             model_ivector = fd.read()
+        for file_name in list_mfcc_files:  # This list should contain the mfcc FILES within folder_name
+            list_feat = np.load(file_name, allow_pickle=True)  # this list should contain all the mfccs per FILE
+            print("Preparing to extract i-vecs from {0}, using {1} gaussians".format(os.path.basename(file_name), g))
+            ivectors_list = []
+            n_gselect = int(np.log2(g))
+            ivec_dims = int(np.log2(g) * (len(list_feat[0][1])))  # the ivec dims is given by log2(numgaussians) * mfcc features dim
+            file_ivec_extractor_model = dest_data_dir_models + '/ivec_models/ivec_mdl_{0}g_{1}{2}-{3}del_{4}.ivexc'.format(g, mfcc_info[0], mfcc_info[2], mfcc_info[1], recipe)
+            # print("extractor path", file_ivec_extractor_model)
+            # model_ivector = train_ivec_extractor(ivector_dim=ivec_dims, feats_ivexc=list_feat, fubm=fubm, ivec_mdl_out=file_ivec_extractor_model)
+            print("Extracting i-vector features...")
+            for i2 in list_feat:  # extracting i-vecs
+                ivector_array = bob.kaldi.ivector_extract(i2, fubm, model_ivector, num_gselect=n_gselect)
+                ivectors_list.append(ivector_array)
+            a_ivectors = np.vstack(ivectors_list)
+            print("i-vectors shape:", a_ivectors.shape)
+            # Output file (i-vectors)
+            obs = '{}del'.format(mfcc_info[1])  # getting number of deltas info
+            # output file for the ivecs
+            file_ivec = dest_data_dir_ivecs + '/ivecs/ivecs-{}{}-{}-{}g-{}.ivecs'.format(str(mfcc_info[0]), mfcc_info[2], obs, g,
+                                                                                      folder_name)
+            np.savetxt(file_ivec, a_ivectors, fmt='%.7f')
+            print("{} ivecs saved to:".format(len(a_ivectors)), file_ivec, "with shape:", a_ivectors.shape, '\n')
 
 
 regex = re.compile(r'\d+')  # to get the number of gaussians when reading the txt models

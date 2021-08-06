@@ -10,8 +10,6 @@ from common import util
 import numpy as np
 
 
-
-
 #  Getting MFCCs from wavs
 def mfccs_librosa(path, audio_list, num_feats):
     list_mfccs = []

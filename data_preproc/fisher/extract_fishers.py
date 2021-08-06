@@ -121,7 +121,7 @@ def compute_fishers_pretr_ubm_2(list_mfcc_files, out_dir, list_files_ubm, recipe
             list_fishers = []
             for feat in list_feat:  # iterating over the wavs (mfccs)
                 # Extracting fishers from features
-                fish = vlf.fisher.fisher(feat.transpose(), means.transpose(), vars.transpose(), weights, improved=True)
+                fish = vlf.fisher.fisher(feat, means, vars, weights, improved=True)
                 list_fishers.append(fish)
             # Output file (fishers)
             # getting info about the number of frame-level feats and the deltas used (for naming the output files)
@@ -129,6 +129,6 @@ def compute_fishers_pretr_ubm_2(list_mfcc_files, out_dir, list_files_ubm, recipe
             file_fishers = out_dir + recipe + '/' + folder_name + '/fisher/fisher-{}{}-{}del-{}g-{}.fisher'.format(
                 feats_info[0], feats_info[2],
                 feats_info[1], g, folder_name)
-            util.save_pickle(file_fishers, list_fishers)  # save as pickle
-            # np.savetxt(file_fishers, list_fishers, fmt='%.7f')  # save as txt
+            # util.save_pickle(file_fishers, list_fishers)  # save as pickle
+            np.savetxt(file_fishers, list_fishers)#, fmt='%.7f')  # save as txt
             # print("{} fishers saved to:".format(len(list_fishers)), file_fishers, "with (1st ele.) shape:", list_fishers[0].shape, "\n")
