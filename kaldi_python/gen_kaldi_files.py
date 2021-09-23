@@ -30,7 +30,7 @@ def create_scp_kaldi(list_sets):
     audio_folder = 'spontan_munka'
     dest_kaldi_folder = 'multiple_sclerosis'
     for i in list_sets:
-        path = '/media/jvel/data/audio/MS/{0}/'.format(audio_folder)  # path to the audio
+        path = '/media/jvel/data/audio/MS/{0}/'.format(i)  # path to the audio
         # path = '/media/jvel/data/audio/MS/{0}/{1}/'.format(audio_folder, i)  # path to the audio when it has train, dev, test partitions
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/dementia_new8k/'
         # work_dir = '/home/egasj/kaldi/egs/cold/audio/wav-bea-diktafon'  # dir of the project
@@ -44,10 +44,10 @@ def create_scp_kaldi(list_sets):
         for item2 in list_audios:
             new_list.append(item2 + ' ' + path + item2)
         # np.savetxt('/home/jose/Documents/kaldi/egs/{}/data/{}/wav.scp'.format(task, dest_kaldi_folder), new_list, fmt="%s", delimiter=' ')
-        np.savetxt('/home/jvel/Documents/nfs/kaldi/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
+        np.savetxt('/home/jvel/Documents/kaldi/egs/{0}/data/{1}/wav.scp'.format(task, i), new_list, fmt="%s", delimiter=' ')
 
 # create_scp_kaldi(['class1_gen', 'class2_gen', 'class3_gen', 'class4_gen', 'class5_gen'])
-create_scp_kaldi(['train'])#, 'dev', 'test'])
+create_scp_kaldi(['fonetika', 'igefluencia', 'narrative_recall', 'sgap', 'spontan_hobbi', 'velemeny'])#, 'dev', 'test'])
 
 
 # when the labels are present with the speaker id and are stored in one single file
@@ -56,7 +56,7 @@ def create_utt2spk_kaldi(list_sets):
     audio_folder = 'spontan_munka'
     for name in list_sets:
         # path = '/media/jose/hk-data/PycharmProjects/the_speech/audio/{0}/{1}/'.format(audio_folder, name)  # path to the audio folder
-        path = '/media/jvel/data/audio/MS/{0}/'.format(audio_folder)  # path to the audio folder
+        path = '/media/jvel/data/audio/MS/{0}/'.format(name)  # path to the audio folder
         print(path)
         list_audios = os.listdir(path) #util.just_original_75()
         list_audios.sort()
@@ -72,10 +72,10 @@ def create_utt2spk_kaldi(list_sets):
             ii = os.path.splitext(file_name)[0]
             # ii = ii[0:7]
             new_list.append(file_name + ' ' + ii)  # spkid is the same as the wav_name
-        np.savetxt('/home/jvel/Documents/nfs/kaldi/{0}/data/{1}/utt2spk'.format(task, name), new_list, fmt="%s", delimiter=' ')
+        np.savetxt('/home/jvel/Documents/kaldi/egs/{0}/data/{1}/utt2spk'.format(task, name), new_list, fmt="%s", delimiter=' ')
         # return new_list
 
-create_utt2spk_kaldi(['train'])#, 'dev', 'test'])
+create_utt2spk_kaldi(['fonetika', 'igefluencia', 'narrative_recall', 'sgap', 'spontan_hobbi', 'velemeny'])#, 'dev', 'test'])
 
 # when the labels are present with the speaker id and are stored in separated files
 def create_utt2spk_kaldi_sep(list_sets):
