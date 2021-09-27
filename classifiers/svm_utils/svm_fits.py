@@ -271,7 +271,7 @@ def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds, metric):
     #                                                                              nested_CV_search.variance))
 
 
-def train_svm_gpu(X, Y, X_eval, c, kernel, gamma):
+def train_svm_gpu(X, Y, X_eval, c, kernel='linear', gamma='auto'):
     from thundersvm import SVC as thunder
     svc = thunder(kernel=kernel, C=c, probability=True, gamma=gamma, class_weight='balanced', max_iter=100000, gpu_id=0)
     svc.fit(X, Y)

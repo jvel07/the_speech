@@ -19,7 +19,7 @@ audio_dir = '/media/jvel/data/audio/MS/'
 out_dir = work_dir + 'data/'
 
 # List of audio-sets (folder(s) containing audio samples) i.e. train, dev, test...
-list_sets = ['spontan_munka']
+list_sets = ['fonetika', 'igefluencia', 'narrative_recall', 'sgap', 'spontan_hobbi', 'velemeny']
 
 # Name of the folder containing the UBM (not the path)
 ubm_folder_name = 'wav16k_split_long'
@@ -29,6 +29,7 @@ ubm_folder_name = 'wav16k_split_long'
 list_n_clusters = [2, 4, 8, 16, 32, 64, 128, 256]
 # list_n_clusters = [256]
 # list_n_clusters = [64]
+
 
 # Computes mfccs from wavs existing in the directories provided by the user
 def do_mfccs():
@@ -78,7 +79,7 @@ def do_fishers_pretrained_ubm():
     ubm_dir = '/media/jvel/data/UBMs/' + ubm_folder_name + '/ivec_models/'  # where the diagonal ubms live
     # list_ubm_files = util.traverse_dir(ubm_dir, '.dubm')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
 
-    list_sets = ['spontan_munka']
+    # list_sets = ['spontan_munka']
     for g in list_n_clusters:
         for deltas in [0, 1, 2]:
             # info-purpose parameters from the frame-level extracted features #
@@ -142,7 +143,7 @@ def do_ivecs_pretrained_mdls():
     # list_ubm_files = util.traverse_dir(ubm_dir, '.dubm')  #  reading all the files with .mdl or .dubm as format (latter is more reliable)
 
     for g in list_n_clusters:
-        for deltas in [1, 2]:
+        for deltas in [0, 1, 2]:
             # info-purpose parameters from the frame-level extracted features #
             feats_info_ubm = [20, deltas,
                               'mfcc']  # info of the features (n_features/dimension, deltas, cepstral_type=choose between mfcc or plp)
@@ -191,5 +192,5 @@ def steps(i):
 
 
 steps(5)
-# step(4)
+# steps(6)
 # steps(2)
