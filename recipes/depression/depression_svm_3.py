@@ -15,7 +15,7 @@ from common.metrics import calculate_sensitivity_specificity
 task = 'depression'
 exp_info = ['xvecs', '23fbanks', 'BEA16k_VAD_aug']  # feat_type, frame-level feat, DNN class
 
-file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/depression/{0}-{2}-0del-512dim-{1}-train.{0}'\
+file = '/home/jvel/PycharmProjects/the_speech/data/depression/depression/{0}-{2}-0del-512dim-{1}-train.{0}'\
     .format(exp_info[0], exp_info[2], exp_info[1])
 # file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/depression/ivecs-20fbanks-0del-256g-depression.ivecs'
 df = pd.read_csv(file, delimiter=' ', header=None)

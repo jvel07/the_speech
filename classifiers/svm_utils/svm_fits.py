@@ -242,7 +242,30 @@ def train_skfcv_SVM_cpu(X, Y, n_folds, c):
 # recall_macro_scorer = make_scorer(recall_macro, greater_is_better=True)
 
 
-def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds, metric):
+def train_nested_cv_nuSVR(X, Y, metric, kernel='linear'):
+    inner_cv = KFold(n_splits=3, shuffle=True, random_state=42)
+    outer_cv = KFold(n_splits=10, shuffle=True, random_state=42)
+    svc = svm.NuSVR(kernel=kernel, max_iter=100000)
+    p_grid = {'C': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]}
+    # p_grid = {'nu': [0.2, 0.5]}
+
+    # CV generator inner (n_splits), outter (n_repeats)
+    # cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_folds)
+    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_cv, scoring=metric,
+                       refit=True)  # scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
+    clf.fit(X, Y)
+    nested_score = cross_val_score(clf, X, Y, cv=outer_cv, scoring=metric, n_jobs=-1)
+
+    print(nested_score)
+    print(np.mean(nested_score), np.std(nested_score))
+
+    return np.mean(nested_score)
+
+
+def train_nested_cv_lsvm(X, Y, metric):
+    inner_cv = KFold(n_splits=3, shuffle=True, random_state=42)
+    outer_cv = KFold(n_splits=10, shuffle=True, random_state=42)
+
     svc = svm.LinearSVC(max_iter=100000, class_weight='balanced')
     # svc = svm.NuSVC(max_iter=100000, class_weight='balanced')
     p_grid = {'C': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1]}
@@ -250,10 +273,10 @@ def train_nested_cv_lsvm(X, Y, inner_folds, outer_folds, metric):
 
     # CV generator inner (n_splits), outter (n_repeats)
     # cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_folds)
-    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_folds, scoring=metric,
+    clf = GridSearchCV(estimator=svc, param_grid=p_grid, cv=inner_cv, scoring=metric,
                        refit=True)  # scoring=['precision_macro', 'recall_macro', 'accuracy', 'f1'], refit=False)
     clf.fit(X, Y)
-    nested_score = cross_val_score(clf, X, Y, cv=outer_folds, scoring='f1', n_jobs=-1)
+    nested_score = cross_val_score(clf, X, Y, cv=outer_cv, scoring=metric, n_jobs=-1)
 
     print(nested_score)
     print(np.mean(nested_score), np.std(nested_score))
@@ -287,11 +310,11 @@ def train_svr_gpu(X, Y, X_eval, c, kernel='linear', nu=0.5):
     return y_prob
 
 
-def train_linearsvm_cpu(X, Y, X_eval, c, class_weight):
+def train_linearsvm_cpu(X, Y, X_eval, c, class_weight='balanced'):
     svc = svm.LinearSVC(C=c, class_weight=class_weight, max_iter=100000)
     svc.fit(X, Y)
     y_prob = svc._predict_proba_lr(X_eval)
-    return y_prob, svc
+    return y_prob#, svc
 
 
 def train_xgboost_regressor(X, Y, X_eval):

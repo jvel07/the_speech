@@ -88,10 +88,11 @@ def load_compare_data():
 
     return X_test, Y_test, X_combined, Y_combined
 
+
 def load_embeddings():
-    train_df = pd.read_csv('/home/jvel/PycharmProjects/the_speech/data/cold/embeddings/train_embeddings_ast.csv')
-    dev_df = pd.read_csv('/home/jvel/PycharmProjects/the_speech/data/cold/embeddings/dev_embeddings_ast.csv')
-    test_df = pd.read_csv('/home/jvel/PycharmProjects/the_speech/data/cold/embeddings/test_embeddings_ast.csv')
+    train_df = pd.read_csv('/home/egasj/PycharmProjects/the_speech/data/cold/embeddings/train_embeddings_ast.csv')
+    dev_df = pd.read_csv('/home/egasj/PycharmProjects/the_speech/data/cold/embeddings/dev_embeddings_ast.csv')
+    test_df = pd.read_csv('/home/egasj/PycharmProjects/the_speech/data/cold/embeddings/test_embeddings_ast.csv')
 
     x_train = train_df.iloc[:, :-2].values
     y_train = train_df.iloc[:, -1:].values
@@ -103,6 +104,7 @@ def load_embeddings():
     y_test = test_df.iloc[:, -1:].values
 
     return x_train, x_dev, x_test, y_train, y_dev, y_test
+
 
 def load_xvectors():
     # Set data directories
