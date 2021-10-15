@@ -2,6 +2,7 @@
 #import h5py
 import math
 
+import h5py
 import numpy as np
 import os, fnmatch
 import re
@@ -291,7 +292,7 @@ def plot_confusion_matrix_2(data, labels, output_filename, cmap, title):
 
 def plot_figure(data, labels, legend_x, legend_y, output_filename):
     plt.figure(1, figsize=(9, 6))
-    seaborn.set_style('whitegrid')
+    seaborn.set_theme(style='whitegrid', font_scale=1.5)
     ax = seaborn.lineplot(data, labels)
     ax.set(xlabel=legend_x, ylabel=legend_y)
     plt.savefig(output_filename, bbox_inches='tight', dpi=1000, format='eps')
@@ -299,14 +300,17 @@ def plot_figure(data, labels, legend_x, legend_y, output_filename):
 
 
 def plot_multiple_histograms(df):
-    fig, axs = plt.subplots(2, 2, figsize=(9, 6))
-    sns.set_theme(style='whitegrid', font_scale=1)
-    sns.barplot(ax=axs[0, 0], x=df['UAR'], y=df['dims'])
-    sns.barplot(ax=axs[0, 1], x=df['AUC'], y=df['dims'])
-    sns.barplot(ax=axs[1, 1], x=df['CC'], y=df['dims'])
-    sns.barplot(ax=axs[1, 0], x=df['RMSE'], y=df['dims'])
-    plt.savefig('../recipes/depression/exp_results/metrics', bbox_inches='tight', dpi=500)
+    fig, axs = plt.subplots(2, 1, figsize=(15, 7))
+    fig.subplots_adjust(hspace=0.5)
+    sns.set_theme(style='whitegrid', font_scale=1.5)
+    # sns.barplot(ax=axs[0, 0], x=df['UAR'], y=df['dims'])
+    sns.lineplot(ax=axs[0], y=df['AUC'], x=df['dims'])
+    sns.lineplot(ax=axs[1], y=df['PEARSON'], x=df['dims'])
+    # sns.barplot(ax=axs[1, 0], x=df['RMSE'], y=df['dims'])
+    plt.savefig('exp_results/metrics2', bbox_inches='tight', dpi=1000)
+    plt.close(fig)
 
+# plot_multiple_histograms(df1)
 
 # copies specific files contained within a python list to a path (directory)
 def copy_from_list_to_dir(list_of_files, orig_path, dest_path):
@@ -333,7 +337,7 @@ def select_type_recording(id_type):
     pattern = re.compile(regex)
 
 
-#   For adding the labels from each speaker to each speaker's wav (3 wavs per speaker)
+#   For adding the labels from each speaker to each speaker's wav (3 wavs per speaker) dementia recipe
 def putting_labels(labels_file, wavs_list_file):
     labels = []
     with open(labels_file, 'r') as csvfile:

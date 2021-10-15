@@ -17,7 +17,6 @@ def read_as_dict(file):
 class Dataset(object):
     pass
 
-
 class SPKID_Dataset(Dataset):
     # Loads i-vectors/x-vectors for the data
     def __init__(self, vector_scp):

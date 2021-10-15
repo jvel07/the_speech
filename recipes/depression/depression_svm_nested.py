@@ -25,11 +25,11 @@ def pearson_scoring(y_true, y_pred, **kwargs):
 my_scorer = make_scorer(pearson_scoring, greater_is_better=True)
 
 task = 'depression'
-exp_info = ['xvecs', '23fbanks', 'BEA16k_VAD_aug']  # feat_type, frame-level feat, DNN class
+exp_info = ['xvecs', '23mfcc', 'sre16_VAD']  # feat_type, frame-level feat, DNN class
 
 file = '/home/jvel/PycharmProjects/the_speech/data/depression/{0}-{2}-0del-512dim-{1}-train.{0}' \
     .format(exp_info[0], exp_info[2], exp_info[1])
-# file = '/media/jose/hk-data/PycharmProjects/the_speech/data/depression/depression/ivecs-20fbanks-0del-256g-depression.ivecs'
+# file = '/home/jvel/PycharmProjects/the_speech/data/depression/ivecs/ivecs-20mfcc-0del-256g-depression.ivecs'
 df = pd.read_csv(file, delimiter=' ', header=None)
 
 # load labels
@@ -70,10 +70,10 @@ if std:
 # configure the cross-validation procedure
 cv_outer = KFold(n_splits=10, shuffle=True, random_state=42)
 
-keep_feats_flag = True
-keep_feats = [25, 50, 75, 100, 125, 150, 175, 200]
+keep_feats_flag = False
+# keep_feats = [25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350]
 # keep_feats = [150, 514]
-# keep_feats = [160]
+keep_feats = ['None']
 
 feats_cc_scores = []
 feats_mrsq_scores = []
@@ -91,6 +91,9 @@ for n in keep_feats:
     spec_scores = []
     sens_scores = []
     eer_scores = []
+
+    array_preds = np.zeros((len(y),))
+    list_trues = np.zeros((len(y),))
 
     for train_ix, test_ix in cv_outer.split(X):
         # split data
@@ -115,39 +118,42 @@ for n in keep_feats:
         best_model = result.best_estimator_
         # evaluate model on the hold out dataset
         yhat = best_model.predict(X_test)
+        # appending preds and trues
+        array_preds[test_ix] = yhat
+        list_trues[test_ix] = y_test
 
-        # Pearson's CC
-        corr, _ = stats.pearsonr(y_test, yhat)
-        corr_scores.append(corr)
+    # Pearson's CC
+    corr, _ = stats.pearsonr(list_trues, array_preds)
+    corr_scores.append(corr)
 
-        # binary class
-        trues_bin = np.copy(y_test)
-        trues_bin[trues_bin < 13.5] = 0
-        trues_bin[trues_bin >= 13.5] = 1
-        preds_bin = np.copy(yhat)
-        preds_bin[preds_bin < 13.5] = 0
-        preds_bin[preds_bin >= 13.5] = 1
+    # binary class
+    trues_bin = np.copy(list_trues)
+    trues_bin[trues_bin < 13.5] = 0
+    trues_bin[trues_bin >= 13.5] = 1
+    preds_bin = np.copy(array_preds)
+    preds_bin[preds_bin < 13.5] = 0
+    preds_bin[preds_bin >= 13.5] = 1
 
-        # metrics
-        auc = roc_auc_score(trues_bin, yhat)
-        auc_scores.append(auc)
-        uar = recall_score(trues_bin, preds_bin, average='macro')
-        uar_scores.append(uar)
-        sens_scores.append(recall_score(trues_bin, preds_bin))
-        sensitivity, specificity, accuracy = calculate_sensitivity_specificity(trues_bin, preds_bin)
-        spec_scores.append(specificity)
-        f1 = f1_score(trues_bin, preds_bin)
-        f1_scores.append(f1)
-        # eer = metrics.calculate_eer(trues_bin, preds_bin)
-        eer = mean_squared_error(y_test, yhat, squared=False)
-        eer_scores.append(eer)
+    # metrics
+    auc = roc_auc_score(trues_bin, array_preds)
+    auc_scores.append(auc)
+    uar = recall_score(trues_bin, preds_bin, average='macro')
+    uar_scores.append(uar)
+    sens_scores.append(recall_score(trues_bin, preds_bin))
+    sensitivity, specificity, accuracy = calculate_sensitivity_specificity(trues_bin, preds_bin)
+    spec_scores.append(specificity)
+    f1 = f1_score(trues_bin, preds_bin)
+    f1_scores.append(f1)
+    # eer = metrics.calculate_eer(trues_bin, preds_bin)
+    eer = mean_squared_error(list_trues, array_preds, squared=False)
+    eer_scores.append(eer)
 
-        # print("with {}:".format(c), corr)
-        print("corr:", corr, "uar:", uar, "spec:", specificity, "sens:", sensitivity,
-              "AUC:", auc, "F1:", f1, "RMSE:", eer)
+    # print("with {}:".format(c), corr)
+    print("corr:", corr, "uar:", uar, "spec:", specificity, "sens:", sensitivity,
+          "AUC:", auc, "F1:", f1, "RMSE:", eer)
 
-        # report progress
-        print('est=%.3f, cfg=%s' % (result.best_score_, result.best_params_))
+    # report progress
+    print('est=%.3f, cfg=%s' % (result.best_score_, result.best_params_))
     # summarize the estimated performance of the model
     print("***** SUMMARIZED PERFORMANCES ******")
     print('PEARSONS: %.3f (%.3f)' % (np.mean(corr_scores), np.std(corr_scores)))
@@ -158,11 +164,16 @@ for n in keep_feats:
     print('F1: %.3f (%.3f)' % (np.mean(f1_scores), np.std(f1_scores)))
     print('EER: %.3f (%.3f)' % (np.mean(eer_scores), np.std(eer_scores)))
 
-    util.results_to_csv(file_name='exp_results/results_depression_nestedCV.csv',#.format(task, feat_type[0]),
-                        list_columns=['Exp. Details', 'C', 'STD', 'UAR', 'SPEC', 'SENS', 'AUC', 'f1', 'EER', 'PEARSON',
-                                      'x-vec model', 'KeepFeats'],
-                        list_values=[os.path.basename(file), str(result.best_params_), std,
-                                     np.mean(uar_scores), np.mean(spec_scores), np.mean(sens_scores),
-                                     np.mean(auc_scores), np.mean(f1_scores), np.mean(eer_scores),
-                                     np.mean(corr_scores),
-                                     exp_info[2], n])
+    # util.results_to_csv(file_name='exp_results/results_depression_nestedCV_2.csv',#.format(task, feat_type[0]),
+    #                     list_columns=['Exp. Details', 'C', 'STD', 'UAR', 'SPEC', 'SENS', 'AUC', 'f1', 'EER', 'PEARSON',
+    #                                   'x-vec model', 'KeepFeats'],
+    #                     # list_values=[os.path.basename(file), str(result.best_params_), std,
+    #                     #              np.mean(uar_scores), np.mean(spec_scores), np.mean(sens_scores),
+    #                     #              np.mean(auc_scores), np.mean(f1_scores), np.mean(eer_scores),
+    #                     #              np.mean(corr_scores),
+    #                     #              exp_info[2], n])
+    #                     list_values=[os.path.basename(file), str(result.best_params_), std,
+    #                                  uar, specificity, sensitivity,
+    #                                  auc, f1, eer,
+    #                                  corr,
+    #                                  exp_info[2], n])
