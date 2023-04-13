@@ -446,9 +446,7 @@ def feat_selection_spearman(x, y, keep_feats):
 
 
 def loocv_NuSVR_cpu_pearson(X, Y, c, kernel, keep_feats):
-    from thundersvm import NuSVR as thunder
-    svc = thunder(kernel=kernel, C=c, verbose=0, max_iter=100000)
-    # svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
+    svc = svm.NuSVR(kernel=kernel, C=c, verbose=0, max_iter=100000)
     loo = LeaveOneOut()
 
     array_preds = np.zeros((len(Y),))

@@ -3,28 +3,7 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/kaldi_python/gen_kaldi_files.py">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/kaldi_python/use_kaldi_vectors.py">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/recipes/primates/primates_svm.py">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/recipes/utils_recipes/utils_recipe.py">
+        <entry key="/recipes/sleepiness/exp_results/results_srands_selected.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

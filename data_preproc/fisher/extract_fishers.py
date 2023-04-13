@@ -6,7 +6,7 @@ import cyvlfeat as vlf
 import numpy as np
 
 from common import util
-from kaldi_python.read_kaldi_gmm import get_diag_gmm_params
+# from kaldi_python.read_kaldi_gmm import get_diag_gmm_params
 
 
 def do_gmm(features, num_gaussian):

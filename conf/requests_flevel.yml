@@ -1,0 +1,9 @@
+mfcc:
+  sample_rate: 16000
+  n_mfcc: 40 # higher than the default which is 20.
+  win_length: 25  # the default is 25
+  hop_length: 10  # the default is 10
+  n_mels: 43
+  deltas: True
+fbank:
+  deltas: True
