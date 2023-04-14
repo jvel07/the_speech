@@ -31,7 +31,7 @@ list_sets = ['train', 'dev', 'test']
 
 # List of number of clusters wanted to use
 # list_n_clusters = [256]
-list_n_clusters = [2, 4, 8, 16, 32, 64, 128, 256]
+list_n_clusters = [2, 4, 8, 16, 32]
 # list_n_clusters = [256]
 # list_n_clusters = [64]
 
@@ -59,23 +59,27 @@ def do_fishers():
     cepstral_type = "mfcc"  # choose between "mfcc" or "fbank"
     params = config[cepstral_type]
     observation = 'Deltas{}'.format(str(params['deltas']))
-    feature_dir = '../../data/{0}/{1}/'.format(recipe)
+    # feature_dir = '/media/jvel/data/features/{}/'.format(recipe)
+    feature_dir = '/home/user/data/features/{}/'.format(recipe)
+    feats_info = [str(params['n_mfcc']), observation, cepstral_type] # needed termporarily... to be removed
 
     # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
     # this is: ../data/recipe_name/train/mfcc/40_mfcc_DeltasTrue
-    path_ubm_files = os.path.join(out_dir, recipe, 'train/{0}/{1}_{2}_{3}'.format(cepstral_type, str(params['n_mfcc']),
+    path_ubm_files = os.path.join(feature_dir, 'train/{0}/{1}_{2}_{3}'.format(cepstral_type, str(params['n_mfcc']),
                                                                                    cepstral_type, observation))
 
     list_files_ubm = glob.glob(path_ubm_files + '/*.mfcc')
 
     for dataset_folder in list_sets:
-        path_flevel_files = os.path.join(out_dir, recipe, '{4}/{0}/{1}_{2}_{3}'.format(cepstral_type, str(params['n_mfcc']),
+        print("Extracting from: {0}. Using deltas={1}".format(dataset_folder, params['deltas']))
+        path_flevel_files = os.path.join(feature_dir, '{4}/{0}/{1}_{2}_{3}'.format(cepstral_type, str(params['n_mfcc']),
                                                                                        cepstral_type, observation, dataset_folder))
 
         list_mfcc_files = glob.glob(path_flevel_files + '/*.mfcc')
-        print(list_mfcc_files)
-        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, out_dir, feats_info=feats_info,
-                                            list_files_ubm=list_files_ubm, recipe=recipe, folder_name=folder_name)
+        list_mfcc_files.sort()
+        # print(list_mfcc_files)
+        extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, feature_dir, feats_info=feats_info,
+                                        list_files_ubm=list_files_ubm[0:1500], recipe=recipe, folder_name=dataset_folder)
 
 
 def do_svm():
@@ -92,6 +96,6 @@ def steps(i):
     return func()
 
 
-steps(0)
-# steps(1)
+# steps(0)
+steps(1)
 # steps(2)
