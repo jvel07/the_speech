@@ -3,6 +3,9 @@ from glob import glob
 import numpy as np
 import pandas as pd
 import os
+
+from tqdm import tqdm
+
 from common import util
 # import arff
 
@@ -11,7 +14,7 @@ from sklearn import preprocessing
 
 
 # work_dir = 'C:/Users/Win10/PycharmProjects/the_speech/data/pcgita/' # windows machine
-work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu machine
+# work_dir = '/media/jose/hk-data/PycharmProjects/the_speech/data/'  # ubuntu machine
 # work_dir2 = 'D:/VHD'
 
 
@@ -236,3 +239,26 @@ def load_feats_compare_2021(feature_folder, list_labels):
         # test_y, le = encode_labels(test_y, list_labels)
 
     return train_X, devel_X, test_X, train_y, devel_y, test_y
+
+
+def load_features(feat_dir, task, gauss, feat_info, list_labels):
+    list_datasets = ['train', 'dev', 'test']  # names for the datasets
+    dict_data = {}
+    if (feat_info[0] == 'fisher') or (feat_info[0] == 'ivecs') or (feat_info[0] == 'xvecs'):
+        # Load train, dev, test
+        for folder_name in tqdm(list_datasets, desc='Loading features'):
+            # Set data directories
+            obs = str(feat_info[3])  # deltas
+            file_fishers = os.path.join(feat_dir, folder_name, feat_info[0], '{0}-{1}{2}-{3}-{4}g-{5}.fisher'.format(
+                str(feat_info[0]), feat_info[1], feat_info[2], obs, gauss, folder_name))
+            # Load datasets
+            dict_data['x_'+folder_name] = np.loadtxt(file_fishers)
+            # Load labels
+            file_lbl_train = feat_dir + 'labels/{}.csv'.format(folder_name) # set data dir
+            df = pd.read_csv(file_lbl_train)
+            df_labels = df[df['filename'].str.match(folder_name)]
+            df_labels = df_labels.request.replace('?', list_labels[0])
+            dict_data['y_'+folder_name], enc = encode_labels(df_labels.values, list_labels) #  binarizing labels
+        return dict_data['x_train'], dict_data['x_dev'], dict_data['x_test'], dict_data['y_train'], dict_data['y_dev'], file_fishers, enc
+    else:
+        raise ValueError("'{}' is not a supported feature representation, please enter 'ivecs' or 'fisher'.".format(feat_info[0]))

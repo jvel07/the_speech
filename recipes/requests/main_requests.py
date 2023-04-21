@@ -1,14 +1,21 @@
 import glob
+import os
+
 
 import yaml
 from tqdm import tqdm
+
+import sys
+# sys.path.append('/media/jvel/data/PycharmProjects/the_speech')
+sys.path.append('/home/user/Documents/code/the_speech/')
 
 from data_preproc.mfccs import extract_mfccs
 from data_preproc.fisher import extract_fishers
 # from data_preproc.ivecs import extract_ivecs
 import numpy as np
-import os
 from common import util
+
+
 
 # Name of the task/recipe/dataset/etc.
 import recipes.dementia_new8k.dementia_new8k_helper as ah
@@ -31,12 +38,14 @@ list_sets = ['train', 'dev', 'test']
 
 # List of number of clusters wanted to use
 # list_n_clusters = [256]
-list_n_clusters = [2, 4, 8, 16, 32]
+# list_n_clusters = [2, 4, 8, 16, 32, 64, 128]
+list_n_clusters = [32, 64, 128]
 # list_n_clusters = [256]
 # list_n_clusters = [64]
 
 with open("../../conf/requests_flevel.yml") as f:
     config = yaml.safe_load(f)
+
 
 # Computes mfccs from wavs existing in the directories provided by the user
 def do_mfccs():
@@ -61,25 +70,37 @@ def do_fishers():
     observation = 'Deltas{}'.format(str(params['deltas']))
     # feature_dir = '/media/jvel/data/features/{}/'.format(recipe)
     feature_dir = '/home/user/data/features/{}/'.format(recipe)
-    feats_info = [str(params['n_mfcc']), observation, cepstral_type] # needed termporarily... to be removed
 
     # Format is: "featureType_recipeName_nMFCCs_nDeltas.mfcc"
     # this is: ../data/recipe_name/train/mfcc/40_mfcc_DeltasTrue
-    path_ubm_files = os.path.join(feature_dir, 'train/{0}/{1}_{2}_{3}'.format(cepstral_type, str(params['n_mfcc']),
-                                                                                   cepstral_type, observation))
+    # this is: ../data/recipe_name/train/fbank/DeltasTrue
+    n_feats = params['n_mfcc'] if cepstral_type == 'mfcc' else params['n_mels']
+    feats_info = [n_feats, observation, cepstral_type]  # needed termporarily... to be removed
+    # if cepstral_type == 'mfcc':
+    path_ubm_files = os.path.join(feature_dir, 'train/{0}/{1}_{2}_{3}'.format(cepstral_type, n_feats,
+                                                                              cepstral_type, observation))
+    # elif cepstral_type == 'fbank':
+    #     path_ubm_files = os.path.join(feature_dir, 'train/{0}/{1}'.format(cepstral_type, observation))
+    list_files_ubm = glob.glob(path_ubm_files + '/*.{}'.format(cepstral_type))
 
-    list_files_ubm = glob.glob(path_ubm_files + '/*.mfcc')
+    # take random 1500 files from the train set to compute the UBM
+    size = 1500  # (12.5 hours of speech)
+    random_numbers = np.random.choice(len(list_files_ubm), size, replace=False)
+    list_array = np.array(list_files_ubm)
+    list_files_ubm_selected = list_array[random_numbers]
 
     for dataset_folder in list_sets:
         print("Extracting from: {0}. Using deltas={1}".format(dataset_folder, params['deltas']))
-        path_flevel_files = os.path.join(feature_dir, '{4}/{0}/{1}_{2}_{3}'.format(cepstral_type, str(params['n_mfcc']),
-                                                                                       cepstral_type, observation, dataset_folder))
-
-        list_mfcc_files = glob.glob(path_flevel_files + '/*.mfcc')
+        path_flevel_files = os.path.join(feature_dir, '{4}/{0}/{1}_{2}_{3}'.format(cepstral_type, n_feats,
+                                                                                   cepstral_type, observation,
+                                                                                   dataset_folder))
+        print(path_flevel_files)
+        list_mfcc_files = glob.glob(path_flevel_files + '/*.{}'.format(cepstral_type))
         list_mfcc_files.sort()
-        # print(list_mfcc_files)
+        print(len(list_mfcc_files))
         extract_fishers.compute_fishers(list_n_clusters, list_mfcc_files, feature_dir, feats_info=feats_info,
-                                        list_files_ubm=list_files_ubm[0:1500], recipe=recipe, folder_name=dataset_folder)
+                                        list_files_ubm=list_files_ubm_selected, recipe=recipe,
+                                        folder_name=dataset_folder)
 
 
 def do_svm():

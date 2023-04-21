@@ -7,3 +7,4 @@ mfcc:
   deltas: True
 fbank:
   deltas: True
+  n_mels: 40

@@ -314,7 +314,7 @@ def train_linearsvm_cpu(X, Y, X_eval, c, class_weight='balanced'):
     svc = svm.LinearSVC(C=c, class_weight=class_weight, max_iter=100000)
     svc.fit(X, Y)
     y_prob = svc._predict_proba_lr(X_eval)
-    return y_prob#, svc
+    return y_prob, svc
 
 
 def train_xgboost_regressor(X, Y, X_eval):
