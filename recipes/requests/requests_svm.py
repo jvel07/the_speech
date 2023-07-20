@@ -13,7 +13,7 @@ task = 'requests'
 
 with open("../../conf/requests_flevel.yml") as f:
     config = yaml.safe_load(f)
-cepstral_type = "mfcc"  # choose between "mfcc" or "fbank"
+cepstral_type = "fbank"  # choose between "mfcc" or "fbank"
 params = config[cepstral_type]
 observation = 'Deltas{}'.format(str(params['deltas']))
 
@@ -39,16 +39,12 @@ preds_dev = 0
 srand_list = ['389743']
 
 dev_preds_dic = {}
-obs = 'vad'
-net = 'sre16'
-
-
 
 for ga in gaussians:
     print("With gaussians: ", ga)
     x_train, x_dev, x_test, y_train, y_dev, file_n, enc = rutils.load_features(
                                             feat_dir='/home/user/data/features/{}/'.format(task),
-                                            task=task, gauss=ga, feat_info=feat_info, list_labels=['affil', 'presta'])
+                                            sub_task='complaint', gauss=ga, feat_info=feat_info, list_labels=['yes', 'no'])
     # x_combined = np.concatenate((x_train, x_dev))
     # y_combined = np.concatenate((y_train, y_dev))
     # lbl = df.values[:, -1]
